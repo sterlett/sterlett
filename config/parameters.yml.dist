@@ -1,0 +1,9 @@
+# This file is a "template" of what your parameters.yml file should look like
+# Set parameters here that may be different on each deployment target of the app, e.g. development, staging, production.
+# https://symfony.com/doc/current/best_practices/configuration.html#infrastructure-related-configuration
+parameters:
+    app.locale: ru
+
+    # Socket server configuration
+    app.server.host: 'tcp://0.0.0.0'
+    app.server.port: '%env(int:APP_SERVER_PORT)%'

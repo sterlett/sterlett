@@ -1,0 +1,19 @@
+
+services:
+    app.log.logger.stdout:
+        alias: 'app.bridge.wyrihaximus.react.psr3.stdio.date_time_aware_logger.stdout'
+        public: true
+
+    app.bridge.wyrihaximus.react.psr3.stdio.date_time_aware_logger.stdout:
+        class: Foundation\Bridge\WyriHaximus\React\Psr3\Stdio\DateTimeAwareLogger
+        arguments:
+            - '@wyrihaximus.react.psr3.stdio_logger.stdout'
+
+    # non-blocking, react-compatible
+    wyrihaximus.react.psr3.stdio_logger.stdout:
+        class: WyriHaximus\React\PSR3\Stdio\StdioLogger
+        factory: ['Foundation\Bridge\WyriHaximus\React\Psr3\Stdio\LoggerFactory', getLogger]
+        arguments:
+            - '@app.writable_stream.stdout'
+            - true
+            - true

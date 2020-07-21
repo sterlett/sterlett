@@ -1,0 +1,43 @@
+
+# Copyright (c) 2020 Pavel Petrov <itnelo@gmail.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses>.
+
+version: '3.8'
+
+services:
+    app:
+        build:
+            context: ./docker/${APP_ENV}/app
+            args:
+                PHP_VERSION: ${PHP_VERSION}
+                TIMEZONE: ${TIMEZONE}
+                DEPLOYMENT_PATH: ${DEPLOYMENT_PATH}
+        networks:
+            - back_bridge
+        ports:
+            - "${APP_SERVER_PORT}:${APP_SERVER_PORT}"
+        volumes:
+            - ${SOURCE_PATH}:${DEPLOYMENT_PATH}
+
+networks:
+    # Debugging example:
+    # docker-compose run -p 6636:6636 --rm app -d xdebug.remote_autostart=1 -d xdebug.remote_host=172.110.0.1 bin/app
+    # you can also try more convenient "host.docker.internal" for some systems.
+    back_bridge:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                -   subnet: 172.110.0.0/16

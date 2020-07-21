@@ -1,0 +1,8 @@
+
+services:
+    app.shutdown:
+        class: Foundation\Shutdown
+        public: true
+        arguments:
+            - '@app.log.logger.stdout'
+            - '@app.event_loop'

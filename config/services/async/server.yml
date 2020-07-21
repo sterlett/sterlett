@@ -1,0 +1,24 @@
+
+services:
+    app.server:
+        alias: 'app.bridge.react.http.server'
+        public: true
+
+    app.bridge.react.http.server:
+        class: Foundation\Bridge\React\Http\Server
+        arguments:
+            - '@app.log.logger.stdout'
+            - '@react.http.streaming_server'
+            - '@react.socket.tcp_server'
+
+    # react
+    react.http.streaming_server:
+        class: React\Http\StreamingServer
+        arguments:
+            - '@app.request.handler'
+
+    react.socket.tcp_server:
+        class: React\Socket\TcpServer
+        arguments:
+            - '%app.server.host%:%app.server.port%'
+            - '@app.event_loop'
