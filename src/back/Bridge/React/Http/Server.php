@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace Sterlett\Bridge\React\Http;
 
 use Exception;
-use Foundation\ServerInterface;
+use Sterlett\ServerInterface;
 use Psr\Log\LoggerInterface;
 use React\Http\StreamingServer;
 use React\Socket\TcpServer;

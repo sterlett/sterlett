@@ -23,7 +23,7 @@ ARG DEPLOYMENT_PATH
 ARG APP_SERVER_PORT_EXPOSE
 
 WORKDIR ${DEPLOYMENT_PATH}
-COPY . .
+COPY --chown=www-data:www-data . .
 
 USER root
 
@@ -51,6 +51,9 @@ COPY docker/dev/app/php.ini /usr/local/etc/php/conf.d/php.ini
 # composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
     composer install --no-dev --no-interaction --no-scripts --classmap-authoritative --ansi
+
+# permissions
+RUN chown www-data:www-data /var/www
 
 USER www-data
 

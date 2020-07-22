@@ -18,9 +18,10 @@ ARG PHP_VERSION
 
 FROM php:${PHP_VERSION}-cli
 
+ARG HOST_UID
 ARG TIMEZONE
 ARG DEPLOYMENT_PATH
-ARG APP_SERVER_PORT_EXPOSE
+ARG NODEJS_VERSION
 
 WORKDIR ${DEPLOYMENT_PATH}
 
@@ -43,6 +44,16 @@ COPY php.ini /usr/local/etc/php/conf.d/php.ini
 # composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
     composer --version
+
+# nodejs
+RUN curl -sL https://deb.nodesource.com/setup_${NODEJS_VERSION}.x | bash - && \
+    apt-get update && apt-get install -qy --no-install-recommends nodejs
+
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# permissions
+RUN chown www-data:www-data /var/www && \
+    usermod -u ${HOST_UID} www-data
 
 USER www-data
 

@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace Sterlett\Request\Handler;
 
 use Exception;
-use Foundation\Request\HandlerInterface;
+use Sterlett\Request\HandlerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as RequestInterface;
 use Psr\Log\LoggerInterface;

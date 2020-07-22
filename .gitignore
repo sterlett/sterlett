@@ -1,9 +1,13 @@
 .idea/
 
+config/parameters.yml
+
+node_modules/
+vendor/
+
+/public/build/*
+!/public/build/.gitkeep
+
 .env
 docker-compose.yml
 docker-compose.stack.yml
-
-vendor/
-
-config/parameters.yml

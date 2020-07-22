@@ -21,9 +21,11 @@ services:
         build:
             context: ./docker/${APP_ENV}/app
             args:
-                PHP_VERSION: ${PHP_VERSION}
+                HOST_UID: ${HOST_UID}
                 TIMEZONE: ${TIMEZONE}
                 DEPLOYMENT_PATH: ${DEPLOYMENT_PATH}
+                PHP_VERSION: ${PHP_VERSION}
+                NODEJS_VERSION: ${NODEJS_VERSION}
         networks:
             - back_bridge
         ports:

@@ -1,0 +1,17 @@
+{
+    "name": "sterlett",
+    "version": "0.1.0",
+    "license": "GPL-3.0-or-later",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/sterlett/sterlett.git"
+    },
+    "scripts": {
+        "build": "rollup -c"
+    },
+    "dependencies": {
+        "rollup": "^2.22.2",
+        "rollup-plugin-svelte": "^5.2.3",
+        "svelte": "^3.24.0"
+    }
+}

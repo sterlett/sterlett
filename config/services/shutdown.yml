@@ -1,7 +1,7 @@
 
 services:
     app.shutdown:
-        class: Foundation\Shutdown
+        class: Sterlett\Shutdown
         public: true
         arguments:
             - '@app.log.logger.stdout'

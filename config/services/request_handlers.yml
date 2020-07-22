@@ -5,6 +5,6 @@ services:
         public: true
 
     app.request.handler.example_handler:
-        class: Foundation\Request\Handler\ExampleHandler
+        class: Sterlett\Request\Handler\ExampleHandler
         arguments:
             - '@app.log.logger.stdout'

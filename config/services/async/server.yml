@@ -5,7 +5,7 @@ services:
         public: true
 
     app.bridge.react.http.server:
-        class: Foundation\Bridge\React\Http\Server
+        class: Sterlett\Bridge\React\Http\Server
         arguments:
             - '@app.log.logger.stdout'
             - '@react.http.streaming_server'
