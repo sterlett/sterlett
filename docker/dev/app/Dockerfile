@@ -27,6 +27,11 @@ WORKDIR ${DEPLOYMENT_PATH}
 
 USER root
 
+# system
+RUN apt-get update && apt-get install -qy --no-install-recommends \
+        # composer, to manage dependencies from composer.json
+        unzip
+
 # timezone
 RUN ln -snf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime && echo ${TIMEZONE} > /etc/timezone && \
     printf '[PHP]\ndate.timezone = "%s"\n', ${TIMEZONE} > /usr/local/etc/php/conf.d/tzone.ini && \

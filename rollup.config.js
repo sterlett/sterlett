@@ -1,12 +1,13 @@
 
 import svelte from 'rollup-plugin-svelte';
+import resolve from '@rollup/plugin-node-resolve';
 
 const production = !process.env.ROLLUP_WATCH;
 
 export default {
     input: 'src/front/main.js',
     output: {
-        sourcemap: true,
+        sourcemap: false,
         format: 'iife',
         name: 'app',
         file: 'public/build/bundle.js'
@@ -19,8 +20,13 @@ export default {
             // we'll extract any component CSS out into
             // a separate file - better for performance
             css: css => {
-                css.write('public/build/bundle.css');
+                css.write('public/build/bundle.css', false);
             }
+        }),
+
+        resolve({
+            browser: true,
+            dedupe: ['svelte']
         })
     ],
     watch: {

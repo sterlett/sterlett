@@ -35,10 +35,13 @@ WORKDIR /var/www/localhost/htdocs
 COPY --chown=lighttpd:lighttpd ./public .
 
 # permissions
-RUN chown -R lighttpd:lighttpd /var/www
+RUN chown lighttpd:lighttpd \
+    /var/www \
+    /var/www/localhost \
+    /var/www/localhost/htdocs
 
 USER lighttpd
 
 RUN mkdir /var/www/.lighttpd
 
-CMD ["lighttpd", "-D", "-f", "/etc/lighttpd/lighttpd-custom.conf"]
+CMD ["lighttpd", "-D", "-f", "/etc/lighttpd/lighttpd-custom.conf", "2>&1"]
