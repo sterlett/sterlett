@@ -51,6 +51,29 @@ services:
                     cpus: '0.25'
                     memory: 256M
 
+    lighttpd:
+        image: '${LIGHTTPD_STACK_IMAGE_NAME}:${LIGHTTPD_STACK_IMAGE_VERSION}'
+        networks:
+            - back_overlay
+        deploy:
+            mode: replicated
+            replicas: 1
+            placement:
+                constraints:
+                    - "node.role == worker"
+            restart_policy:
+                condition: on-failure
+                delay: 3s
+                max_attempts: 3
+                window: 15s
+            resources:
+                limits:
+                    cpus: '0.5'
+                    memory: 128M
+                reservations:
+                    cpus: '0.25'
+                    memory: 64M
+
     haproxy:
         image: 'haproxy:${HAPROXY_VERSION}'
         networks:
