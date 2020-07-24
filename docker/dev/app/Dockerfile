@@ -52,8 +52,8 @@ RUN curl -sL https://deb.nodesource.com/setup_${NODEJS_VERSION}.x | bash - && \
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # permissions
-RUN chown www-data:www-data /var/www && \
-    usermod -u ${HOST_UID} www-data
+RUN usermod -u ${HOST_UID} www-data && \
+    chown www-data:www-data /var/www
 
 USER www-data
 

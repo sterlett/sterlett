@@ -20,9 +20,10 @@ FROM php:${PHP_VERSION}-cli
 
 ARG TIMEZONE
 ARG DEPLOYMENT_PATH
-ARG APP_SERVER_PORT_EXPOSE
 
 WORKDIR ${DEPLOYMENT_PATH}
+
+# see .dockerignore
 COPY --chown=www-data:www-data . .
 
 USER root
@@ -49,12 +50,17 @@ RUN docker-php-ext-install pcntl
 COPY docker/dev/app/php.ini /usr/local/etc/php/conf.d/php.ini
 
 # composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
-    composer install --no-dev --no-interaction --no-scripts --classmap-authoritative --ansi
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # permissions
-RUN chown www-data:www-data /var/www
+RUN chown www-data:www-data /var/www ${DEPLOYMENT_PATH}
 
 USER www-data
+
+# dependencies
+RUN composer install --no-interaction --no-scripts --classmap-authoritative --ansi
+
+# configurations
+RUN cp config/parameters.yml.dev.dist config/parameters.yml
 
 CMD ["bin/app"]

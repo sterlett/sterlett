@@ -1,0 +1,11 @@
+.idea
+.git
+.gitignore
+config/parameters.yml
+node_modules
+tests
+vendor
+LICENSE
+*.md
+*.yml
+*.yml.dist
