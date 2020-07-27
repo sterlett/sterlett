@@ -15,9 +15,9 @@
 declare(strict_types=1);
 
 use Sterlett\Application;
+use Sterlett\Bridge\Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\ParameterBag\EnvPlaceholderParameterBag;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\Yaml\Yaml;
@@ -43,7 +43,7 @@ $parameterBag = new EnvPlaceholderParameterBag($config['parameters']);
 $container = new ContainerBuilder($parameterBag);
 
 // loading service definitions.
-$definitionLoader    = new YamlFileLoader($container, new FileLocator());
+$definitionLoader    = new YamlFileLoader($container, new FileLocator(), __DIR__ . '/../config/services.yml');
 $definitionFilePaths = [
     __DIR__ . '/../config/services/request_handlers.yml',
     __DIR__ . '/../config/services/loggers.yml',

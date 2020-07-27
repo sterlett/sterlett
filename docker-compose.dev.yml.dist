@@ -28,10 +28,32 @@ services:
                 NODEJS_VERSION: ${NODEJS_VERSION}
         networks:
             - back_bridge
-        ports:
-            - "${APP_SERVER_PORT}:${APP_SERVER_PORT}"
         volumes:
             - ${SOURCE_PATH}:${DEPLOYMENT_PATH}
+
+    lighttpd:
+        build:
+            context: ./docker/${APP_ENV}/lighttpd
+            args:
+                LIGHTTPD_VERSION: ${LIGHTTPD_VERSION}
+        depends_on:
+            - app
+        networks:
+            - back_bridge
+        volumes:
+            - ${PWD}/public:/var/www/localhost/htdocs:ro
+
+    haproxy:
+        image: 'haproxy:${HAPROXY_VERSION}'
+        depends_on:
+            - app
+            - lighttpd
+        networks:
+            - back_bridge
+        ports:
+            - "${HAPROXY_PORT_EXPOSE}:80"
+        volumes:
+            - ./docker/${APP_ENV}/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
 
 networks:
     # Debugging example:
