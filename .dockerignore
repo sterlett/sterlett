@@ -3,6 +3,8 @@
 .gitignore
 config/parameters.yml
 node_modules
+public/build/*.css
+public/build/*.js
 tests
 vendor
 LICENSE

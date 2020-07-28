@@ -2,6 +2,7 @@
 services:
     app.event_loop:
         alias: 'react.event_loop.stream_select'
+        public: true
 
     # react
     react.event_loop.stream_select:

@@ -24,7 +24,7 @@ ARG DEPLOYMENT_PATH
 WORKDIR ${DEPLOYMENT_PATH}
 
 # see .dockerignore
-COPY --chown=www-data:www-data . .
+COPY --chown=www-data:www-data . ./
 
 USER root
 

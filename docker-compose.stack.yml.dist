@@ -75,7 +75,7 @@ services:
                     memory: 64M
 
     haproxy:
-        image: 'haproxy:${HAPROXY_VERSION}'
+        image: 'haproxy:${HAPROXY_VERSION}-alpine'
         networks:
             - back_overlay
         ports:

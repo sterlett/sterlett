@@ -14,16 +14,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses>.
 
-ARG ALPINE_VERSION=3
+ARG ALPINE_VERSION=3.12
+ARG NODEJS_VERSION
 
-FROM alpine:${ALPINE_VERSION}
+FROM node:${NODEJS_VERSION}-alpine${ALPINE_VERSION}
 
 ARG LIGHTTPD_VERSION
 
 USER root
 
 # system
-RUN apk add --update --no-cache \
+RUN apk add --no-cache \
 	lighttpd=${LIGHTTPD_VERSION}
 
 RUN rm -rf /var/cache/apk/*
@@ -32,16 +33,21 @@ RUN rm -rf /var/cache/apk/*
 COPY docker/dev/lighttpd/lighttpd.conf /etc/lighttpd/lighttpd-custom.conf
 
 WORKDIR /var/www/localhost/htdocs
-COPY --chown=lighttpd:lighttpd ./public .
+COPY --chown=lighttpd:lighttpd package.json package-lock.json rollup.config.js ./
+COPY --chown=lighttpd:lighttpd src/front ./src/front
+COPY --chown=lighttpd:lighttpd public ./public
 
 # permissions
-RUN chown lighttpd:lighttpd \
-    /var/www \
-    /var/www/localhost \
-    /var/www/localhost/htdocs
+RUN chown lighttpd:lighttpd /var/www/localhost/htdocs
 
 USER lighttpd
 
-RUN mkdir /var/www/.lighttpd
+# dependencies
+RUN npm install --no-optional
+
+# compiling assets
+RUN npm run build
+
+RUN mkdir /var/www/localhost/htdocs/.lighttpd
 
 CMD ["lighttpd", "-D", "-f", "/etc/lighttpd/lighttpd-custom.conf", "2>&1"]

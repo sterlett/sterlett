@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses>.
 
-ARG ALPINE_VERSION=3
+ARG ALPINE_VERSION=3.12
 
 FROM alpine:${ALPINE_VERSION}
 
@@ -34,13 +34,10 @@ RUN rm -rf /var/cache/apk/*
 COPY lighttpd.conf /etc/lighttpd/lighttpd-custom.conf
 
 # permissions
-RUN chown lighttpd:lighttpd \
-    /var/www \
-    /var/www/localhost \
-    /var/www/localhost/htdocs
+RUN chown lighttpd:lighttpd /var/www/localhost/htdocs
 
 USER lighttpd
 
-RUN mkdir /var/www/.lighttpd
+RUN mkdir /var/www/localhost/htdocs/.lighttpd
 
 CMD ["lighttpd", "-D", "-f", "/etc/lighttpd/lighttpd-custom.conf", "2>&1"]
