@@ -19,15 +19,28 @@ ARG NODEJS_VERSION
 
 FROM node:${NODEJS_VERSION}-alpine${ALPINE_VERSION}
 
+ARG TIMEZONE
 ARG LIGHTTPD_VERSION
 
 USER root
 
 # system
 RUN apk add --no-cache \
-	lighttpd=${LIGHTTPD_VERSION}
+        # timezone
+        tzdata \
+        # lighttpd
+        lighttpd=${LIGHTTPD_VERSION}
 
-RUN rm -rf /var/cache/apk/*
+# timezone
+RUN cp /usr/share/zoneinfo/${TIMEZONE} /etc/localtime && \
+    echo ${TIMEZONE} > /etc/timezone && \
+    date
+
+# cleanup
+RUN apk del \
+        # timezone
+        tzdata && \
+    rm -rf /var/cache/apk/*
 
 # configurations
 COPY docker/dev/lighttpd/lighttpd.conf /etc/lighttpd/lighttpd-custom.conf

@@ -35,6 +35,7 @@ services:
         build:
             context: ./docker/${APP_ENV}/lighttpd
             args:
+                TIMEZONE: ${TIMEZONE}
                 LIGHTTPD_VERSION: ${LIGHTTPD_VERSION}
         depends_on:
             - app

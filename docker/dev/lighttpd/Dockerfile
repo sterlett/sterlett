@@ -18,6 +18,7 @@ ARG ALPINE_VERSION=3.12
 
 FROM alpine:${ALPINE_VERSION}
 
+ARG TIMEZONE
 ARG LIGHTTPD_VERSION
 
 WORKDIR /var/www/localhost/htdocs
@@ -26,9 +27,21 @@ USER root
 
 # system
 RUN apk add --update --no-cache \
-	lighttpd=${LIGHTTPD_VERSION}
+        # timezone
+        tzdata \
+        # lighttpd
+        lighttpd=${LIGHTTPD_VERSION}
 
-RUN rm -rf /var/cache/apk/*
+# timezone
+RUN cp /usr/share/zoneinfo/${TIMEZONE} /etc/localtime && \
+    echo ${TIMEZONE} > /etc/timezone && \
+    date
+
+# cleanup
+RUN apk del \
+        # timezone
+        tzdata && \
+    rm -rf /var/cache/apk/*
 
 # configurations
 COPY lighttpd.conf /etc/lighttpd/lighttpd-custom.conf

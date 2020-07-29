@@ -33,7 +33,8 @@ RUN apt-get update && apt-get install -qy --no-install-recommends \
         unzip
 
 # timezone
-RUN ln -snf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime && echo ${TIMEZONE} > /etc/timezone && \
+RUN ln -snf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime && \
+    echo ${TIMEZONE} > /etc/timezone && \
     printf '[PHP]\ndate.timezone = "%s"\n', ${TIMEZONE} > /usr/local/etc/php/conf.d/tzone.ini && \
     date
 
@@ -52,7 +53,8 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 # nodejs
 RUN curl -sL https://deb.nodesource.com/setup_${NODEJS_VERSION}.x | bash - && \
-    apt-get update && apt-get install -qy --no-install-recommends nodejs
+    apt-get update && apt-get install -qy --no-install-recommends nodejs && \
+    node --version
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
