@@ -1,6 +1,6 @@
 
 services:
-    # default configuration will be applied for all services (if not explicitly specified in the target file)
+    # default configuration will be applied for ALL SERVICES (if not explicitly specified in the target file)
     # this behavior is a result of Symfony DI logic revision, see YamlFileLoader from the "Bridge\Symfony" scope.
     _defaults:
         # automatically injects dependencies in your services

@@ -11,6 +11,8 @@
  * @license https://opensource.org/licenses/GPL-3.0 GPL-3.0
  */
 
+declare(strict_types=1);
+
 namespace Sterlett\Bridge\Symfony\Component\DependencyInjection\Loader;
 
 use Symfony\Component\Config\FileLocatorInterface;

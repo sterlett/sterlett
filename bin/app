@@ -15,49 +15,33 @@
 declare(strict_types=1);
 
 use Sterlett\Application;
-use Sterlett\Bridge\Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
-use Symfony\Component\Config\FileLocator;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\ParameterBag\EnvPlaceholderParameterBag;
-use Symfony\Component\Dotenv\Dotenv;
-use Symfony\Component\Yaml\Yaml;
+use Sterlett\Bridge\Symfony\Component\DependencyInjection\Configurator\YamlConfigurator;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$envFilePath = __DIR__ . '/../.env';
+$parameterFilePath = __DIR__ . '/../config/parameters.yml';
 
-// will populate env variables from env-type files (only if they're not already set).
-if (file_exists($envFilePath)) {
-    (new Dotenv())->loadEnv($envFilePath);
-}
-
-$configFilePath = __DIR__ . '/../config/parameters.yml';
-
-if (!file_exists($configFilePath)) {
+if (!file_exists($parameterFilePath)) {
     throw new RuntimeException("File 'parameters.yml' is missing. Please, put it into the 'config' directory.");
 }
 
-$config       = Yaml::parseFile($configFilePath);
-$parameterBag = new EnvPlaceholderParameterBag($config['parameters']);
+$containerConfigurator = new YamlConfigurator();
+$containerConfigurator->setEnvironmentFilePath(__DIR__ . '/../.env');
+$containerConfigurator->setParameterFilePath($parameterFilePath);
+$containerConfigurator->setDefinitionFilePaths(
+    [
+        __DIR__ . '/../config/services/request_handlers.yml',
+        __DIR__ . '/../config/services/loggers.yml',
+        __DIR__ . '/../config/services/shutdown.yml',
+        __DIR__ . '/../config/services/async/streams.yml',
+        __DIR__ . '/../config/services/async/server.yml',
+        __DIR__ . '/../config/services/async/event_loop.yml',
+        __DIR__ . '/../config/services.yml',
+    ]
+);
+$containerConfigurator->setDefinitionDefaultsFilePath(__DIR__ . '/../config/services.yml');
 
-$container = new ContainerBuilder($parameterBag);
-
-// loading service definitions.
-$definitionLoader    = new YamlFileLoader($container, new FileLocator(), __DIR__ . '/../config/services.yml');
-$definitionFilePaths = [
-    __DIR__ . '/../config/services/request_handlers.yml',
-    __DIR__ . '/../config/services/loggers.yml',
-    __DIR__ . '/../config/services/shutdown.yml',
-    __DIR__ . '/../config/services/async/streams.yml',
-    __DIR__ . '/../config/services/async/server.yml',
-    __DIR__ . '/../config/services/async/event_loop.yml',
-    __DIR__ . '/../config/services.yml',
-];
-
-foreach ($definitionFilePaths as $definitionFilePath) {
-    $definitionLoader->load($definitionFilePath);
-}
-
+$container = $containerConfigurator->getContainerBuilder();
 // we are starting an async web server with some concurrent code
 // so we don't need any container caching logic for this case.
 $container->compile(true);
