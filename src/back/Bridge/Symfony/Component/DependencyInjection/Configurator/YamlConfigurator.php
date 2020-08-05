@@ -66,7 +66,7 @@ class YamlConfigurator
     private ?string $definitionDefaultsFilePath;
 
     /**
-     * ContainerConfigurator constructor.
+     * YamlConfigurator constructor.
      */
     public function __construct()
     {
@@ -81,7 +81,7 @@ class YamlConfigurator
      *
      * @return ContainerBuilder
      *
-     * @throws EnvFilePathException   when a file with environment variables doesn't exist or isn't readable
+     * @throws EnvFilePathException   When a file with environment variables doesn't exist or isn't readable
      * @throws EnvFileFormatException When a file with environment variables has a syntax error
      * @throws YamlFileParseException If the file with configuration parameters couldn't be read or the YAML isn't valid
      * @throws Exception              If an error of any other type has been occurred during container configuration

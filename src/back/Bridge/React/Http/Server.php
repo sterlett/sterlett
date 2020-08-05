@@ -48,7 +48,7 @@ class Server implements ServerInterface
     private TcpServer $socket;
 
     /**
-     * TcpServer constructor.
+     * Server constructor.
      *
      * @param LoggerInterface $logger Logs information about server interactions
      * @param StreamingServer $server Processes incoming HTTP requests

@@ -1,0 +1,10 @@
+
+services:
+    app.request.uri.matcher:
+        alias: 'app.request.uri.matcher.array_matcher.hardware_mark'
+        public: true
+
+    app.request.uri.matcher.array_matcher.hardware_mark:
+        class: Sterlett\Request\Uri\Matcher\ArrayMatcher
+        arguments:
+            -   /cpu/list.json: !php/const Sterlett\Request\Handler\HardwareMarkHandler::ACTION_CPU_LIST

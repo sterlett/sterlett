@@ -11,3 +11,5 @@ LICENSE
 *.md
 *.yml
 *.yml.dist
+*.xml
+*.xml.dist

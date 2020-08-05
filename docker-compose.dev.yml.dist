@@ -58,11 +58,11 @@ services:
 
 networks:
     # Debugging example:
-    # docker-compose run -p 6636:6636 --rm app -d xdebug.remote_autostart=1 -d xdebug.remote_host=172.110.0.1 bin/app
+    # docker-compose run -p 6636:6636 --rm app -d xdebug.remote_autostart=1 -d xdebug.remote_host=172.120.0.1 bin/app
     # you can also try more convenient "host.docker.internal" for some systems.
     back_bridge:
         driver: bridge
         ipam:
             driver: default
             config:
-                -   subnet: 172.110.0.0/16
+                -   subnet: 172.120.0.0/16
