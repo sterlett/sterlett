@@ -21,7 +21,9 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Sterlett\\Tests\\": "tests/"
+            "Sterlett\\Tests\\": [
+                "tests/unit"
+            ]
         }
     },
     "minimum-stability": "stable",

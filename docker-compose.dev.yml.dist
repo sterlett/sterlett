@@ -42,7 +42,7 @@ services:
         networks:
             - back_bridge
         volumes:
-            - ${PWD}/public:/var/www/localhost/htdocs:ro
+            - ${SOURCE_PATH}/public:/var/www/localhost/htdocs/public:ro
 
     haproxy:
         image: 'haproxy:${HAPROXY_VERSION}-alpine'
