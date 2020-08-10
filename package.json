@@ -7,7 +7,8 @@
         "url": "git://github.com/sterlett/sterlett.git"
     },
     "scripts": {
-        "build": "rollup -c"
+        "dev": "rollup --config rollup.config.js",
+        "build": "rollup --config rollup.config.js --environment BUILD:production"
     },
     "devDependencies": {
         "@rollup/plugin-node-resolve": "^8.4.0",

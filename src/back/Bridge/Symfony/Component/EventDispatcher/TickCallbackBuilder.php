@@ -19,7 +19,10 @@ use Exception;
 use Psr\Log\LoggerInterface;
 
 /**
- * Builds callbacks with listener calls for React's future ticks queue
+ * Builds callbacks with listener calls for React's future tick queue.
+ *
+ * Encapsulates all requirements from the LoopInterface to ensure user-defined callbacks will be safely executed in the
+ * shared event loop.
  */
 class TickCallbackBuilder
 {

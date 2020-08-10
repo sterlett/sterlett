@@ -6,7 +6,6 @@
          convertErrorsToExceptions="false"
          convertNoticesToExceptions="false"
          convertWarningsToExceptions="false"
-         processIsolation="true"
          beStrictAboutChangesToGlobalState="true"
          testdox="true"
          noInteraction="true">

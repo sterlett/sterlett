@@ -32,7 +32,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher as BaseEventDispatcher;
  *
  * @see TickScheduler
  */
-class TickDispatcher extends BaseEventDispatcher
+class DeferredEventDispatcher extends BaseEventDispatcher
 {
     /**
      * Registers listener callbacks in the ReactPHP environment for asynchronous execution
@@ -42,7 +42,7 @@ class TickDispatcher extends BaseEventDispatcher
     private TickSchedulerInterface $tickScheduler;
 
     /**
-     * TickDispatcher constructor.
+     * DeferredEventDispatcher constructor.
      *
      * @param TickSchedulerInterface $tickScheduler Registers listener callbacks in the ReactPHP environment
      */

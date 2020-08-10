@@ -20,17 +20,11 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use React\EventLoop\StreamSelectLoop;
 use stdClass;
+use Sterlett\Bridge\Symfony\Component\EventDispatcher\DeferredTickScheduler;
 use Sterlett\Bridge\Symfony\Component\EventDispatcher\TickCallbackBuilder;
-use Sterlett\Bridge\Symfony\Component\EventDispatcher\TickScheduler;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * Tests if TickScheduler adds listener callbacks to the loop's ticks queue correctly
- *
- * Side checks:
- * - Event loop is able to run future ticks added by a scheduler
- */
-final class TickSchedulerTest extends TestCase
+final class DeferredTickSchedulerTest extends TestCase
 {
     /**
      * Stream select event loop
@@ -40,11 +34,11 @@ final class TickSchedulerTest extends TestCase
     private StreamSelectLoop $loop;
 
     /**
-     * Adds event listener callbacks into the loop's ticks queue
+     * Performs event subscriber callbacks registration in the ReactPHP environment, deferred approach
      *
-     * @var TickScheduler
+     * @var DeferredTickScheduler
      */
-    private TickScheduler $tickScheduler;
+    private DeferredTickScheduler $deferredTickScheduler;
 
     /**
      * {@inheritDoc}
@@ -56,7 +50,7 @@ final class TickSchedulerTest extends TestCase
         $loggerStub      = $this->createStub(LoggerInterface::class);
         $callbackBuilder = new TickCallbackBuilder($loggerStub);
 
-        $this->tickScheduler = new TickScheduler($this->loop, $callbackBuilder);
+        $this->deferredTickScheduler = new DeferredTickScheduler($this->loop, $callbackBuilder);
     }
 
     /**
@@ -83,7 +77,7 @@ final class TickSchedulerTest extends TestCase
             yield fn ($event, $eventName, $eventDispatcher) => $event->detail[] = 'callbackThreeResult';
         };
 
-        $this->tickScheduler->scheduleListenerCalls($listeners(), 'eventName', $event);
+        $this->deferredTickScheduler->scheduleListenerCalls($listeners(), 'eventName', $event);
 
         $this->assertEmpty($event->detail, "Event shouldn't contain any result data before loop run.");
 
@@ -121,7 +115,7 @@ final class TickSchedulerTest extends TestCase
             yield fn ($event, $eventName, $eventDispatcher) => $event->detail[] = 'callbackThreeResult';
         };
 
-        $this->tickScheduler->scheduleListenerCalls($listeners(), 'eventName', $event);
+        $this->deferredTickScheduler->scheduleListenerCalls($listeners(), 'eventName', $event);
 
         $this->assertEmpty($event->detail, "Event shouldn't contain any result data before loop run.");
 

@@ -2,7 +2,7 @@
 import svelte from 'rollup-plugin-svelte';
 import resolve from '@rollup/plugin-node-resolve';
 
-const production = !process.env.ROLLUP_WATCH;
+const isBuildProduction = process.env.BUILD === 'production';
 
 export default {
     input: 'src/front/main.js',
@@ -15,7 +15,7 @@ export default {
     plugins: [
         svelte({
             // enable run-time checks when not in production
-            dev: !production,
+            dev: !isBuildProduction,
 
             // we'll extract any component CSS out into
             // a separate file - better for performance
@@ -28,8 +28,5 @@ export default {
             browser: true,
             dedupe: ['svelte']
         })
-    ],
-    watch: {
-        clearScreen: false
-    }
+    ]
 };

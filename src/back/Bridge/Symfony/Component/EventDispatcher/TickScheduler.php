@@ -40,7 +40,7 @@ class TickScheduler implements TickSchedulerInterface
     private LoopInterface $loop;
 
     /**
-     * Builds callbacks with listener calls for React's future ticks queue
+     * Builds callbacks with listener calls for React's future tick queue
      *
      * @var TickCallbackBuilder
      */
@@ -50,7 +50,7 @@ class TickScheduler implements TickSchedulerInterface
      * TickScheduler constructor.
      *
      * @param LoopInterface       $loop            Event loop
-     * @param TickCallbackBuilder $callbackBuilder Builds callbacks with listener calls for React's future ticks queue
+     * @param TickCallbackBuilder $callbackBuilder Builds callbacks with listener calls for React's future tick queue
      */
     public function __construct(LoopInterface $loop, TickCallbackBuilder $callbackBuilder)
     {
@@ -65,10 +65,9 @@ class TickScheduler implements TickSchedulerInterface
     {
         foreach ($listeners as $listener) {
             $tickCallback = $this->callbackBuilder->makeTickCallback($listener, $eventName, $event);
+            $tickCallback = $this->addPropagationStopCondition($tickCallback, $event);
 
-            $propagationAwareTickCallback = $this->makePropagationAwareTickCallback($tickCallback, $event);
-
-            $this->loop->futureTick($propagationAwareTickCallback);
+            $this->loop->futureTick($tickCallback);
         }
     }
 
@@ -80,7 +79,7 @@ class TickScheduler implements TickSchedulerInterface
      *
      * @return callable
      */
-    private function makePropagationAwareTickCallback(callable $tickCallback, object $event): callable
+    private function addPropagationStopCondition(callable $tickCallback, object $event): callable
     {
         return function () use ($tickCallback, $event) {
             if ($event instanceof StoppableEventInterface && $event->isPropagationStopped()) {
