@@ -1,0 +1,29 @@
+
+services:
+
+#    Universal template for subscribing on events from PSR-14 dispatchers (Psr\EventDispatcher\EventDispatcherInterface).
+#
+#    app.event.listener.xyz_listener:
+#        class: Sterlett\Event\Listener\XyzListener
+#        arguments:
+#            - '@serviceId'
+#        tags:
+#            -   name: 'psr14.event_listener'
+#                event: 'app.event.xyz_happened'
+#                method: 'onXyzHappened'
+
+#    Universal template for subscribing on events from Evenement's emitters (Evenement\EventEmitterInterface).
+#    Evenement is an alternative event dispatching interface and boilerplate, used by ReactPHP components internally,
+#    for components like sockets, streams and servers, see https://github.com/igorw/evenement. There is no centralized
+#    event dispatcher in this approach, so each possible dispatcher or "emitter" (using library's terms) should be
+#    declared explicitly for the listener.
+#
+#    app.event.listener.xyz_listener:
+#        class: Sterlett\Event\Listener\XyzListener
+#        arguments:
+#            - '@serviceId'
+#        tags:
+#            -   name: 'evenement.event_listener'
+#                dispatcher: 'react.stream.xyz_stream'
+#                event: 'data'
+#                method: 'onDataReceived'

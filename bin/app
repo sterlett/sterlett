@@ -15,6 +15,7 @@
 declare(strict_types=1);
 
 use Sterlett\Application;
+use Sterlett\Bridge\Evenement\DependencyInjection\Compiler\RegisterListenersPass as RegisterEvenementListenersPass;
 use Sterlett\Bridge\Symfony\Component\DependencyInjection\Configurator\YamlConfigurator;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -30,8 +31,9 @@ $containerConfigurator->setEnvironmentFilePath(__DIR__ . '/../.env');
 $containerConfigurator->setParameterFilePath($parameterFilePath);
 $containerConfigurator->setDefinitionFilePaths(
     [
-        __DIR__ . '/../config/services/request/uri_matcher.yml',
         __DIR__ . '/../config/services/request/handler.yml',
+        __DIR__ . '/../config/services/request/uri_matcher.yml',
+        __DIR__ . '/../config/services/event_listeners.yml',
         __DIR__ . '/../config/services/loggers.yml',
         __DIR__ . '/../config/services/shutdown.yml',
         __DIR__ . '/../config/services/async/streams.yml',
@@ -43,6 +45,9 @@ $containerConfigurator->setDefinitionFilePaths(
 $containerConfigurator->setDefinitionDefaultsFilePath(__DIR__ . '/../config/services.yml');
 
 $container = $containerConfigurator->getContainerBuilder();
+
+$container->addCompilerPass(new RegisterEvenementListenersPass());
+
 // we are starting an async web server with some concurrent code
 // so we don't need any container caching logic for this case.
 $container->compile(true);
