@@ -58,7 +58,7 @@ class YamlFileLoader extends BaseYamlFileLoader
     {
         $content = parent::loadFile($file);
 
-        // ignoring file path with global defaults to prevent circular reference
+        // ignoring file path with global defaults to prevent circular reference.
         if ($file === $this->defaultsFilePath) {
             return $content;
         }
@@ -69,7 +69,7 @@ class YamlFileLoader extends BaseYamlFileLoader
 
         $serviceDefinitions = $content['services'];
 
-        if (array_key_exists('_defaults', $serviceDefinitions)) {
+        if (!is_array($serviceDefinitions) || array_key_exists('_defaults', $serviceDefinitions)) {
             return $content;
         }
 
