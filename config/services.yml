@@ -10,3 +10,53 @@ services:
         # this means you cannot fetch services directly from the container via $container->get()
         # if you need to do this, you can override this setting on individual services
         public: false
+
+    # similar to "_defaults" options for service definitions, but for the specified interface/class,
+    # see https://github.com/symfony/dependency-injection/blob/v5.1.0/Loader/YamlFileLoader.php#L89
+    # todo: implement sharing
+    _instanceof:
+        # all services that implement target interface will receive these definition options in the DI container,
+        # tag attributes is not available here (5.1.0).
+        Evenement\EventEmitterInterface:
+            tags:
+                - 'evenement.event_dispatcher'
+
+    # - !service_locator
+    #     key1: '@service1'
+    #     key2: '@service2'
+    #
+    # $serviceLocator (Symfony\Component\DependencyInjection\ServiceLocator)
+    # $serviceLocator->get('key1');
+
+    # - !tagged_iterator 'tag_name'
+    #
+    # $taggedIterator (Symfony\Component\DependencyInjection\Argument\RewindableGenerator)
+    # foreach ($taggedIterator as $service) {
+    #     // only object access
+    # }
+    #
+    # - !tagged_iterator
+    #     tag: 'tag_name'
+    #     index_by: 'tag_attribute'
+    #
+    # $taggedIterator (Symfony\Component\DependencyInjection\Argument\RewindableGenerator)
+    # foreach ($taggedIterator as $id => $service) {
+    #     // object access
+    #     // value of specified tag attribute with id as a fallback; tag attributes payload is not supported in 5.1.0:
+    #     // https://github.com/symfony/dependency-injection/blob/v5.1.0/Loader/YamlFileLoader.php#L227
+    # }
+    # todo: expand the list
+
+    service_warmer:
+        class: Sterlett\Bridge\Symfony\Component\DependencyInjection\ServiceWarmer
+        public: true
+        arguments:
+            - !tagged_iterator
+                tag: !php/const Sterlett\Bridge\Symfony\Component\DependencyInjection\ServiceWarmer::WARMABLE_TAG
+
+    service_warmer.evenement:
+        class: IteratorIterator
+        arguments:
+            - !tagged_iterator 'evenement.event_dispatcher'
+        tags:
+            - !php/const Sterlett\Bridge\Symfony\Component\DependencyInjection\ServiceWarmer::WARMABLE_TAG

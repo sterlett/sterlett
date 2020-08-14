@@ -24,13 +24,14 @@ use Symfony\Component\EventDispatcher\EventDispatcher as BaseEventDispatcher;
  * scheduler allowing to achieve this goal, one simply registers all listener calls as one-off set of callbacks for the
  * future tick, one by one in the order they are subscribed to the event (straightforward way; event propagation
  * behavior is handled within each callback separately). The other one implementation registers each listener call as
- * part of the next loop tick "by demand", using promise API, so no extra callbacks will be created for the tick queue
- * if event becomes "resolved"; this approach will be useful in case when there are many concurrent event listeners and
- * context switching must be planned more carefully to maintain true async execution flow.
+ * part of the next loop tick "by demand", using built-in iterators, so no extra callbacks will be created for the tick
+ * queue if event becomes "resolved"; this approach will be useful in case when there are many concurrent event
+ * listeners and context switching must be planned more carefully to maintain true async execution flow.
  *
  * Any payload attached to the event shouldn't be taken immediately, right after dispatch() is triggered.
  *
  * @see TickScheduler
+ * @see DeferredTickScheduler
  */
 class DeferredEventDispatcher extends BaseEventDispatcher
 {

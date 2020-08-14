@@ -2,6 +2,8 @@
 services:
 
 #    Universal template for subscribing on events from PSR-14 dispatchers (Psr\EventDispatcher\EventDispatcherInterface).
+#    Each listener callback will be added to the event loop as future tick and executed asynchronously (if event was
+#    dispatched by DeferredEventDispatcher). Requires a registered compiler pass for the DI container.
 #
 #    app.event.listener.xyz_listener:
 #        class: Sterlett\Event\Listener\XyzListener
@@ -16,7 +18,7 @@ services:
 #    Evenement is an alternative event dispatching interface and boilerplate, used by ReactPHP components internally,
 #    for components like sockets, streams and servers, see https://github.com/igorw/evenement. There is no centralized
 #    event dispatcher in this approach, so each possible dispatcher or "emitter" (using library's terms) should be
-#    declared explicitly for the listener.
+#    declared explicitly for the listener. Requires a registered compiler pass from the "Bridge\Evenement" scope.
 #
 #    app.event.listener.xyz_listener:
 #        class: Sterlett\Event\Listener\XyzListener
@@ -27,3 +29,13 @@ services:
 #                dispatcher: 'react.stream.xyz_stream'
 #                event: 'data'
 #                method: 'onDataReceived'
+
+    app.event.listener.cpu_mark_acceptance_listener:
+        class: Sterlett\Event\Listener\CpuMarkAcceptanceListener
+        arguments:
+            - '@app.request.handler.hardware_mark_handler'
+        tags:
+            -   name: 'evenement.event_listener'
+                dispatcher: 'react.stream.readable_resource_stream.file_cpus_json'
+                event: 'data'
+                method: 'onCpuMarkReceived'

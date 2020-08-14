@@ -31,15 +31,15 @@ $containerConfigurator->setEnvironmentFilePath(__DIR__ . '/../.env');
 $containerConfigurator->setParameterFilePath($parameterFilePath);
 $containerConfigurator->setDefinitionFilePaths(
     [
-        __DIR__ . '/../config/services/request/handler.yml',
-        __DIR__ . '/../config/services/request/uri_matcher.yml',
-        __DIR__ . '/../config/services/event_listeners.yml',
-        __DIR__ . '/../config/services/loggers.yml',
-        __DIR__ . '/../config/services/shutdown.yml',
-        __DIR__ . '/../config/services/async/streams.yml',
-        __DIR__ . '/../config/services/async/server.yml',
-        __DIR__ . '/../config/services/async/event_loop.yml',
         __DIR__ . '/../config/services.yml',
+        __DIR__ . '/../config/services/loggers.yml',
+        __DIR__ . '/../config/services/async/event_loop.yml',
+        __DIR__ . '/../config/services/async/server.yml',
+        __DIR__ . '/../config/services/async/streams.yml',
+        __DIR__ . '/../config/services/shutdown.yml',
+        __DIR__ . '/../config/services/event_listeners.yml',
+        __DIR__ . '/../config/services/request/uri_matcher.yml',
+        __DIR__ . '/../config/services/request/handler.yml',
     ]
 );
 $containerConfigurator->setDefinitionDefaultsFilePath(__DIR__ . '/../config/services.yml');

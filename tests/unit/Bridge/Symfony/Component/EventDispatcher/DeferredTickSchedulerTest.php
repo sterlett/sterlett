@@ -132,7 +132,7 @@ final class DeferredTickSchedulerTest extends TestCase
                 'callbackTwoResult',
             ],
             $event->detail,
-            "Event should contain result in state, defined before it has resolved."
+            "Event should contain result in state, defined before it has been resolved."
         );
     }
 }

@@ -25,6 +25,9 @@ use Sterlett\Request\Uri\MatcherInterface;
 
 /**
  * Handles requests for information about "price/benchmark" ratio for the different hardware categories
+ *
+ * todo: inject service locator to manage different actions as standalone services
+ *       https://symfony.com/doc/current/service_container/service_subscribers_locators.html
  */
 class HardwareMarkHandler implements HandlerInterface
 {
@@ -33,7 +36,7 @@ class HardwareMarkHandler implements HandlerInterface
      *
      * @var string
      */
-    public const ACTION_CPU_LIST = 'app.request.handler.hardware_mark_handler.action_cpu_list';
+    private const ACTION_CPU_LIST = 'app.request.handler.action.cpu_list_action';
 
     /**
      * Logs handler events
@@ -50,16 +53,25 @@ class HardwareMarkHandler implements HandlerInterface
     private MatcherInterface $uriMatcher;
 
     /**
+     * Represents a list with hardware statistics from the CPU category
+     *
+     * @var string|null
+     */
+    private ?string $cpuData;
+
+    /**
      * HardwareMarkHandler constructor.
      *
      * @param LoggerInterface  $logger     Logs handler events
      * @param MatcherInterface $uriMatcher Finds context to decide which action should be used to generate a response
      *                                     for the given request
+     * @param string|null      $cpuData    Represents a list with hardware statistics from the CPU category
      */
-    public function __construct(LoggerInterface $logger, MatcherInterface $uriMatcher)
+    public function __construct(LoggerInterface $logger, MatcherInterface $uriMatcher, ?string $cpuData = null)
     {
         $this->logger     = $logger;
         $this->uriMatcher = $uriMatcher;
+        $this->cpuData    = $cpuData;
     }
 
     /**
@@ -72,12 +84,28 @@ class HardwareMarkHandler implements HandlerInterface
         $actionName = $this->resolveActionName($request);
 
         if (self::ACTION_CPU_LIST === $actionName) {
-            $response = $this->getCpuListResponse();
+            if (is_string($this->cpuData)) {
+                $response = $this->getCpuListResponse();
+            } else {
+                $response = $this->getCpuListNotReadyResponse();
+            }
         } else {
             $response = $this->getNotFoundResponse();
         }
 
         return $response;
+    }
+
+    /**
+     * Sets data that represents a list with hardware statistics from the CPU category
+     *
+     * @param string $cpuData Represents a list with hardware statistics from the CPU category
+     *
+     * @return void
+     */
+    public function setCpuData(string $cpuData): void
+    {
+        $this->cpuData = $cpuData;
     }
 
     /**
@@ -110,9 +138,33 @@ class HardwareMarkHandler implements HandlerInterface
      */
     private function getCpuListResponse(): Response
     {
+        $responseBody = $this->cpuData;
+
+        $response = new Response(
+            200,
+            [
+                'Content-Type' => 'application/json; charset=utf-8',
+            ],
+            $responseBody
+        );
+
+        return $response;
+    }
+
+    /**
+     * Returns response for the case when CPU list is not received yet
+     *
+     * @return Response
+     */
+    private function getCpuListNotReadyResponse(): Response
+    {
         $responseBody = json_encode(
             [
-                'items' => [],
+                'errors' => [
+                    [
+                        'message' => 'Resource is not ready.',
+                    ],
+                ],
             ]
         );
 

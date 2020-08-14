@@ -7,4 +7,4 @@ services:
     app.request.uri.matcher.array_matcher.hardware_mark:
         class: Sterlett\Request\Uri\Matcher\ArrayMatcher
         arguments:
-            -   /cpu/list.json: !php/const Sterlett\Request\Handler\HardwareMarkHandler::ACTION_CPU_LIST
+            -   /cpu/list.json: 'app.request.handler.action.cpu_list_action'

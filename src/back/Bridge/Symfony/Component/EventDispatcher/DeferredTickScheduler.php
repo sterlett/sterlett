@@ -44,7 +44,7 @@ class DeferredTickScheduler implements TickSchedulerInterface
     private TickCallbackBuilder $callbackBuilder;
 
     /**
-     * TickScheduler constructor.
+     * DeferredTickScheduler constructor.
      *
      * @param LoopInterface       $loop            Event loop
      * @param TickCallbackBuilder $callbackBuilder Builds callbacks with listener calls for React's future tick queue

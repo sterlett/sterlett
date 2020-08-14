@@ -18,12 +18,16 @@ namespace Sterlett\Bridge\React\Stream;
 use Exception;
 use React\EventLoop\LoopInterface;
 use React\Stream\ReadableResourceStream;
+use React\Stream\WritableResourceStream;
 use RuntimeException;
 
 /**
- * Provides an interface for opening file as React's readable/writable resource stream.
+ * Provides an interface for opening file as React's readable/writable resource stream and isolates creation of
+ * internal descriptor from any IoC implementations which uses serialization for some dirty magic.
  *
  * For more advanced file abstraction see "react/filesystem".
+ *
+ * @see https://github.com/symfony/dependency-injection/blob/v5.1.0/Compiler/ResolveInstanceofConditionalsPass.php#L101
  */
 final class FileFactory
 {
@@ -35,16 +39,47 @@ final class FileFactory
      * @param LoopInterface $loop     Event loop
      *
      * @return ReadableResourceStream
+     */
+    public static function getReadableFile(string $filename, string $mode, LoopInterface $loop): ReadableResourceStream
+    {
+        $resource = self::createResource($filename, $mode);
+
+        return new ReadableResourceStream($resource, $loop);
+    }
+
+    /**
+     * Returns writable resource stream instance representing a file in the local filesystem
+     *
+     * @param string        $filename Path to file
+     * @param string        $mode     Mode for fopen call
+     * @param LoopInterface $loop     Event loop
+     *
+     * @return WritableResourceStream
+     */
+    public static function getWritableFile(string $filename, string $mode, LoopInterface $loop): WritableResourceStream
+    {
+        $resource = self::createResource($filename, $mode);
+
+        return new WritableResourceStream($resource, $loop);
+    }
+
+    /**
+     * Creates and returns a file descriptor using specified filename and mode
+     *
+     * @param string $filename Path to file
+     * @param string $mode     Mode for fopen call
+     *
+     * @return resource
      *
      * @throws RuntimeException if fopen() call is failed
      */
-    public static function getReadableFile(string $filename, string $mode, LoopInterface $loop): ReadableResourceStream
+    private static function createResource(string $filename, string $mode)
     {
         try {
             $resource = fopen($filename, $mode);
         } catch (Exception $exception) {
             $exceptionOuterMessage = sprintf(
-                "Unable to create readable resource stream for file with filename '%s' and mode '%s'.",
+                "Unable to create resource stream for file with filename '%s' and mode '%s'.",
                 $filename,
                 $mode
             );
@@ -52,6 +87,6 @@ final class FileFactory
             throw new RuntimeException($exceptionOuterMessage, 0, $exception);
         }
 
-        return new ReadableResourceStream($resource, $loop);
+        return $resource;
     }
 }

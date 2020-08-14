@@ -53,13 +53,13 @@ final class Application
     {
         /** @var ServerInterface $server */
         $server = $this->container->get('app.server');
-
         $server->up();
 
         /** @var LoopInterface $loop */
         $loop = $this->container->get('app.event_loop');
-
         $this->setShutdownConditions($loop);
+
+        $this->container->get('service_warmer');
 
         $loop->run();
     }

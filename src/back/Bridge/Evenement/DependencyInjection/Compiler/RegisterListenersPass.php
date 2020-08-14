@@ -40,6 +40,13 @@ use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass 
 class RegisterListenersPass implements CompilerPassInterface
 {
     /**
+     * Tag for marking service as an Evenement's event dispatcher
+     *
+     * @var string
+     */
+    private string $dispatcherTag;
+
+    /**
      * Tag for marking service as an Evenement's event listener
      *
      * @var string
@@ -49,11 +56,15 @@ class RegisterListenersPass implements CompilerPassInterface
     /**
      * RegisterListenersPass constructor.
      *
-     * @param string $listenerTag Tag for marking service as an Evenement's event listener
+     * @param string $dispatcherTag Tag for marking service as an Evenement's event dispatcher
+     * @param string $listenerTag   Tag for marking service as an Evenement's event listener
      */
-    public function __construct(string $listenerTag = 'evenement.event_listener')
-    {
-        $this->listenerTag = $listenerTag;
+    public function __construct(
+        string $dispatcherTag = 'evenement.event_dispatcher',
+        string $listenerTag = 'evenement.event_listener'
+    ) {
+        $this->dispatcherTag = $dispatcherTag;
+        $this->listenerTag   = $listenerTag;
     }
 
     /**
@@ -76,7 +87,7 @@ class RegisterListenersPass implements CompilerPassInterface
      *
      * @param ContainerBuilder $container     DI container
      * @param string           $listenerId    Listener service identifier
-     * @param mixed[]          $tagAttributes Listener tag attributes (e.g. 'event', 'method)
+     * @param mixed[]          $tagAttributes Listener tag attributes (e.g. 'event', 'method')
      *
      * @return void
      */
@@ -117,15 +128,28 @@ class RegisterListenersPass implements CompilerPassInterface
             throw new LogicException($invalidDispatcherInterfaceMessage);
         }
 
+        $eventName = (string) $tagAttributes['event'];
+
         $dispatcherDefinition->addMethodCall(
             'on',
             [
-                $tagAttributes['event'],
+                $eventName,
                 [
+                    // ServiceClosureArgument here prevents a private listener service from being removed (inlined) at
+                    // removing stage due to luck of "connections" with other services in the dependency graph;
+                    // Logically, this wrapper acts like a synthetic user of this listener (simulated constructor
+                    // injection). And, technically, it will not be inlined, it becomes a public service, i.e. available
+                    // by container's get() method). Link below navigates to related part of the compiling process:
+                    // https://github.com/symfony/dependency-injection/blob/v5.1.0/Compiler/InlineServiceDefinitionsPass.php#L108
+                    // todo: implement ServiceClosureArgument support
                     new Reference($listenerId),
                     $tagAttributes['method'],
                 ],
             ]
         );
+
+        if (!$dispatcherDefinition->hasTag($this->dispatcherTag)) {
+            $dispatcherDefinition->addTag($this->dispatcherTag);
+        }
     }
 }
