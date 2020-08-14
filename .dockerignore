@@ -13,3 +13,4 @@ LICENSE
 *.yml.dist
 *.xml
 *.xml.dist
+*.cache

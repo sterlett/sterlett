@@ -13,3 +13,4 @@ docker-compose.yml
 docker-compose.stack.yml
 
 phpunit.xml
+*.cache

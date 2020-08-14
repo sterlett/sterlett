@@ -18,6 +18,7 @@ namespace Sterlett\Bridge\Symfony\Component\EventDispatcher;
 use ArrayIterator;
 use Iterator;
 use IteratorIterator;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\StoppableEventInterface;
 use React\EventLoop\LoopInterface;
 use Traversable;
@@ -58,8 +59,12 @@ class DeferredTickScheduler implements TickSchedulerInterface
     /**
      * {@inheritDoc}
      */
-    public function scheduleListenerCalls(iterable $listeners, string $eventName, object $event): void
-    {
+    public function scheduleListenerCalls(
+        EventDispatcherInterface $eventDispatcher,
+        iterable $listeners,
+        string $eventName,
+        object $event
+    ): void {
         if ($listeners instanceof Traversable) {
             $listenerIterator = new IteratorIterator($listeners);
         } else {
@@ -68,30 +73,35 @@ class DeferredTickScheduler implements TickSchedulerInterface
 
         $listenerIterator->rewind();
 
-        $this->scheduleListenerCallsRecursive($listenerIterator, $eventName, $event);
+        $this->scheduleListenerCallsRecursive($eventDispatcher, $listenerIterator, $eventName, $event);
     }
 
     /**
      * Adds a new listener call from the event dispatching chain to the loop's tick queue using iterator
      *
-     * @param Iterator $listenerIterator Provides access to the chain of listeners
-     * @param string   $eventName        Name of the event to dispatch
-     * @param object   $event            The event object for the event listener
+     * @param EventDispatcherInterface $eventDispatcher  Dispatcher that triggered the event
+     * @param Iterator                 $listenerIterator Provides access to the chain of listeners
+     * @param string                   $eventName        Name of the event to dispatch
+     * @param object                   $event            The event object for the event listener
      *
      * @return void
      */
-    private function scheduleListenerCallsRecursive(Iterator $listenerIterator, string $eventName, object $event): void
-    {
+    private function scheduleListenerCallsRecursive(
+        EventDispatcherInterface $eventDispatcher,
+        Iterator $listenerIterator,
+        string $eventName,
+        object $event
+    ): void {
         if (!$listenerIterator->valid()) {
             return;
         }
 
         $listener = $listenerIterator->current();
 
-        $tickCallback = $this->callbackBuilder->makeTickCallback($listener, $eventName, $event);
+        $tickCallback = $this->callbackBuilder->makeTickCallback($eventDispatcher, $listener, $eventName, $event);
 
         $this->loop->futureTick(
-            function () use ($tickCallback, $listenerIterator, $eventName, $event) {
+            function () use ($tickCallback, $eventDispatcher, $listenerIterator, $eventName, $event) {
                 // callback for the current tick queue flush.
                 $tickCallback();
 
@@ -103,7 +113,7 @@ class DeferredTickScheduler implements TickSchedulerInterface
 
                 // next callback doesn't participate in the current tick queue flush, so the whole event dispatching
                 // routine doesn't slow down other activities, e.g. HTTP requests handling and periodic timers.
-                $this->scheduleListenerCallsRecursive($listenerIterator, $eventName, $event);
+                $this->scheduleListenerCallsRecursive($eventDispatcher, $listenerIterator, $eventName, $event);
             }
         );
     }

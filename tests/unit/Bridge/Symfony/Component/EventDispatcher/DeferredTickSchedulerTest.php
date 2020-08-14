@@ -17,6 +17,7 @@ namespace Sterlett\Tests\Bridge\Symfony\Component\EventDispatcher;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use React\EventLoop\StreamSelectLoop;
 use stdClass;
@@ -39,7 +40,14 @@ final class DeferredTickSchedulerTest extends TestCase
      * @var DeferredTickScheduler
      */
     private DeferredTickScheduler $deferredTickScheduler;
-
+    
+    /**
+     * Dispatcher stub
+     *
+     * @var EventDispatcherInterface
+     */
+    private EventDispatcherInterface $dispatcherStub;
+    
     /**
      * {@inheritDoc}
      */
@@ -51,6 +59,8 @@ final class DeferredTickSchedulerTest extends TestCase
         $callbackBuilder = new TickCallbackBuilder($loggerStub);
 
         $this->deferredTickScheduler = new DeferredTickScheduler($this->loop, $callbackBuilder);
+
+        $this->dispatcherStub = $this->createStub(EventDispatcherInterface::class);
     }
 
     /**
@@ -77,7 +87,7 @@ final class DeferredTickSchedulerTest extends TestCase
             yield fn ($event, $eventName, $eventDispatcher) => $event->detail[] = 'callbackThreeResult';
         };
 
-        $this->deferredTickScheduler->scheduleListenerCalls($listeners(), 'eventName', $event);
+        $this->deferredTickScheduler->scheduleListenerCalls($this->dispatcherStub, $listeners(), 'eventName', $event);
 
         $this->assertEmpty($event->detail, "Event shouldn't contain any result data before loop run.");
 
@@ -97,6 +107,9 @@ final class DeferredTickSchedulerTest extends TestCase
     /**
      * Tests listener calls execution and checks that event propagation can be stopped
      *
+     * Side checks:
+     * - Event dispatcher pass
+     *
      * @return void
      */
     public function testResolvedEventWillNotPropagateInLoopTick(): void
@@ -107,6 +120,12 @@ final class DeferredTickSchedulerTest extends TestCase
         $listeners = function () {
             yield fn ($event, $eventName, $eventDispatcher) => $event->detail[] = 'callbackOneResult';
             yield function ($event, $eventName, $eventDispatcher) {
+                $this->assertInstanceOf(
+                    EventDispatcherInterface::class,
+                    $eventDispatcher,
+                    'A valid event dispatcher reference should be provided for the listener callback.'
+                );
+
                 $event->detail[] = 'callbackTwoResult';
 
                 /** @var Event $event */
@@ -115,7 +134,7 @@ final class DeferredTickSchedulerTest extends TestCase
             yield fn ($event, $eventName, $eventDispatcher) => $event->detail[] = 'callbackThreeResult';
         };
 
-        $this->deferredTickScheduler->scheduleListenerCalls($listeners(), 'eventName', $event);
+        $this->deferredTickScheduler->scheduleListenerCalls($this->dispatcherStub, $listeners(), 'eventName', $event);
 
         $this->assertEmpty($event->detail, "Event shouldn't contain any result data before loop run.");
 

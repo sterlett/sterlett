@@ -55,9 +55,9 @@ class HardwareMarkHandler implements HandlerInterface
     /**
      * Represents a list with hardware statistics from the CPU category
      *
-     * @var string|null
+     * @var string
      */
-    private ?string $cpuData;
+    private string $cpuData;
 
     /**
      * HardwareMarkHandler constructor.
@@ -65,9 +65,9 @@ class HardwareMarkHandler implements HandlerInterface
      * @param LoggerInterface  $logger     Logs handler events
      * @param MatcherInterface $uriMatcher Finds context to decide which action should be used to generate a response
      *                                     for the given request
-     * @param string|null      $cpuData    Represents a list with hardware statistics from the CPU category
+     * @param string           $cpuData    Represents a list with hardware statistics from the CPU category
      */
-    public function __construct(LoggerInterface $logger, MatcherInterface $uriMatcher, ?string $cpuData = null)
+    public function __construct(LoggerInterface $logger, MatcherInterface $uriMatcher, string $cpuData = '')
     {
         $this->logger     = $logger;
         $this->uriMatcher = $uriMatcher;
@@ -84,6 +84,7 @@ class HardwareMarkHandler implements HandlerInterface
         $actionName = $this->resolveActionName($request);
 
         if (self::ACTION_CPU_LIST === $actionName) {
+            // todo: handle chunked data (in "pending" status, if buffer is used)
             if (is_string($this->cpuData)) {
                 $response = $this->getCpuListResponse();
             } else {
@@ -97,15 +98,15 @@ class HardwareMarkHandler implements HandlerInterface
     }
 
     /**
-     * Sets data that represents a list with hardware statistics from the CPU category
+     * Adds data, which represents a list with hardware statistics from the CPU category, to the handler's cache
      *
      * @param string $cpuData Represents a list with hardware statistics from the CPU category
      *
      * @return void
      */
-    public function setCpuData(string $cpuData): void
+    public function addCpuData(string $cpuData): void
     {
-        $this->cpuData = $cpuData;
+        $this->cpuData .= $cpuData;
     }
 
     /**

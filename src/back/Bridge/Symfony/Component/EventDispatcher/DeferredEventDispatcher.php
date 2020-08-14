@@ -59,6 +59,6 @@ class DeferredEventDispatcher extends BaseEventDispatcher
      */
     protected function callListeners(iterable $listeners, string $eventName, object $event)
     {
-        $this->tickScheduler->scheduleListenerCalls($listeners, $eventName, $event);
+        $this->tickScheduler->scheduleListenerCalls($this, $listeners, $eventName, $event);
     }
 }

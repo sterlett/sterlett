@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Sterlett\Bridge\Symfony\Component\EventDispatcher;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\StoppableEventInterface;
 use React\EventLoop\LoopInterface;
 
@@ -61,10 +62,14 @@ class TickScheduler implements TickSchedulerInterface
     /**
      * {@inheritDoc}
      */
-    public function scheduleListenerCalls(iterable $listeners, string $eventName, object $event): void
-    {
+    public function scheduleListenerCalls(
+        EventDispatcherInterface $eventDispatcher,
+        iterable $listeners,
+        string $eventName,
+        object $event
+    ): void {
         foreach ($listeners as $listener) {
-            $tickCallback = $this->callbackBuilder->makeTickCallback($listener, $eventName, $event);
+            $tickCallback = $this->callbackBuilder->makeTickCallback($eventDispatcher, $listener, $eventName, $event);
             $tickCallback = $this->addPropagationStopCondition($tickCallback, $event);
 
             $this->loop->futureTick($tickCallback);

@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace Sterlett\Bridge\Symfony\Component\EventDispatcher;
 
 use Exception;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -46,17 +47,22 @@ class TickCallbackBuilder
     /**
      * Returns a callback for the future tick with listener call logic
      *
-     * @param callable $listener  The event listener
-     * @param string   $eventName The name of the event to dispatch
-     * @param object   $event     The event object to pass to the event listener
+     * @param EventDispatcherInterface $eventDispatcher Dispatcher that triggered the event
+     * @param callable                 $listener        The event listener
+     * @param string                   $eventName       The name of the event to dispatch
+     * @param object                   $event           The event object to pass to the event listener
      *
      * @return callable
      */
-    public function makeTickCallback(callable $listener, string $eventName, object $event): callable
-    {
-        return function () use ($listener, $eventName, $event) {
+    public function makeTickCallback(
+        EventDispatcherInterface $eventDispatcher,
+        callable $listener,
+        string $eventName,
+        object $event
+    ): callable {
+        return function () use ($eventDispatcher, $listener, $eventName, $event) {
             try {
-                $listener($event, $eventName, $this);
+                $listener($event, $eventName, $eventDispatcher);
             } catch (Exception $exception) {
                 $exceptionCode    = $exception->getCode();
                 $exceptionMessage = $exception->getMessage();

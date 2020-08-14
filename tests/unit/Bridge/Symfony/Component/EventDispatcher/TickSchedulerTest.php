@@ -17,9 +17,11 @@ namespace Sterlett\Tests\Bridge\Symfony\Component\EventDispatcher;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use React\EventLoop\StreamSelectLoop;
 use stdClass;
+use Sterlett\Bridge\Symfony\Component\EventDispatcher\DeferredEventDispatcher;
 use Sterlett\Bridge\Symfony\Component\EventDispatcher\TickCallbackBuilder;
 use Sterlett\Bridge\Symfony\Component\EventDispatcher\TickScheduler;
 use Symfony\Contracts\EventDispatcher\Event;
@@ -47,6 +49,13 @@ final class TickSchedulerTest extends TestCase
     private TickScheduler $tickScheduler;
 
     /**
+     * Dispatcher stub
+     *
+     * @var EventDispatcherInterface
+     */
+    private EventDispatcherInterface $dispatcherStub;
+
+    /**
      * {@inheritDoc}
      */
     protected function setUp(): void
@@ -57,7 +66,11 @@ final class TickSchedulerTest extends TestCase
         $callbackBuilder = new TickCallbackBuilder($loggerStub);
 
         $this->tickScheduler = new TickScheduler($this->loop, $callbackBuilder);
+
+        $this->dispatcherStub = $this->createStub(EventDispatcherInterface::class);
     }
+
+
 
     /**
      * Tests listener calls execution and checks that event contains expected result data
@@ -74,16 +87,16 @@ final class TickSchedulerTest extends TestCase
         $event->detail = [];
 
         $listeners = function () {
-            yield fn ($event, $eventName, $eventDispatcher) => $event->detail[] = 'callbackOneResult';
+            yield fn($event, $eventName, $eventDispatcher) => $event->detail[] = 'callbackOneResult';
             yield function ($event, $eventName, $eventDispatcher) {
                 // this exception should not stop the entire event loop.
                 throw new Exception();
             };
-            yield fn ($event, $eventName, $eventDispatcher) => $event->detail[] = 'callbackTwoResult';
-            yield fn ($event, $eventName, $eventDispatcher) => $event->detail[] = 'callbackThreeResult';
+            yield fn($event, $eventName, $eventDispatcher) => $event->detail[] = 'callbackTwoResult';
+            yield fn($event, $eventName, $eventDispatcher) => $event->detail[] = 'callbackThreeResult';
         };
 
-        $this->tickScheduler->scheduleListenerCalls($listeners(), 'eventName', $event);
+        $this->tickScheduler->scheduleListenerCalls($this->dispatcherStub, $listeners(), 'eventName', $event);
 
         $this->assertEmpty($event->detail, "Event shouldn't contain any result data before loop run.");
 
@@ -103,6 +116,9 @@ final class TickSchedulerTest extends TestCase
     /**
      * Tests listener calls execution and checks that event propagation can be stopped
      *
+     * Side checks:
+     * - Event dispatcher pass
+     *
      * @return void
      */
     public function testResolvedEventWillNotPropagateInLoopTick(): void
@@ -111,17 +127,23 @@ final class TickSchedulerTest extends TestCase
         $event->detail = [];
 
         $listeners = function () {
-            yield fn ($event, $eventName, $eventDispatcher) => $event->detail[] = 'callbackOneResult';
+            yield fn($event, $eventName, $eventDispatcher) => $event->detail[] = 'callbackOneResult';
             yield function ($event, $eventName, $eventDispatcher) {
+                $this->assertInstanceOf(
+                    EventDispatcherInterface::class,
+                    $eventDispatcher,
+                    'A valid event dispatcher reference should be provided for the listener callback.'
+                );
+
                 $event->detail[] = 'callbackTwoResult';
 
                 /** @var Event $event */
                 $event->stopPropagation();
             };
-            yield fn ($event, $eventName, $eventDispatcher) => $event->detail[] = 'callbackThreeResult';
+            yield fn($event, $eventName, $eventDispatcher) => $event->detail[] = 'callbackThreeResult';
         };
 
-        $this->tickScheduler->scheduleListenerCalls($listeners(), 'eventName', $event);
+        $this->tickScheduler->scheduleListenerCalls($this->dispatcherStub, $listeners(), 'eventName', $event);
 
         $this->assertEmpty($event->detail, "Event shouldn't contain any result data before loop run.");
 

@@ -48,6 +48,6 @@ class CpuMarkAcceptanceListener
      */
     public function onCpuMarkReceived(string $data): void
     {
-        $this->hardwareMarkHandler->setCpuData($data);
+        $this->hardwareMarkHandler->addCpuData($data);
     }
 }

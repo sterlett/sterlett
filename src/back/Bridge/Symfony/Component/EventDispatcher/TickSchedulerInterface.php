@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Sterlett\Bridge\Symfony\Component\EventDispatcher;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -26,13 +27,19 @@ interface TickSchedulerInterface
     /**
      * Adds callbacks from the listeners to the ReactPHP environment for asynchronous execution
      *
-     * @param callable[] $listeners The event listeners for asynchronous execution
-     * @param string     $eventName The name of the event to dispatch
-     * @param object     $event     The event object to pass to the event listener
+     * @param EventDispatcherInterface $eventDispatcher Dispatcher that triggered the event
+     * @param callable[]               $listeners       The event listeners for asynchronous execution
+     * @param string                   $eventName       The name of the event to dispatch
+     * @param object                   $event           The event object to pass to the event listener
      *
      * @return void
      *
      * @see EventDispatcher::callListeners
      */
-    public function scheduleListenerCalls(iterable $listeners, string $eventName, object $event): void;
+    public function scheduleListenerCalls(
+        EventDispatcherInterface $eventDispatcher,
+        iterable $listeners,
+        string $eventName,
+        object $event
+    ): void;
 }
