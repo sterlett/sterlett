@@ -1,6 +1,8 @@
 .idea
 .git
 .gitignore
+bin/configure
+bin/phpunit
 config/parameters.yml
 node_modules
 public/build/*.css

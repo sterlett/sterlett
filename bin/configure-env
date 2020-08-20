@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+
+# Copyright (c) 2020 Pavel Petrov <itnelo@gmail.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses>.
+
+show_usage() {
+    cat <<EOF
+Generate .env and docker-compose files from .dist templates.
+
+Usage:
+    configure-env [options] [<environment>]
+    configure-env -h|--help|help
+
+Arguments:
+    environment                 Environment for .env and docker-compose files (dev|stack)
+
+Options:
+    --
+EOF
+}
+
+if [[ $# < 1 || $@ == "-h" || $@ == "--help" || $@ == "help" ]]; then
+    show_usage
+    exit 0
+fi
+
+if [[ $1 != "dev" && $1 != "stack" ]]; then
+    show_usage
+    exit 1
+else
+    CONFIGURATION_ENV=$1
+fi
+
+FILENAME_ENV=".env.dist"
+FILENAME_ENV_OVERRIDES=.env.${CONFIGURATION_ENV}.dist
+
+if [[ ! -f ${FILENAME_ENV} || ! -f ${FILENAME_ENV_OVERRIDES} ]]; then
+    printf "Files with environment parameters '%s' and(or) '%s' don't exists.\n" ${FILENAME_ENV} ${FILENAME_ENV_OVERRIDES}
+    exit 2
+fi
+
+# parsing parameters from environment files
+declare -A envMap
+
+fileEnvLines=$(cat ${FILENAME_ENV} ${FILENAME_ENV_OVERRIDES} | grep --perl-regexp --only-matching "^[A-Z0-9_]+=.+$")
+
+for fileEnvLine in ${fileEnvLines}; do
+    IFS="=" lineParts=(${fileEnvLine})
+    envMap[${lineParts[0]}]=${lineParts[1]}
+done
+
+# assembling a single .env file
+if [[ -f ".env" ]]; then
+    rm .env
+fi
+
+for varName in ${!envMap[@]}; do
+    printf "%s=%s\n" ${varName} ${envMap["${varName}"]} >> .env
+done
+
+# creating docker-compose configuration
+if [[ ${CONFIGURATION_ENV} == "dev" ]]; then
+    cp docker-compose.dev.yml.dist docker-compose.yml
+elif [[ ${CONFIGURATION_ENV} == "stack" ]]; then
+    set -a
+    source .env
+    envsubst < docker-compose.stack.yml.dist > docker-compose.stack.yml
+    set +a
+fi

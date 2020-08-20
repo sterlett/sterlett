@@ -32,8 +32,7 @@ before_install:
 before_script:
     - ls -lth
     # building services
-    - cp .env.dev.dist .env
-    - cp docker-compose.dev.yml.dist docker-compose.yml
+    - bin/configure-env dev
     - docker-compose --env-file .env --file docker-compose.yml build --force-rm --no-cache haproxy lighttpd
     - |
         docker-compose --env-file .env --file docker-compose.yml build \
