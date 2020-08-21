@@ -7,3 +7,5 @@ parameters:
     # Socket server configuration
     app.server.host: 'tcp://0.0.0.0'
     app.server.port: '%env(int:APP_SERVER_PORT)%'
+
+    app.request.uri.path_prefix: '%env(string:APP_REQUEST_URI_PATH_PREFIX)%'

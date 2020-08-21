@@ -18,6 +18,6 @@ services:
         factory: ['Sterlett\Bridge\React\Stream\FileFactory', getReadableFile]
         autowire: true
         arguments:
-            - 'tests/_data/cpus.json'
+            - 'tmp-data/cpus.json'
             - !!str r
             - '@app.event_loop'

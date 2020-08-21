@@ -1,0 +1,6 @@
+
+services:
+    app.request.uri.normalizer.path_prefix_normalizer:
+        class: Sterlett\Request\Uri\Normalizer\PathPrefixNormalizer
+        arguments:
+            - '%app.request.uri.path_prefix%'

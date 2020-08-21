@@ -74,10 +74,9 @@ class ArrayMatcher implements MatcherInterface
      */
     private function isUriMatch(string $uriPath, string $uriForMatch): bool
     {
-        $uriPathNormalized     = mb_strtolower(trim($uriPath));
         $uriForMatchNormalized = mb_strtolower(trim($uriForMatch));
 
-        $isUriMatch = $uriPathNormalized === $uriForMatchNormalized;
+        $isUriMatch = $uriPath === $uriForMatchNormalized;
 
         return $isUriMatch;
     }

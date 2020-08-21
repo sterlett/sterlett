@@ -51,12 +51,11 @@ services:
         class: Sterlett\Bridge\Symfony\Component\DependencyInjection\ServiceWarmer
         public: true
         arguments:
-            - !tagged_iterator
-                tag: !php/const Sterlett\Bridge\Symfony\Component\DependencyInjection\ServiceWarmer::WARMABLE_TAG
+            - !tagged_iterator 'service_warmer.warmable'
 
     service_warmer.evenement:
         class: IteratorIterator
         arguments:
             - !tagged_iterator 'evenement.event_dispatcher'
         tags:
-            - !php/const Sterlett\Bridge\Symfony\Component\DependencyInjection\ServiceWarmer::WARMABLE_TAG
+            - 'service_warmer.warmable'

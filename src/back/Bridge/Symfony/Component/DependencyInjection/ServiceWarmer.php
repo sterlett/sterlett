@@ -28,13 +28,6 @@ use Traversable;
 class ServiceWarmer
 {
     /**
-     * Tag to request service from the DI container for warmup
-     *
-     * @var string
-     */
-    public const WARMABLE_TAG = 'service_warmer.warmable';
-
-    /**
      * ServiceWarmer constructor.
      *
      * @param Traversable $coldOnes Services from the DI container that should be forcefully created

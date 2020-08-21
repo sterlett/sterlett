@@ -150,9 +150,9 @@ class YamlConfigurator
     }
 
     /**
-     * Sets a set of file paths where service definitions are stored
+     * Sets a list of file paths where service definitions are stored
      *
-     * @param iterable $definitionFilePaths A set of file paths where service definitions are stored
+     * @param iterable $definitionFilePaths A list of file paths where service definitions are stored
      *
      * @return void
      */

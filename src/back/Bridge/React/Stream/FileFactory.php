@@ -28,6 +28,8 @@ use RuntimeException;
  * For more advanced file abstraction see "react/filesystem".
  *
  * @see https://github.com/symfony/dependency-injection/blob/v5.1.0/Compiler/ResolveInstanceofConditionalsPass.php#L101
+ *
+ * todo: buffer option support
  */
 final class FileFactory
 {

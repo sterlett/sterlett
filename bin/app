@@ -38,6 +38,7 @@ $containerConfigurator->setDefinitionFilePaths(
         __DIR__ . '/../config/services/async/streams.yml',
         __DIR__ . '/../config/services/shutdown.yml',
         __DIR__ . '/../config/services/event_listeners.yml',
+        __DIR__ . '/../config/services/request/uri_normalizers.yml',
         __DIR__ . '/../config/services/request/uri_matcher.yml',
         __DIR__ . '/../config/services/request/handler.yml',
     ]

@@ -21,7 +21,6 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use React\EventLoop\StreamSelectLoop;
 use stdClass;
-use Sterlett\Bridge\Symfony\Component\EventDispatcher\DeferredEventDispatcher;
 use Sterlett\Bridge\Symfony\Component\EventDispatcher\TickCallbackBuilder;
 use Sterlett\Bridge\Symfony\Component\EventDispatcher\TickScheduler;
 use Symfony\Contracts\EventDispatcher\Event;
@@ -87,13 +86,13 @@ final class TickSchedulerTest extends TestCase
         $event->detail = [];
 
         $listeners = function () {
-            yield fn($event, $eventName, $eventDispatcher) => $event->detail[] = 'callbackOneResult';
+            yield fn ($event, $eventName, $eventDispatcher) => $event->detail[] = 'callbackOneResult';
             yield function ($event, $eventName, $eventDispatcher) {
                 // this exception should not stop the entire event loop.
                 throw new Exception();
             };
-            yield fn($event, $eventName, $eventDispatcher) => $event->detail[] = 'callbackTwoResult';
-            yield fn($event, $eventName, $eventDispatcher) => $event->detail[] = 'callbackThreeResult';
+            yield fn ($event, $eventName, $eventDispatcher) => $event->detail[] = 'callbackTwoResult';
+            yield fn ($event, $eventName, $eventDispatcher) => $event->detail[] = 'callbackThreeResult';
         };
 
         $this->tickScheduler->scheduleListenerCalls($this->dispatcherStub, $listeners(), 'eventName', $event);
@@ -127,7 +126,7 @@ final class TickSchedulerTest extends TestCase
         $event->detail = [];
 
         $listeners = function () {
-            yield fn($event, $eventName, $eventDispatcher) => $event->detail[] = 'callbackOneResult';
+            yield fn ($event, $eventName, $eventDispatcher) => $event->detail[] = 'callbackOneResult';
             yield function ($event, $eventName, $eventDispatcher) {
                 $this->assertInstanceOf(
                     EventDispatcherInterface::class,
@@ -140,7 +139,7 @@ final class TickSchedulerTest extends TestCase
                 /** @var Event $event */
                 $event->stopPropagation();
             };
-            yield fn($event, $eventName, $eventDispatcher) => $event->detail[] = 'callbackThreeResult';
+            yield fn ($event, $eventName, $eventDispatcher) => $event->detail[] = 'callbackThreeResult';
         };
 
         $this->tickScheduler->scheduleListenerCalls($this->dispatcherStub, $listeners(), 'eventName', $event);

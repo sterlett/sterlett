@@ -18,7 +18,7 @@ namespace Sterlett\Request\Uri;
 /**
  * Finds context to decide which action should be used to generate a response for the given request.
  *
- * Use a simple ArrayUriMatcher or consider to implement a bridge for the "symfony/routing" component set if more
+ * Use a simple ArrayMatcher or consider to implement a bridge for the "symfony/routing" component set if more
  * complex conditions are needed.
  *
  * @see https://symfony.com/doc/current/routing.html

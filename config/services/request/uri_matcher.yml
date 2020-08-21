@@ -1,8 +1,14 @@
 
 services:
     app.request.uri.matcher:
-        alias: 'app.request.uri.matcher.array_matcher.hardware_mark'
+        alias: 'app.request.uri.matcher.path_normalizing_matcher.hardware_mark'
         public: true
+
+    app.request.uri.matcher.path_normalizing_matcher.hardware_mark:
+        class: Sterlett\Request\Uri\Matcher\PathNormalizingMatcher
+        arguments:
+            - '@app.request.uri.matcher.array_matcher.hardware_mark'
+            - '@app.request.uri.normalizer.path_prefix_normalizer'
 
     app.request.uri.matcher.array_matcher.hardware_mark:
         class: Sterlett\Request\Uri\Matcher\ArrayMatcher

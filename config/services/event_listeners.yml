@@ -5,6 +5,9 @@ services:
 #    Each listener callback will be added to the event loop as future tick and executed asynchronously (if event was
 #    dispatched by DeferredEventDispatcher). Requires a registered compiler pass for the DI container.
 #
+#    Use cases: execution time is "chunked" (less data, more work); each event is supposed to provide the full data
+#    for the action chain, but all callbacks are deferred (the order is still preserved).
+#
 #    app.event.listener.xyz_listener:
 #        class: Sterlett\Event\Listener\XyzListener
 #        arguments:
@@ -19,6 +22,10 @@ services:
 #    for components like sockets, streams and servers, see https://github.com/igorw/evenement. There is no centralized
 #    event dispatcher in this approach, so each possible dispatcher or "emitter" (using library's terms) should be
 #    declared explicitly for the listener. Requires a registered compiler pass from the "Bridge\Evenement" scope.
+#
+#    Use cases: data is chunked (more data, less work); each event potentially can carry a small, chunked piece of
+#    result, so listener should be prepared to deal with it (some merging routine). No defer logic here, all listeners
+#    will be called one by one right after event has been triggered.
 #
 #    app.event.listener.xyz_listener:
 #        class: Sterlett\Event\Listener\XyzListener
