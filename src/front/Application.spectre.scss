@@ -1,0 +1,8 @@
+
+// managed by svelte-preprocess using postcss
+:global {
+    @import 'spectre.css/src/normalize';
+    @import 'spectre.css/src/base';
+}
+
+@import 'spectre.css/src/layout';

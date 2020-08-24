@@ -1,7 +1,8 @@
 
+import nodeResolve from '@rollup/plugin-node-resolve';
+import livereload from 'rollup-plugin-livereload';
 import svelte from 'rollup-plugin-svelte';
-import resolve from '@rollup/plugin-node-resolve';
-import livereload from "rollup-plugin-livereload";
+import sveltePreprocess from 'svelte-preprocess';
 
 const isBuildProduction = process.env.BUILD === 'production';
 
@@ -12,31 +13,45 @@ export default {
         sourcemap: false,
         format: 'iife',
         name: 'app',
-        file: 'public/build/bundle.js'
+        file: 'public/build/app.js',
     },
 
     plugins: [
-        svelte({
-            // enable run-time checks when not in production
-            dev: !isBuildProduction,
-
-            // we'll extract any component CSS out into
-            // a separate file - better for performance
-            css: css => {
-                css.write('public/build/bundle.css', false);
-            }
-        }),
-
-        resolve({
-            browser: true,
-            dedupe: ['svelte']
-        }),
+        nodeResolve(
+            {
+                dedupe: ['svelte'],
+            },
+        ),
 
         // reloading compiled assets in the browser
-        !isBuildProduction && livereload('public')
+        !isBuildProduction && livereload('public'),
+
+        svelte(
+            {
+                // enable run-time checks when not in production
+                dev: !isBuildProduction,
+
+                preprocess: sveltePreprocess(
+                    {
+                        scss: {
+                            prependData: `
+                                @import 'spectre.css/src/variables';
+                                @import 'spectre.css/src/mixins';
+                            `,
+                        },
+                    },
+                ),
+
+                // we'll extract any component CSS out into
+                // a separate file - better for performance
+                css: css => {
+                    css.write('public/build/app.css', false);
+                },
+            },
+        ),
     ],
 
     watch: {
-        clearScreen: false
-    }
+        clearScreen: false,
+    },
 };
