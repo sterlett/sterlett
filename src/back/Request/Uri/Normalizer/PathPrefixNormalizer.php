@@ -63,7 +63,7 @@ class PathPrefixNormalizer
         }
 
         $prefixLength      = mb_strlen($this->uriPathPrefix);
-        $uriPathNormalized = substr($uriPathNormalized, $prefixLength);
+        $uriPathNormalized = mb_substr($uriPathNormalized, $prefixLength);
 
         return $uriPathNormalized;
     }

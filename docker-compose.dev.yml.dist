@@ -28,6 +28,11 @@ services:
                 NODEJS_VERSION: ${NODEJS_VERSION}
         networks:
             - back_bridge
+        ports:
+            # to automatically reload compiled frontend assets in the browser
+            # on the host machine during "rollup watch" (dev environment only),
+            # see https://www.npmjs.com/package/livereload for usage details.
+            - "35729:35729"
         volumes:
             - ${SOURCE_PATH}:${DEPLOYMENT_PATH}
 

@@ -1,17 +1,20 @@
 
 import svelte from 'rollup-plugin-svelte';
 import resolve from '@rollup/plugin-node-resolve';
+import livereload from "rollup-plugin-livereload";
 
 const isBuildProduction = process.env.BUILD === 'production';
 
 export default {
     input: 'src/front/main.js',
+
     output: {
         sourcemap: false,
         format: 'iife',
         name: 'app',
         file: 'public/build/bundle.js'
     },
+
     plugins: [
         svelte({
             // enable run-time checks when not in production
@@ -27,6 +30,13 @@ export default {
         resolve({
             browser: true,
             dedupe: ['svelte']
-        })
-    ]
+        }),
+
+        // reloading compiled assets in the browser
+        !isBuildProduction && livereload('public')
+    ],
+
+    watch: {
+        clearScreen: false
+    }
 };
