@@ -1,8 +1,38 @@
 
-// managed by svelte-preprocess using postcss
+/**
+ * This file represents a set of styles for the application component.
+ * It also includes global styles (e.g. html, body overrides) and normalization for different browsers.
+ * The core blocks, elements and modifiers provided by the Spectre.css framework
+ * (https://github.com/picturepan2/spectre).
+ */
+
+// managed by Svelte Preprocess using PostCSS (https://github.com/postcss/postcss)
 :global {
     @import 'spectre.css/src/normalize';
     @import 'spectre.css/src/base';
+
+    .column-break {
+        flex-basis: 100%;
+        height: 0;
+        margin-bottom: $layout-spacing * 2
+    }
 }
 
+@import 'spectre.css/src/variables';
 @import 'spectre.css/src/layout';
+
+.page {
+    @extend .container;
+
+    margin: {
+        top: $unit-1 * 15;
+        bottom: $unit-1 * 15;
+    }
+
+    &__content {
+        @include shadow-variant($unit-o);
+
+        padding: $unit-5;
+        transform: translateY($layout-spacing-sm);
+    }
+}

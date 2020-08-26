@@ -56,7 +56,7 @@ RUN chown lighttpd:lighttpd /var/www/localhost/htdocs
 USER lighttpd
 
 # dependencies
-RUN npm install --no-optional
+RUN npm ci --no-optional
 
 # compiling assets
 RUN npm run build

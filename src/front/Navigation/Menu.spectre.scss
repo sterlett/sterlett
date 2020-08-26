@@ -1,0 +1,15 @@
+
+// Svelte performs CSS optimization, which removes unused component styles from the output, to minify footprint of
+// application assets. Compiler implementation (at least 3.24.*) also appends a specific "svelte-{hash}" class to the
+// elements to restrict component-scoped styles to the current template part.
+//
+// Menu component depends on third-party Router and its sub part, Link. So, technically, they are different scopes,
+// therefore we are forced here to declare all menu styles as global. Anyway, the link styles (a.active) will be
+// stripped by the CSS optimization mentioned above and there is no convenient solution
+// (see https://github.com/sveltejs/svelte/issues/4281#issuecomment-575676030) to tell Svelte about all modifiers,
+// applicable to the template parts within child component at runtime.
+:global {
+    @import 'spectre.css/src/menus';
+}
+
+@import 'spectre.css/src/utilities/divider';

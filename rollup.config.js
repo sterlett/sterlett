@@ -10,7 +10,7 @@ export default {
     input: 'src/front/main.js',
 
     output: {
-        sourcemap: false,
+        sourcemap: !isBuildProduction,
         format: 'iife',
         name: 'app',
         file: 'public/build/app.js',
@@ -24,12 +24,14 @@ export default {
         ),
 
         // reloading compiled assets in the browser
-        !isBuildProduction && livereload('public'),
+        process.env.ROLLUP_WATCH && livereload('public'),
 
         svelte(
             {
                 // enable run-time checks when not in production
                 dev: !isBuildProduction,
+
+                hydratable: true,
 
                 preprocess: sveltePreprocess(
                     {
@@ -45,7 +47,7 @@ export default {
                 // we'll extract any component CSS out into
                 // a separate file - better for performance
                 css: css => {
-                    css.write('public/build/app.css', false);
+                    css.write('public/build/app.css', !isBuildProduction);
                 },
             },
         ),

@@ -1,8 +1,22 @@
 
-<div class="container">
+<!-- application component template -->
+
+<div class="page grid-md">
     <div class="columns">
-        <div class="column">
-            <CpuViewer />
+        <div class="column col-3 col-md-12">
+            <Menu {routes} />
+        </div>
+
+        <div class="column-break show-md" />
+
+        <div class="column col-9 col-md-12">
+            <div class="page__content">
+                <Router>
+                    {#each routes as route}
+                    <Route path={route.path} component={route.component} />
+                    {/each}
+                </Router>
+            </div>
         </div>
     </div>
 </div>

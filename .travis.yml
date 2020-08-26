@@ -54,6 +54,10 @@ before_script:
     - docker-compose run --rm app bin/phpunit --configuration phpunit.xml --verbose
     # applying backend configuration
     - cp config/parameters.yml.dev.dist config/parameters.yml
+    # installing frontend dependencies
+    - docker-compose run --rm app npm ci --no-optional
+    # building frontend assets
+    - docker-compose run --rm app npm run build
 
 script:
     - docker-compose up --no-recreate --no-build --detach

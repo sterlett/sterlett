@@ -1,0 +1,16 @@
+
+<!-- menu component template -->
+
+<Router>
+    <ul class="menu">
+        <li class="divider" data-content="HARDWARE" />
+
+        {#each routes as route}
+        <li class="menu-item">
+            <Link to={route.url} getProps={onLinkUpdate}>
+                {route.title}
+            </Link>
+        </li>
+        {/each}
+    </ul>
+</Router>
