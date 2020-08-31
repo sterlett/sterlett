@@ -120,7 +120,7 @@ final class TickSchedulerTest extends TestCase
      *
      * @return void
      */
-    public function testResolvedEventWillNotPropagateInLoopTick(): void
+    public function testResolvedEventWillNotPropagateAsLoopTick(): void
     {
         $event         = new Event();
         $event->detail = [];

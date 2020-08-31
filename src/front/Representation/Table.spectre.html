@@ -1,0 +1,32 @@
+
+{#if items?.length}
+<table class="table" class:table-striped={isStriped} {...$$restProps}>
+    {#if header?.length}
+    <thead in:fly={{ y: -50, easing: expoOut }}>
+        <tr>
+            {#each header as headerName}
+            <th>
+                {headerName}
+            </th>
+            {/each}
+        </tr>
+    </thead>
+    {/if}
+
+    <tbody in:fly={{ x: 50, easing: expoOut }}>
+        {#each items as item}
+        <tr>
+            <td>
+                {item.name}
+            </td>
+
+            <td>
+                <img src={item.image} alt={item.name} />
+            </td>
+        </tr>
+        {/each}
+    </tbody>
+</table>
+{:else}
+{emptyMessage}
+{/if}

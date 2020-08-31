@@ -1,5 +1,6 @@
 
 import nodeResolve from '@rollup/plugin-node-resolve';
+import alias from '@rollup/plugin-alias';
 import livereload from 'rollup-plugin-livereload';
 import svelte from 'rollup-plugin-svelte';
 import sveltePreprocess from 'svelte-preprocess';
@@ -20,6 +21,25 @@ export default {
         nodeResolve(
             {
                 dedupe: ['svelte'],
+            },
+        ),
+
+        alias(
+            {
+                entries: [
+                    {
+                        find: '@Hardware',
+                        replacement: 'src/front/Hardware',
+                    },
+                    {
+                        find: '@Page',
+                        replacement: 'src/front/Page',
+                    },
+                    {
+                        find: '@Representation',
+                        replacement: 'src/front/Representation',
+                    },
+                ],
             },
         ),
 

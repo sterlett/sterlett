@@ -2,6 +2,8 @@
 <!-- defines a common skeleton for the site pages and core client-side logic -->
 
 <script type="text/javascript">
+    import { fly } from 'svelte/transition';
+    import { expoOut } from 'svelte/easing';
     import { pages } from './Navigation/RouteBook.svelte';
     import Menu from './Navigation/Menu.svelte';
     import { Router, Route } from 'svelte-routing';

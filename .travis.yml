@@ -56,7 +56,7 @@ before_script:
     - cp config/parameters.yml.dev.dist config/parameters.yml
     # installing frontend dependencies
     - docker-compose run --rm app npm ci --no-optional
-    # building frontend assets
+    # compiling frontend assets
     - docker-compose run --rm app npm run build
 
 script:
