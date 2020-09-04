@@ -1,6 +1,7 @@
 
 import nodeResolve from '@rollup/plugin-node-resolve';
 import alias from '@rollup/plugin-alias';
+import json from '@rollup/plugin-json';
 import livereload from 'rollup-plugin-livereload';
 import svelte from 'rollup-plugin-svelte';
 import sveltePreprocess from 'svelte-preprocess';
@@ -28,6 +29,10 @@ export default {
             {
                 entries: [
                     {
+                        find: '@Deserialization',
+                        replacement: 'src/front/Deserialization',
+                    },
+                    {
                         find: '@Hardware',
                         replacement: 'src/front/Hardware',
                     },
@@ -36,12 +41,19 @@ export default {
                         replacement: 'src/front/Page',
                     },
                     {
-                        find: '@Representation',
-                        replacement: 'src/front/Representation',
+                        find: '@Translation',
+                        replacement: 'src/front/Translation',
+                    },
+                    {
+                        find: '@_translations',
+                        replacement: 'src/front/_translations',
                     },
                 ],
             },
         ),
+
+        // transforms .json translation files into ES6 modules, for svelte-i18n
+        json(),
 
         // reloading compiled assets in the browser
         process.env.ROLLUP_WATCH && livereload('public'),

@@ -1,8 +1,9 @@
 
 <script type="text/javascript">
     import { onMount } from 'svelte';
+    import { format } from 'svelte-i18n';
     import Cpu from '@Hardware/Cpu.js';
-    import Table from '@Representation/Table.svelte';
+    import Table from '@Hardware/Representation/Table.svelte';
 
     async function fetchCpuList() {
         try {
@@ -31,6 +32,14 @@
 
         return cpus;
     }
+
+    const tableHeader = [
+        $format('Image'),
+        $format('Name'),
+        $format('Price'),
+    ];
+
+    const tableEmptyMessage = $format('No CPUs.');
 
     let cpuListLoadPromise;
 

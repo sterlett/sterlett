@@ -2,15 +2,28 @@
 // represents entity from the "CPU" hardware category
 // defined using ES5-style class notation, with some ES6 features (i.e. arrow functions)
 
+import DeserializableObject from '@Deserialization/DeserializableObject.js';
+import Price from '@Hardware/Price.js';
+
+/**
+ * A map of prices, keyed by price types (per-item, average, etc.)
+ *
+ * @typedef {Object} Prices
+ *
+ * @property {Price} average Average price for the item
+ */
+
 /**
  * Cpu constructor
  *
- * @param {string} name CPU model name
- * @param {string} image CPU image source link
+ * @param {String} name CPU model name
+ * @param {String} image CPU image source link
+ * @param {Prices} prices CPU price entries
  *
  * @constructor
  */
-export default function Cpu(name, image) {
+function Cpu(name, image, prices) {
+    // defining property on target instance, not prototype
     Object.defineProperty(
         this,
         'name',
@@ -40,33 +53,59 @@ export default function Cpu(name, image) {
         },
     );
 
+    let _prices;
+
+    if ('object' === typeof prices) {
+        _prices = prices;
+    } else {
+        _prices = {
+            average: new Price(),
+        };
+    }
+
+    Object.defineProperty(
+        this,
+        'prices',
+        {
+            get: () => _prices,
+            set: function (pricesNew) {
+                for (const price of pricesNew) {
+                    let priceType;
+
+                    'undefined' !== typeof price.type ? (
+                        priceType = price.type
+                    ) : (
+                        priceType = 'unit'
+                    );
+
+                    if (!Object.prototype.hasOwnProperty.call(_prices, priceType)) {
+                        throw new TypeError('Unsupported price type: ' + priceType);
+                    }
+
+                    let fieldValueNormalized;
+
+                    if (!(price instanceof Price)) {
+                        fieldValueNormalized = Price.prototype.fromJson(price);
+                    } else {
+                        fieldValueNormalized = price;
+                    }
+
+                    _prices[priceType] = fieldValueNormalized;
+                }
+            },
+        },
+    );
+
     // restricting addition of new properties by the user-side
     Object.seal(this);
 }
 
-/**
- * Returns new CPU instance created from the specified json object
- *
- * @param {Object} json Json data object
- *
- * @return {Cpu}
- */
-Cpu.prototype.fromJson = function (json) {
-    const instance = new Cpu();
+Cpu.prototype = Object.create(DeserializableObject.prototype);
 
-    const fields = Object.entries(json);
-
-    for (const [fieldName, fieldValue] of fields) {
-        if (!instance.hasOwnProperty(fieldName)) {
-            continue;
-        }
-
-        instance[fieldName] = fieldValue;
-    }
-
-    return instance;
-};
+Cpu.prototype.constructor = Cpu;
 
 // marking class as "final", i.e. existing properties are not extensible by the user-side after this line,
 // forcing to use composition instead of inheritance.
 Object.freeze(Cpu.prototype);
+
+export default Cpu;

@@ -3,140 +3,190 @@
         {
             "name": "AMD Ryzen 5 3600",
             "image": "https://hardprice.ru/images/p/_/ryzen3000/ryzen-5-3600.jpg",
-            "price": {
-                "avg": 15650,
-                "currency": "RUR"
-            },
+            "prices": [
+                {
+                    "type": "average",
+                    "value": 156507013,
+                    "currency": "RUR",
+                    "precision": 4
+                }
+            ],
             "vb_ratio": 87.76,
             "benchmarks": [
                 {
-                    "passmark": 17832
+                    "name": "PassMark",
+                    "value": 17832
                 }
             ]
         },
         {
             "name": "AMD Ryzen 5 3600",
             "image": "https://hardprice.ru/images/p/_/ryzen3000/ryzen-5-3600.jpg",
-            "price": {
-                "avg": 15650,
-                "currency": "RUR"
-            },
+            "prices": [
+                {
+                    "type": "average",
+                    "value": 156507013,
+                    "currency": "RUR",
+                    "precision": 4
+                }
+            ],
             "vb_ratio": 87.76,
             "benchmarks": [
                 {
-                    "passmark": 17832
+                    "name": "PassMark",
+                    "value": 17832
                 }
             ]
         },
         {
             "name": "AMD Ryzen 5 3600",
             "image": "https://hardprice.ru/images/p/_/ryzen3000/ryzen-5-3600.jpg",
-            "price": {
-                "avg": 15650,
-                "currency": "RUR"
-            },
+            "prices": [
+                {
+                    "type": "average",
+                    "value": 156507013,
+                    "currency": "RUR",
+                    "precision": 4
+                }
+            ],
             "vb_ratio": 87.76,
             "benchmarks": [
                 {
-                    "passmark": 17832
+                    "name": "PassMark",
+                    "value": 17832
                 }
             ]
         },
         {
             "name": "AMD Ryzen 5 3600",
             "image": "https://hardprice.ru/images/p/_/ryzen3000/ryzen-5-3600.jpg",
-            "price": {
-                "avg": 15650,
-                "currency": "RUR"
-            },
+            "prices": [
+                {
+                    "type": "average",
+                    "value": 156507013,
+                    "currency": "RUR",
+                    "precision": 4
+                }
+            ],
             "vb_ratio": 87.76,
             "benchmarks": [
                 {
-                    "passmark": 17832
+                    "name": "PassMark",
+                    "value": 17832
                 }
             ]
         },
         {
             "name": "AMD Ryzen 5 3600",
             "image": "https://hardprice.ru/images/p/_/ryzen3000/ryzen-5-3600.jpg",
-            "price": {
-                "avg": 15650,
-                "currency": "RUR"
-            },
+            "prices": [
+                {
+                    "type": "average",
+                    "value": 156507013,
+                    "currency": "RUR",
+                    "precision": 4
+                }
+            ],
             "vb_ratio": 87.76,
             "benchmarks": [
                 {
-                    "passmark": 17832
+                    "name": "PassMark",
+                    "value": 17832
                 }
             ]
         },
         {
             "name": "AMD Ryzen 5 3600",
             "image": "https://hardprice.ru/images/p/_/ryzen3000/ryzen-5-3600.jpg",
-            "price": {
-                "avg": 15650,
-                "currency": "RUR"
-            },
+            "prices": [
+                {
+                    "type": "average",
+                    "value": 156507013,
+                    "currency": "RUR",
+                    "precision": 4
+                }
+            ],
             "vb_ratio": 87.76,
             "benchmarks": [
                 {
-                    "passmark": 17832
+                    "name": "PassMark",
+                    "value": 17832
                 }
             ]
         },
         {
             "name": "AMD Ryzen 5 3600",
             "image": "https://hardprice.ru/images/p/_/ryzen3000/ryzen-5-3600.jpg",
-            "price": {
-                "avg": 15650,
-                "currency": "RUR"
-            },
+            "prices": [
+                {
+                    "type": "average",
+                    "value": 156507013,
+                    "currency": "RUR",
+                    "precision": 4
+                }
+            ],
             "vb_ratio": 87.76,
             "benchmarks": [
                 {
-                    "passmark": 17832
+                    "name": "PassMark",
+                    "value": 17832
                 }
             ]
         },
         {
             "name": "AMD Ryzen 5 3600",
             "image": "https://hardprice.ru/images/p/_/ryzen3000/ryzen-5-3600.jpg",
-            "price": {
-                "avg": 15650,
-                "currency": "RUR"
-            },
+            "prices": [
+                {
+                    "type": "average",
+                    "value": 156507013,
+                    "currency": "RUR",
+                    "precision": 4
+                }
+            ],
             "vb_ratio": 87.76,
             "benchmarks": [
                 {
-                    "passmark": 17832
+                    "name": "PassMark",
+                    "value": 17832
                 }
             ]
         },
         {
             "name": "AMD Ryzen 5 3600",
             "image": "https://hardprice.ru/images/p/_/ryzen3000/ryzen-5-3600.jpg",
-            "price": {
-                "avg": 15650,
-                "currency": "RUR"
-            },
+            "prices": [
+                {
+                    "type": "average",
+                    "value": 156507013,
+                    "currency": "RUR",
+                    "precision": 4
+                }
+            ],
             "vb_ratio": 87.76,
             "benchmarks": [
                 {
-                    "passmark": 17832
+                    "name": "PassMark",
+                    "value": 17832
                 }
             ]
         },
         {
             "name": "AMD Ryzen 5 3600",
             "image": "https://hardprice.ru/images/p/_/ryzen3000/ryzen-5-3600.jpg",
-            "price": {
-                "avg": 15650,
-                "currency": "RUR"
-            },
+            "prices": [
+                {
+                    "type": "average",
+                    "value": 156507013,
+                    "currency": "RUR",
+                    "precision": 4
+                }
+            ],
             "vb_ratio": 87.76,
             "benchmarks": [
                 {
-                    "passmark": 17832
+                    "name": "PassMark",
+                    "value": 17832
                 }
             ]
         }

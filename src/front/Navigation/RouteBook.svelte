@@ -8,7 +8,7 @@
 
     // export const variable from the module context doesn't mark it as a component state property
     export const pages = {
-        home: CpuListPage,
-        about: AboutPage,
+        CpuListPage,
+        AboutPage,
     };
 </script>

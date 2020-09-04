@@ -2,6 +2,7 @@
 <!-- defines a block with links for navigation between pages -->
 
 <script type="text/javascript">
+    import { format } from 'svelte-i18n';
     import { Router, Link } from 'svelte-routing';
 
     export let routes = [];
