@@ -4,6 +4,7 @@
 
 import DeserializableObject from '@Deserialization/DeserializableObject.js';
 import Price from '@Hardware/Price.js';
+import Benchmark from '@Hardware/Benchmark.js';
 
 /**
  * A map of prices, keyed by price types (per-item, average, etc.)
@@ -14,15 +15,23 @@ import Price from '@Hardware/Price.js';
  */
 
 /**
+ * List of benchmarks for the hardware model
+ *
+ * @typedef {Benchmark[]} Benchmarks
+ */
+
+/**
  * Cpu constructor
  *
  * @param {String} name CPU model name
  * @param {String} image CPU image source link
  * @param {Prices} prices CPU price entries
+ * @param {Benchmarks} benchmarks List of CPU model benchmarks
+ * @param {Number} vbRatio Value to benchmark rating
  *
  * @constructor
  */
-function Cpu(name, image, prices) {
+function Cpu(name, image, prices, benchmarks, vbRatio) {
     // defining property on target instance, not prototype
     Object.defineProperty(
         this,
@@ -69,11 +78,11 @@ function Cpu(name, image, prices) {
         {
             get: () => _prices,
             set: function (pricesNew) {
-                for (const price of pricesNew) {
+                for (const priceNew of pricesNew) {
                     let priceType;
 
-                    'undefined' !== typeof price.type ? (
-                        priceType = price.type
+                    'undefined' !== typeof priceNew.type ? (
+                        priceType = priceNew.type
                     ) : (
                         priceType = 'unit'
                     );
@@ -82,17 +91,45 @@ function Cpu(name, image, prices) {
                         throw new TypeError('Unsupported price type: ' + priceType);
                     }
 
-                    let fieldValueNormalized;
+                    let priceNewNormalized;
 
-                    if (!(price instanceof Price)) {
-                        fieldValueNormalized = Price.prototype.fromJson(price);
+                    if (!(
+                        priceNew instanceof Price
+                    )) {
+                        priceNewNormalized = Price.prototype.fromJson(priceNew);
                     } else {
-                        fieldValueNormalized = price;
+                        priceNewNormalized = priceNew;
                     }
 
-                    _prices[priceType] = fieldValueNormalized;
+                    _prices[priceType] = priceNewNormalized;
                 }
             },
+        },
+    );
+
+    let _benchmarks = benchmarks ?? [];
+
+    Object.defineProperty(
+        this,
+        'benchmarks',
+        {
+            get: () => _benchmarks,
+            set: function (benchmarksNew) {
+                for (const benchmarkNew of benchmarksNew) {
+                    const benchmarkNewNormalized = Benchmark.prototype.fromJson(benchmarkNew);
+
+                    _benchmarks = [..._benchmarks, benchmarkNewNormalized];
+                }
+            },
+        },
+    );
+
+    Object.defineProperty(
+        this,
+        'vbRatio',
+        {
+            writable: true,
+            value: vbRatio,
         },
     );
 
@@ -104,8 +141,22 @@ Cpu.prototype = Object.create(DeserializableObject.prototype);
 
 Cpu.prototype.constructor = Cpu;
 
+/**
+ * @inheritdoc
+ */
+Cpu.prototype.fromJson = function (json) {
+    const parentReference = Object.getPrototypeOf(this);
+
+    let instance = parentReference.fromJson.call(this, json);
+    instance.vbRatio = json?.vb_ratio ?? 0;
+
+    return instance;
+};
+
 // marking class as "final", i.e. existing properties are not extensible by the user-side after this line,
 // forcing to use composition instead of inheritance.
 Object.freeze(Cpu.prototype);
 
 export default Cpu;
+
+// todo: adopt object mapper

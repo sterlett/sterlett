@@ -182,7 +182,6 @@
                     "precision": 4
                 }
             ],
-            "vb_ratio": 87.76,
             "benchmarks": [
                 {
                     "name": "PassMark",

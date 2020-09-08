@@ -1,8 +1,8 @@
 
 {#await cpuListLoadPromise}
 <div class="loading loading-lg"></div>
-{:then cpus}
-<Table header={tableHeader} items={cpus} emptyMessage={tableEmptyMessage} isStriped={true} />
+{:then}
+<Table header={tableHeader} items={cpus} emptyMessage={tableEmptyMessage} isStriped={tableIsStriped} />
 {:catch}
 <div>
     Unable to fetch CPUs list.

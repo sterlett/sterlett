@@ -25,6 +25,16 @@
             </td>
 
             <td>
+                {item.vbRatio}
+            </td>
+
+            <td>
+                {#each item.benchmarks as benchmark}
+                {benchmark.name}: {benchmark.value}
+                {/each}
+            </td>
+
+            <td>
                 {item.prices.average}
             </td>
         </tr>

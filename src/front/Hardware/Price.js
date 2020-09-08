@@ -21,16 +21,16 @@ class Price {
     /**
      * Price constructor.
      *
-     * @param {Number} value Amount of money as number without . or ,
+     * @param {Number} value Amount of money as number, without . or ,
      * @param {String} currency Currency symbol
      * @param {Number} precision Precision number
      */
     constructor(value, currency, precision) {
         this.#priceModel = Dinero(
             {
-                amount: value || Dinero.defaultAmount,
-                currency: currency || Dinero.defaultCurrency,
-                precision: precision || Dinero.defaultPrecision,
+                amount: value ?? Dinero.defaultAmount,
+                currency: currency ?? Dinero.defaultCurrency,
+                precision: precision ?? Dinero.defaultPrecision,
             },
         );
     }
