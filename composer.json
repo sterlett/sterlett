@@ -1,7 +1,7 @@
 {
     "name": "sterlett/sterlett",
     "type": "project",
-    "description": "",
+    "description": "The microservice and console API for retrieving and processing public information about computer hardware prices",
     "homepage": "https://github.com/sterlett/sterlett",
     "license": "GPL-3.0-or-later",
     "authors": [

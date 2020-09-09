@@ -41,6 +41,23 @@ before_script:
             --force-rm \
             --no-cache \
             app
+    # building standalone images
+    - |
+        docker image build \
+        	--build-arg "TIMEZONE=Europe/Moscow" \
+        	--build-arg "DEPLOYMENT_PATH=/var/www/sterlett" \
+        	--build-arg "PHP_VERSION=7.4" \
+        	--tag 127.0.0.1:5000/sterlett-app:latest \
+        	--file docker/dev/app/Dockerfile-standalone \
+        	.
+    - |
+        docker image build \
+            --build-arg "TIMEZONE=Europe/Moscow" \
+        	--build-arg "NODEJS_VERSION=14" \
+        	--build-arg "LIGHTTPD_VERSION=1.4.55-r1" \
+        	--tag 127.0.0.1:5000/sterlett-lighttpd:latest \
+        	--file docker/dev/lighttpd/Dockerfile-standalone \
+        	.
     # installing backend dependencies
     - |
         docker-compose run --rm app composer install \

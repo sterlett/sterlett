@@ -28,7 +28,7 @@ async function fetchByUri(uri) {
  *
  * @param {Response} response The response to a request
  *
- * @returns {Promise<any>}
+ * @return {Promise<any>}
  */
 async function responseDeserialize(response)
 {
