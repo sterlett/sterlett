@@ -31,6 +31,8 @@ class Benchmark {
     }
 }
 
+// ES6 class extends methods from the ES5 class
 Object.setPrototypeOf(Benchmark.prototype, DeserializableObject.prototype);
+Object.setPrototypeOf(Benchmark, DeserializableObject);
 
 export default Benchmark;

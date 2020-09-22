@@ -19,7 +19,11 @@ async function fetchByUri(uri) {
     try {
         return await fetch(uri);
     } catch (error) {
-        throw new Error('Unable to fetch CPU list. ' + error);
+        const errorMessage = error?.message ?? error?.toString() ?? 'Unknown error.';
+
+        // expands the context with additional information.
+        // will be passed as a reason to the rejection callback.
+        throw new Error('Unable to fetch CPU list. ' + errorMessage);
     }
 }
 
@@ -35,7 +39,9 @@ async function responseDeserialize(response)
     try {
         return await response.json();
     } catch (error) {
-        throw new Error('Unable to deserialize CPU list. ' + error);
+        const errorMessage = error?.message ?? error?.toString() ?? 'Unknown error.';
+
+        throw new Error('Unable to deserialize CPU list. ' + errorMessage);
     }
 }
 
@@ -55,9 +61,9 @@ async function fetchCpuList() {
     let cpuList = [];
 
     for (const item of responseJson.items) {
-        const cpu = Cpu.prototype.fromJson(item);
+        const cpuNormalized = Cpu.prototype.fromJson(item);
 
-        cpuList = [...cpuList, cpu];
+        cpuList = [...cpuList, cpuNormalized];
     }
 
     return cpuList;

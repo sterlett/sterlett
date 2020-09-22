@@ -24,7 +24,7 @@ for routing and load balancing.
 
 Backend: PHP 7.4+, [ReactPHP](https://github.com/reactphp/reactphp), 
 [Symfony](https://github.com/symfony/symfony) 5 components. \
-Frontend: [lighttpd](https://lighttpd.net) 1.4, JavaScript (ES5, ES6+),
+Frontend: [Lighttpd](https://lighttpd.net) 1.4, JavaScript (ES5, ES6+),
 [Svelte](https://github.com/sveltejs/svelte) 3, [Spectre.css](https://github.com/picturepan2/spectre). \
 Gateway: [HAProxy](https://www.haproxy.com) 2.2.
 
@@ -38,7 +38,7 @@ This one is currently at the prototyping stage :honeybee:.
 :honey_pot: CI ground \
 :black_square_button: Prices retrieving \
 :black_square_button: Benchmarks retrieving \
-:black_square_button: Console API: CPUs list \
+:black_square_button: Console API: CPU list \
 :black_square_button: Console API: Day/Week deals \
 :black_square_button: Microservice: CPU list browsing
 

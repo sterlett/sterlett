@@ -137,9 +137,8 @@ function Cpu(name, image, prices, benchmarks, vbRatio) {
     Object.seal(this);
 }
 
-Cpu.prototype = Object.create(DeserializableObject.prototype);
-
-Cpu.prototype.constructor = Cpu;
+Object.setPrototypeOf(Cpu.prototype, DeserializableObject.prototype);
+Object.setPrototypeOf(Cpu, DeserializableObject);
 
 /**
  * @inheritdoc
@@ -147,7 +146,7 @@ Cpu.prototype.constructor = Cpu;
 Cpu.prototype.fromJson = function (json) {
     const parentReference = Object.getPrototypeOf(this);
 
-    let instance = parentReference.fromJson.call(this, json);
+    const instance = parentReference.fromJson.call(this, json);
     instance.vbRatio = json?.vb_ratio ?? 0;
 
     return instance;

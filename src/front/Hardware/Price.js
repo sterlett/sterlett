@@ -42,8 +42,8 @@ class Price {
      *
      * @return {Price}
      */
-    fromJson(json) {
-        return new this.constructor(json?.value, json?.currency, json?.precision);
+    static fromJson(json) {
+        return new this(json?.value, json?.currency, json?.precision);
     }
 
     /**
@@ -55,5 +55,10 @@ class Price {
         return this.#priceModel.toFormat('0,0 dollar');
     }
 }
+
+// alias for ES5 prototype chain resolving calls.
+Price.prototype.fromJson = function (json) {
+    return this.constructor.fromJson(json);
+};
 
 export default Price;
