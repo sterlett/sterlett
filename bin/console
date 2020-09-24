@@ -14,9 +14,9 @@
 
 declare(strict_types=1);
 
-use Sterlett\Application;
-use Sterlett\Bridge\Evenement\DependencyInjection\Compiler\RegisterListenersPass as RegisterEvenementListenersPass;
 use Sterlett\Bridge\Symfony\Component\DependencyInjection\Configurator\YamlConfigurator;
+use Sterlett\Console\Application as ConsoleApplication;
+use Symfony\Component\Console\DependencyInjection\AddConsoleCommandPass;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -32,25 +32,21 @@ $containerConfigurator->setParameterFilePath($parameterFilePath);
 $containerConfigurator->setDefinitionFilePaths(
     [
         __DIR__ . '/../config/services.yml',
-        __DIR__ . '/../config/services/loggers.yml',
-        __DIR__ . '/../config/services/async/event_loop.yml',
-        __DIR__ . '/../config/services/async/server.yml',
-        __DIR__ . '/../config/services/async/streams.yml',
-        __DIR__ . '/../config/services/shutdown.yml',
-        __DIR__ . '/../config/services/event_listeners.yml',
-        __DIR__ . '/../config/services/request/uri_normalizers.yml',
-        __DIR__ . '/../config/services/request/uri_matcher.yml',
-        __DIR__ . '/../config/services/request/handler.yml',
+        __DIR__ . '/../config/services/console/commands.yml',
     ]
 );
 $containerConfigurator->setDefinitionDefaultsFilePath(__DIR__ . '/../config/services.yml');
 
 $container = $containerConfigurator->getContainerBuilder();
-$container->addCompilerPass(new RegisterEvenementListenersPass());
+$container->addCompilerPass(new AddConsoleCommandPass());
 
-// we are starting an async web server with some concurrent code
-// so we don't need any container caching logic for this case.
 $container->compile(true);
 
-$application = new Application($container);
+$applicationName    = $container->getParameter('app.console.name');
+$applicationVersion = $container->getParameter('app.console.version');
+$commandLoader      = $container->get('console.command_loader');
+
+$application = new ConsoleApplication($applicationName, $applicationVersion);
+$application->setCommandLoader($commandLoader);
+
 $application->run();

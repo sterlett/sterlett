@@ -13,7 +13,6 @@ services:
 
     # similar to "_defaults" options for service definitions, but for the specified interface/class,
     # see https://github.com/symfony/dependency-injection/blob/v5.1.0/Loader/YamlFileLoader.php#L89
-    # todo: implement sharing
     _instanceof:
         # all services that implement target interface will receive these definition options in the DI container,
         # tag attributes is not available here (5.1.0).

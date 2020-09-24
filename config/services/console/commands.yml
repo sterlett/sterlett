@@ -1,0 +1,7 @@
+
+services:
+    app.console.command.hardware.cpu.benchmark.list_command:
+        class: Sterlett\Console\Command\Hardware\Cpu\Benchmark\ListCommand
+        tags:
+            -   name: 'console.command'
+                command: 'benchmark:list'
