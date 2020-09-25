@@ -1,7 +1,9 @@
 
 services:
-    app.console.command.hardware.cpu.benchmark.list_command:
-        class: Sterlett\Console\Command\Hardware\Cpu\Benchmark\ListCommand
+    app.console.command.hardware.benchmark.list_command.cpu:
+        class: Sterlett\Console\Command\Hardware\Benchmark\ListCommand
+        arguments:
+            - 'Prints a list with current benchmark values for the CPU hardware category'
         tags:
             -   name: 'console.command'
                 command: 'benchmark:list'

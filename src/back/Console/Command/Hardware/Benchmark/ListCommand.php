@@ -13,23 +13,27 @@
 
 declare(strict_types=1);
 
-namespace Sterlett\Console\Command\Hardware\Cpu\Benchmark;
+namespace Sterlett\Console\Command\Hardware\Benchmark;
 
 use Symfony\Component\Console\Command\Command as BaseCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Renders a list with CPU benchmark values
+ * Renders a list with hardware benchmark values for the category, specified by the given benchmark providers
  */
 class ListCommand extends BaseCommand
 {
     /**
-     * {@inheritDoc}
+     * ListCommand constructor.
+     *
+     * @param string $description Description for the command
      */
-    protected function configure()
+    public function __construct(string $description)
     {
-        $this->setDescription('Prints a list with current benchmark values for the CPU hardware category.');
+        parent::__construct();
+
+        $this->setDescription($description);
     }
 
     /**
