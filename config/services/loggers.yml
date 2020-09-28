@@ -1,19 +1,13 @@
 
 services:
-    app.log.logger.stdout:
-        alias: 'app.bridge.wyrihaximus.react.psr3.stdio.date_time_aware_logger.stdout'
-        public: true
+    app.log.logger.stdout.synchronous:
+        alias: 'symfony.console.logger'
 
-    app.bridge.wyrihaximus.react.psr3.stdio.date_time_aware_logger.stdout:
-        class: Sterlett\Bridge\WyriHaximus\React\Psr3\Stdio\DateTimeAwareLogger
+    # blocking
+    symfony.console.logger:
+        class: Symfony\Component\Console\Logger\ConsoleLogger
         arguments:
-            - '@wyrihaximus.react.psr3.stdio_logger.stdout'
+            - '@symfony.console.output'
 
-    # non-blocking, react-compatible
-    wyrihaximus.react.psr3.stdio_logger.stdout:
-        class: WyriHaximus\React\PSR3\Stdio\StdioLogger
-        factory: ['Sterlett\Bridge\WyriHaximus\React\Psr3\Stdio\LoggerFactory', getLogger]
-        arguments:
-            - '@app.writable_stream.stdout'
-            - true
-            - true
+    symfony.console.output:
+        class: Symfony\Component\Console\Output\ConsoleOutput

@@ -12,3 +12,5 @@ parameters:
 
     app.console.name: 'Sterlett'
     app.console.version: '0.x'
+
+    app.hardware.benchmark.provider.passmark.cpu.data_uri: 'https://www.cpubenchmark.net/high_end_cpus.html'

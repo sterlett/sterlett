@@ -16,10 +16,10 @@ declare(strict_types=1);
 namespace Sterlett\Bridge\React\Http;
 
 use Exception;
-use Sterlett\ServerInterface;
 use Psr\Log\LoggerInterface;
-use React\Http\StreamingServer;
+use React\Http\Server as HttpServer;
 use React\Socket\TcpServer;
+use Sterlett\ServerInterface;
 
 /**
  * Handles HTTP requests in concurrent approach using TCP/IP server implementation from ReactPHP package
@@ -34,11 +34,11 @@ class Server implements ServerInterface
     private LoggerInterface $logger;
 
     /**
-     * Processes incoming HTTP requests
+     * Handles incoming HTTP requests using specified connection manager
      *
-     * @var StreamingServer
+     * @var HttpServer
      */
-    private StreamingServer $server;
+    private HttpServer $server;
 
     /**
      * Accepts plaintext TCP/IP connections
@@ -51,10 +51,10 @@ class Server implements ServerInterface
      * Server constructor.
      *
      * @param LoggerInterface $logger Logs information about server interactions
-     * @param StreamingServer $server Processes incoming HTTP requests
+     * @param HttpServer      $server Handles incoming HTTP requests using specified socket connection
      * @param TcpServer       $socket Accepts plaintext TCP/IP connections
      */
-    public function __construct(LoggerInterface $logger, StreamingServer $server, TcpServer $socket)
+    public function __construct(LoggerInterface $logger, HttpServer $server, TcpServer $socket)
     {
         $this->logger = $logger;
         $this->server = $server;

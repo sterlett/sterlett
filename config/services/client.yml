@@ -1,0 +1,18 @@
+
+services:
+    # for console API, shouldn't be used in the microservice environment
+    app.blocking_client:
+        alias: 'app.bridge.react.http.blocking_client'
+
+    app.bridge.react.http.blocking_client:
+        class: Sterlett\Bridge\React\Http\BlockingClient
+        arguments:
+            - '@app.log.logger.stdout.synchronous'
+            - '@react.http.browser'
+            - '@app.event_loop'
+
+    # react
+    react.http.browser:
+        class: React\Http\Browser
+        arguments:
+            - '@app.event_loop'

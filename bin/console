@@ -32,6 +32,10 @@ $containerConfigurator->setParameterFilePath($parameterFilePath);
 $containerConfigurator->setDefinitionFilePaths(
     [
         __DIR__ . '/../config/services.yml',
+        __DIR__ . '/../config/services/loggers.yml',
+        __DIR__ . '/../config/services/async/event_loop.yml',
+        __DIR__ . '/../config/services/client.yml',
+        __DIR__ . '/../config/services/hardware/benchmark_providers.yml',
         __DIR__ . '/../config/services/console/commands.yml',
     ]
 );

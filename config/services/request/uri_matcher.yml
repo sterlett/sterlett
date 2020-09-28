@@ -2,7 +2,6 @@
 services:
     app.request.uri.matcher:
         alias: 'app.request.uri.matcher.path_normalizing_matcher.hardware_mark'
-        public: true
 
     app.request.uri.matcher.path_normalizing_matcher.hardware_mark:
         class: Sterlett\Request\Uri\Matcher\PathNormalizingMatcher

@@ -15,9 +15,11 @@ declare(strict_types=1);
 
 namespace Sterlett\Console\Command\Hardware\Benchmark;
 
+use Sterlett\Hardware\Benchmark\ProviderInterface;
 use Symfony\Component\Console\Command\Command as BaseCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Traversable;
 
 /**
  * Renders a list with hardware benchmark values for the category, specified by the given benchmark providers
@@ -25,13 +27,23 @@ use Symfony\Component\Console\Output\OutputInterface;
 class ListCommand extends BaseCommand
 {
     /**
+     * A list with benchmark providers, keyed by names/identifiers
+     *
+     * @var Traversable<ProviderInterface>|ProviderInterface[]
+     */
+    private iterable $benchmarkProviders;
+
+    /**
      * ListCommand constructor.
      *
-     * @param string $description Description for the command
+     * @param iterable $benchmarkProviders A list with benchmark providers, keyed by names/identifiers
+     * @param string   $description        Description for the command
      */
-    public function __construct(string $description)
+    public function __construct(iterable $benchmarkProviders, string $description)
     {
         parent::__construct();
+
+        $this->benchmarkProviders = $benchmarkProviders;
 
         $this->setDescription($description);
     }

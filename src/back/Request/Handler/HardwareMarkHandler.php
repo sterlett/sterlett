@@ -18,7 +18,7 @@ namespace Sterlett\Request\Handler;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface as RequestInterface;
 use Psr\Log\LoggerInterface;
-use React\Http\Response;
+use React\Http\Message\Response;
 use Sterlett\Request\HandlerInterface;
 use Sterlett\Request\Uri\Match;
 use Sterlett\Request\Uri\MatcherInterface;

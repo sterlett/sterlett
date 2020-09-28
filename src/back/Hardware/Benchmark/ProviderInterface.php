@@ -15,7 +15,9 @@ declare(strict_types=1);
 
 namespace Sterlett\Hardware\Benchmark;
 
+use React\Promise\PromiseInterface;
 use Sterlett\Dto\Hardware\Benchmark;
+use Traversable;
 
 /**
  * Retrieves hardware benchmark data
@@ -23,9 +25,10 @@ use Sterlett\Dto\Hardware\Benchmark;
 interface ProviderInterface
 {
     /**
-     * Returns a list with benchmarks for the configured hardware category
+     * Returns a promise that resolves into a list with benchmarks for the configured hardware category (async approach
+     * by default). Adapters for environments with blocking I/O should return a fulfilled promise.
      *
-     * @return iterable|Benchmark[]
+     * @return PromiseInterface<Traversable<Benchmark>|Benchmark[]>
      */
-    public function getBenchmarks(): iterable;
+    public function getBenchmarks(): PromiseInterface;
 }

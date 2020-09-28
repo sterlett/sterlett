@@ -25,6 +25,9 @@ use Sterlett\Bridge\Symfony\Component\EventDispatcher\DeferredTickScheduler;
 use Sterlett\Bridge\Symfony\Component\EventDispatcher\TickCallbackBuilder;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * Tests if DeferredTickScheduler adds listener callbacks to the loop's ticks queue correctly (one-by-one, by demand)
+ */
 final class DeferredTickSchedulerTest extends TestCase
 {
     /**
