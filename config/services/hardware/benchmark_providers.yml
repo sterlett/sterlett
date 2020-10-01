@@ -1,10 +1,20 @@
 
 services:
+    # passmark
     app.hardware.benchmark.provider.passmark_provider.cpu.synchronous:
-        class: Sterlett\Hardware\Benchmark\Provider\PassMarkProvider
+        class: Sterlett\Hardware\Benchmark\Provider\BlockingProvider
         arguments:
-            - '@app.blocking_client'
-            - '%app.hardware.benchmark.provider.passmark.cpu.data_uri%'
+            - '@app.hardware.benchmark.provider.passmark_provider.cpu'
+            - '@app.event_loop'
         tags:
             -   name: 'benchmark_provider.synchronous'
+                providerId: 'PassMark'
+
+    app.hardware.benchmark.provider.passmark_provider.cpu:
+        class: Sterlett\Hardware\Benchmark\Provider\PassMarkProvider
+        arguments:
+            - '@app.client'
+            - '%app.hardware.benchmark.passmark.cpu.download_uri%'
+        tags:
+            -   name: 'benchmark_provider'
                 providerId: 'PassMark'

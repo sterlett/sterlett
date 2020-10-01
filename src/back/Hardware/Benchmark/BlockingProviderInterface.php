@@ -15,19 +15,21 @@ declare(strict_types=1);
 
 namespace Sterlett\Hardware\Benchmark;
 
-use React\Promise\PromiseInterface;
+use RuntimeException;
 use Sterlett\Hardware\BenchmarkInterface;
 use Traversable;
 
 /**
- * Retrieves hardware benchmark data (async approach)
+ * Retrieves hardware benchmark data in the traditional, blocking I/O way
  */
-interface ProviderInterface
+interface BlockingProviderInterface
 {
     /**
-     * Returns a promise that resolves into a list with benchmarks for the configured hardware category
+     * Returns a list with benchmarks for the configured hardware category
      *
-     * @return PromiseInterface<Traversable<BenchmarkInterface>|BenchmarkInterface[]>
+     * @return Traversable<BenchmarkInterface>|BenchmarkInterface[]
+     *
+     * @throws RuntimeException Whenever an error is raised during benchmark extracting, with previous context
      */
-    public function getBenchmarks(): PromiseInterface;
+    public function getBenchmarks(): iterable;
 }

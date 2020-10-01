@@ -15,13 +15,14 @@ declare(strict_types=1);
 
 namespace Sterlett\Hardware\Benchmark\Provider;
 
+use Psr\Http\Message\ResponseInterface;
+use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use Sterlett\ClientInterface;
 use Sterlett\Hardware\Benchmark\ProviderInterface;
-use function React\Promise\resolve;
 
 /**
- * Obtains a list with hardware benchmarks results from the PassMark website
+ * Obtains a list with hardware benchmark results from the PassMark website
  *
  * @see https://www.passmark.com
  */
@@ -39,18 +40,18 @@ class PassMarkProvider implements ProviderInterface
      *
      * @var string
      */
-    private string $dataUri;
+    private string $downloadUri;
 
     /**
      * PassMarkProvider constructor.
      *
-     * @param ClientInterface $httpClient Requests data from the external source
-     * @param string          $dataUri    Resource identifier for data extracting
+     * @param ClientInterface $httpClient  Requests data from the external source
+     * @param string          $downloadUri Resource identifier for data extracting
      */
-    public function __construct(ClientInterface $httpClient, string $dataUri)
+    public function __construct(ClientInterface $httpClient, string $downloadUri)
     {
-        $this->httpClient = $httpClient;
-        $this->dataUri    = $dataUri;
+        $this->httpClient  = $httpClient;
+        $this->downloadUri = $downloadUri;
     }
 
     /**
@@ -58,8 +59,20 @@ class PassMarkProvider implements ProviderInterface
      */
     public function getBenchmarks(): PromiseInterface
     {
-        // todo: resource extracting & dom parsing (low memory footprint)
+        $retrievingDeferred = new Deferred();
 
-        return resolve([]);
+        $responsePromise = $this->httpClient->request('GET', $this->downloadUri);
+
+        $responsePromise->then(
+            function (ResponseInterface $response) use ($retrievingDeferred) {
+                // todo: dom parsing (keeping low memory footprint)
+
+                $retrievingDeferred->resolve([]);
+            }
+        );
+
+        $retrievingPromise = $retrievingDeferred->promise();
+
+        return $retrievingPromise;
     }
 }

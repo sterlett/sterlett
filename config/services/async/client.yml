@@ -1,0 +1,22 @@
+
+services:
+    app.client:
+        alias: 'app.bridge.react.http.buffering_client'
+
+    app.bridge.react.http.buffering_client:
+        class: Sterlett\Bridge\React\Http\Client
+        arguments:
+            - '@react.http.browser'
+            - !tagged_iterator 'response_middleware'
+
+    # response middleware
+    app.bridge.react.http.response.middleware.bufferer_middleware:
+        class: Sterlett\Bridge\React\Http\Response\Middleware\BuffererMiddleware
+        tags:
+            - 'response_middleware'
+
+    # react
+    react.http.browser:
+        class: React\Http\Browser
+        arguments:
+            - '@app.event_loop'

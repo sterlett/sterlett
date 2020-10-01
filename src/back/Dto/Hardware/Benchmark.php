@@ -15,10 +15,13 @@ declare(strict_types=1);
 
 namespace Sterlett\Dto\Hardware;
 
+use LogicException;
+use Sterlett\Hardware\BenchmarkInterface;
+
 /**
- * Context of data for a single benchmark from the custom benchmark provider
+ * Data context for a single benchmark from the benchmark provider
  */
-final class Benchmark
+final class Benchmark implements BenchmarkInterface
 {
     /**
      * Hardware name
@@ -35,12 +38,23 @@ final class Benchmark
     private ?string $value;
 
     /**
-     * Returns hardware name
-     *
-     * @return string|null
+     * Benchmark constructor.
      */
-    public function getHardwareName(): ?string
+    public function __construct()
     {
+        $this->hardwareName = null;
+        $this->value        = null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getHardwareName(): string
+    {
+        if (!is_string($this->hardwareName)) {
+            throw new LogicException('Hardware name for the benchmark DTO must be set explicitly.');
+        }
+
         return $this->hardwareName;
     }
 
@@ -57,12 +71,14 @@ final class Benchmark
     }
 
     /**
-     * Returns benchmark value
-     *
-     * @return string|null
+     * {@inheritDoc}
      */
-    public function getValue(): ?string
+    public function getValue(): string
     {
+        if (!is_string($this->value)) {
+            throw new LogicException('Value for the benchmark DTO must be set explicitly.');
+        }
+
         return $this->value;
     }
 
