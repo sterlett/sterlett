@@ -63,8 +63,12 @@ final class FingersCrossedParserTest extends TestCase
                     </div>
                     
                     <div class="chart_subheader">
-                        <div class="chart_tabletitle1">CPU</div>    <div class="chart_tabletitle2">CPU Mark</div>    <div class="chart_tabletitle3">Price (USD)</div>  </div>
-                        <div class="chart_body">
+                        <div class="chart_tabletitle1">CPU</div>    
+                        <div class="chart_tabletitle2">CPU Mark</div>    
+                        <div class="chart_tabletitle3">Price (USD)</div>  
+                    </div>
+                    
+                    <div class="chart_body">
                         <ul class="chartlist">
                             <li id="rk3837"><span class="more_details" onclick="x(event, 1, 7, 64, 2, 'NA');"><a class="name" href="cpu.php?cpu=AMD+Ryzen+Threadripper+PRO+3995WX&amp;id=3837"></a></span><a href="cpu.php?cpu=AMD+Ryzen+Threadripper+PRO+3995WX&amp;id=3837"><span class="prdname">AMD Ryzen Threadripper PRO 3995WX</span><div><span class="index pink" style="width: 86%">(86%)</span></div><span class="count">88,673</span><span class="price-neww">NA</span></a></li>
                             <li id="rk3674"><span class="more_details" onclick="x(event, 2, 60, 64, 2, '$3,989.99');"><a class="name" href="cpu.php?cpu=AMD+Ryzen+Threadripper+3990X&amp;id=3674"></a></span><a href="cpu.php?cpu=AMD+Ryzen+Threadripper+3990X&amp;id=3674"><span class="prdname">AMD Ryzen Threadripper 3990X</span><div><span class="index yellow" style="width: 78%">(78%)</span></div><span class="count">79,930</span><span class="price-neww">$3,989.99</span></a></li>
@@ -80,7 +84,7 @@ HTML_CHUNK;
             $benchmarks = (array) $benchmarkTraversableOrArray;
         }
 
-        /** @var BenchmarkInterface[] $benchmark */
+        /** @var BenchmarkInterface[] $benchmarks */
 
         foreach ($benchmarks as $benchmark) {
             $this->assertInstanceOf(

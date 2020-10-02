@@ -136,9 +136,10 @@ class ListCommand extends BaseCommand
                 break 1;
             }
 
-            /** @var BenchmarkInterface $benchmark */
             $providerId = $benchmarkIterator->key();
-            $benchmark  = $benchmarkIterator->current();
+
+            /** @var BenchmarkInterface $benchmark */
+            $benchmark = $benchmarkIterator->current();
 
             $this->appendTableRow($outputTable, $providerId, $benchmark);
 

@@ -44,18 +44,23 @@ use Sterlett\Hardware\Benchmark\ParserInterface;
 class FingersCrossedParser implements ParserInterface
 {
     /**
+     * RegExp pattern to extract benchmark records from the given source
+     *
+     * @var string
+     */
+    private const RECORD_PATTERN = '/prdname">([^<]+)<.*count">([^<]+)</';
+
+    /**
      * {@inheritDoc}
      */
     public function parse(string $data): iterable
     {
-        $benchmarkRecordPattern = '/prdname">([^<]+)<.*count">([^<]+)</';
-
         // a rough offset, representing cursor position to extract data from the next benchmark record.
         $offsetEstimated = 0;
 
         $matches = [];
 
-        while (1 === preg_match($benchmarkRecordPattern, $data, $matches, PREG_OFFSET_CAPTURE, $offsetEstimated)) {
+        while (1 === preg_match(self::RECORD_PATTERN, $data, $matches, PREG_OFFSET_CAPTURE, $offsetEstimated)) {
             $benchmarkHardwareName = $matches[1][0];
             $benchmarkValue        = $matches[2][0];
 

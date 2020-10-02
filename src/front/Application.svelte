@@ -25,6 +25,12 @@
             path: 'about',
             component: pages.AboutPage,
         },
+        {
+            title: $format('Not found'),
+            url: '',
+            path: '',
+            component: pages.NotFoundPage,
+        },
     ];
 </script>
 
