@@ -6,7 +6,7 @@ services:
             - !tagged_iterator
                 tag: 'benchmark_provider.synchronous'
                 index_by: 'providerId'
-            - 'Prints a list with current benchmark values for the CPU hardware category'
+            - 'Prints a list with live benchmark values for the CPU hardware category'
         tags:
             -   name: 'console.command'
                 command: 'benchmark:list'

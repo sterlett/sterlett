@@ -40,6 +40,42 @@ class BuffererMiddleware implements ResponseMiddlewareInterface
     }
 
     /**
+     * Handles a single body chunk for the response
+     *
+     * @param ChunkBag $bodyChunkBag Holds response body chunks
+     * @param string   $bodyChunk    Received body chunk
+     *
+     * @return void
+     */
+    protected function onBodyChunk(ChunkBag $bodyChunkBag, string $bodyChunk): void
+    {
+        $bodyChunkBag->addChunk($bodyChunk);
+    }
+
+    /**
+     * Returns a PSR-7 response message with buffered body
+     *
+     * @param ResponseInterface $response     Response message
+     * @param ChunkBag          $bodyChunkBag Accumulated chunks for the response
+     *
+     * @return ResponseInterface
+     */
+    protected function onComplete(ResponseInterface $response, ChunkBag $bodyChunkBag): ResponseInterface
+    {
+        $bodyContents = '';
+        $bodyChunks   = $bodyChunkBag->getChunks();
+
+        foreach ($bodyChunks as $bodyChunk) {
+            $bodyContents .= $bodyChunk;
+        }
+
+        $responseBody     = stream_for($bodyContents);
+        $responseBuffered = $response->withBody($responseBody);
+
+        return $responseBuffered;
+    }
+
+    /**
      * Returns a promise that will be resolved into a PSR-7 response message with buffered body
      *
      * @param PromiseInterface<ResponseInterface> $responsePromise Promise of response processing
@@ -84,41 +120,5 @@ class BuffererMiddleware implements ResponseMiddlewareInterface
         $responseBufferedPromise = $bufferingDeferred->promise();
 
         return $responseBufferedPromise;
-    }
-
-    /**
-     * Handles a single body chunk for the response
-     *
-     * @param ChunkBag $bodyChunkBag Holds response body chunks
-     * @param string   $bodyChunk    Received body chunk
-     *
-     * @return void
-     */
-    private function onBodyChunk(ChunkBag $bodyChunkBag, string $bodyChunk): void
-    {
-        $bodyChunkBag->addChunk($bodyChunk);
-    }
-
-    /**
-     * Returns a PSR-7 response message with buffered body
-     *
-     * @param ResponseInterface $response     Response message
-     * @param ChunkBag          $bodyChunkBag Accumulated chunks for the response
-     *
-     * @return ResponseInterface
-     */
-    private function onComplete(ResponseInterface $response, ChunkBag $bodyChunkBag): ResponseInterface
-    {
-        $bodyContents = '';
-        $bodyChunks   = $bodyChunkBag->getChunks();
-
-        foreach ($bodyChunks as $bodyChunk) {
-            $bodyContents .= $bodyChunk;
-        }
-
-        $responseBody     = stream_for($bodyContents);
-        $responseBuffered = $response->withBody($responseBody);
-
-        return $responseBuffered;
     }
 }

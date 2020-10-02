@@ -1,0 +1,5 @@
+
+services:
+    # passmark
+    app.hardware.benchmark.parser.passmark_parser.cpu:
+        class: Sterlett\Hardware\Benchmark\Parser\PassMark\FingersCrossedParser

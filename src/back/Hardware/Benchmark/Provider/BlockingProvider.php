@@ -62,8 +62,12 @@ class BlockingProvider implements BlockingProviderInterface
 
         try {
             return await($benchmarkListPromise, $this->loop);
-        } catch (Exception $exception) {
-            throw new RuntimeException('Unable to extract benchmarks from the asynchronous provider.', 0, $exception);
+        } catch (Exception $rejectionReason) {
+            throw new RuntimeException(
+                'Unable to extract benchmarks from the asynchronous provider.',
+                0,
+                $rejectionReason
+            );
         }
     }
 }

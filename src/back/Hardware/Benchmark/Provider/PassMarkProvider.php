@@ -19,6 +19,7 @@ use Psr\Http\Message\ResponseInterface;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use Sterlett\ClientInterface;
+use Sterlett\Hardware\Benchmark\ParserInterface;
 use Sterlett\Hardware\Benchmark\ProviderInterface;
 
 /**
@@ -36,6 +37,13 @@ class PassMarkProvider implements ProviderInterface
     private ClientInterface $httpClient;
 
     /**
+     * Transforms raw benchmark data from the external resource to the list of application-level DTOs
+     *
+     * @var ParserInterface
+     */
+    private ParserInterface $benchmarkParser;
+
+    /**
      * Resource identifier for data extracting
      *
      * @var string
@@ -45,13 +53,16 @@ class PassMarkProvider implements ProviderInterface
     /**
      * PassMarkProvider constructor.
      *
-     * @param ClientInterface $httpClient  Requests data from the external source
-     * @param string          $downloadUri Resource identifier for data extracting
+     * @param ClientInterface $httpClient      Requests data from the external source
+     * @param ParserInterface $benchmarkParser Transforms raw benchmark data from the external resource to the list of
+     *                                         application-level DTOs
+     * @param string          $downloadUri     Resource identifier for data extracting
      */
-    public function __construct(ClientInterface $httpClient, string $downloadUri)
+    public function __construct(ClientInterface $httpClient, ParserInterface $benchmarkParser, string $downloadUri)
     {
-        $this->httpClient  = $httpClient;
-        $this->downloadUri = $downloadUri;
+        $this->httpClient      = $httpClient;
+        $this->benchmarkParser = $benchmarkParser;
+        $this->downloadUri     = $downloadUri;
     }
 
     /**
@@ -65,14 +76,15 @@ class PassMarkProvider implements ProviderInterface
 
         $responsePromise->then(
             function (ResponseInterface $response) use ($retrievingDeferred) {
-                // todo: dom parsing (keeping low memory footprint)
+                $bodyAsString = (string) $response->getBody();
+                $benchmarks   = $this->benchmarkParser->parse($bodyAsString);
 
-                $retrievingDeferred->resolve([]);
+                $retrievingDeferred->resolve($benchmarks);
             }
         );
 
-        $retrievingPromise = $retrievingDeferred->promise();
+        $benchmarkListPromise = $retrievingDeferred->promise();
 
-        return $retrievingPromise;
+        return $benchmarkListPromise;
     }
 }

@@ -17,6 +17,7 @@ declare(strict_types=1);
 use Sterlett\Bridge\Symfony\Component\DependencyInjection\Configurator\YamlConfigurator;
 use Sterlett\Console\Application as ConsoleApplication;
 use Symfony\Component\Console\DependencyInjection\AddConsoleCommandPass;
+use Symfony\Component\Console\Output\ConsoleSectionOutput;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -35,6 +36,7 @@ $containerConfigurator->setDefinitionFilePaths(
         __DIR__ . '/../config/services/loggers.yml',
         __DIR__ . '/../config/services/async/event_loop.yml',
         __DIR__ . '/../config/services/async/client.yml',
+        __DIR__ . '/../config/services/hardware/benchmark_parsers.yml',
         __DIR__ . '/../config/services/hardware/benchmark_providers.yml',
         __DIR__ . '/../config/services/console/commands.yml',
     ]

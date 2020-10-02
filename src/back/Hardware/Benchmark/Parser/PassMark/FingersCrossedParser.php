@@ -1,0 +1,71 @@
+<?php
+
+/*
+ * This file is part of the Sterlett project <https://github.com/sterlett/sterlett>.
+ *
+ * (c) 2020 Pavel Petrov <itnelo@gmail.com>.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * @license https://opensource.org/licenses/GPL-3.0 GPL-3.0
+ */
+
+declare(strict_types=1);
+
+namespace Sterlett\Hardware\Benchmark\Parser\PassMark;
+
+use Sterlett\Dto\Hardware\Benchmark;
+use Sterlett\Hardware\Benchmark\ParserInterface;
+
+/**
+ * Transforms raw benchmark data from the PassMark website to the list of application-level DTOs according to the
+ * defined benchmark interface.
+ *
+ * User-side should keep their fingers crossed in order to run this benchmark parser for the expected results.
+ *
+ * Usage example:
+ *
+ *    ."".
+ *    \   \  ."",
+ *     \   \/  /
+ *      \  /  /
+ *       \/  /
+ *       /  / \,-._
+ *      {  ` _/  / ;
+ *      |  /` ) /  /
+ *      | /  /_/\_/\
+ *      |/  /      |
+ *      (  ' \ '-  |
+ *       \    `.  /
+ *        |      |
+ *        |      |
+ */
+class FingersCrossedParser implements ParserInterface
+{
+    /**
+     * {@inheritDoc}
+     */
+    public function parse(string $data): iterable
+    {
+        $benchmarkRecordPattern = '/prdname">([^<]+)<.*count">([^<]+)</';
+
+        // a rough offset, representing cursor position to extract data from the next benchmark record.
+        $offsetEstimated = 0;
+
+        $matches = [];
+
+        while (1 === preg_match($benchmarkRecordPattern, $data, $matches, PREG_OFFSET_CAPTURE, $offsetEstimated)) {
+            $benchmarkHardwareName = $matches[1][0];
+            $benchmarkValue        = $matches[2][0];
+
+            $benchmark = new Benchmark();
+            $benchmark->setHardwareName($benchmarkHardwareName);
+            $benchmark->setValue($benchmarkValue);
+
+            yield $benchmark;
+
+            $offsetEstimated = $matches[2][1];
+        }
+    }
+}
