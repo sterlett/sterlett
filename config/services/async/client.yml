@@ -3,17 +3,33 @@ services:
     app.client:
         alias: 'app.bridge.react.http.buffering_client'
 
+    app.client.passmark_cpu.console:
+        alias: 'app.bridge.react.http.client.passmark_cpu.console'
+
+    # client mixins
     app.bridge.react.http.buffering_client:
         class: Sterlett\Bridge\React\Http\Client
         arguments:
             - '@react.http.browser'
-            - !tagged_iterator 'response_middleware'
+            - !iterator
+                - '@app.bridge.react.http.response.middleware.bufferer_middleware'
+
+    app.bridge.react.http.client.passmark_cpu.console:
+        class: Sterlett\Bridge\React\Http\Client
+        arguments:
+            - '@react.http.browser'
+            - !iterator
+                - '@app.bridge.react.http.response.middleware.tracker_middleware.passmark_cpu.console'
+                - '@app.bridge.react.http.response.middleware.bufferer_middleware'
 
     # response middleware
     app.bridge.react.http.response.middleware.bufferer_middleware:
         class: Sterlett\Bridge\React\Http\Response\Middleware\BuffererMiddleware
-        tags:
-            - 'response_middleware'
+
+    app.bridge.react.http.response.middleware.tracker_middleware.passmark_cpu.console:
+        class: Sterlett\Bridge\React\Http\Response\Middleware\TrackerMiddleware
+        arguments:
+            - '@app.progress.tracker.passmark_cpu.console'
 
     # react
     react.http.browser:

@@ -15,11 +15,11 @@ declare(strict_types=1);
 
 namespace Sterlett\Hardware\Benchmark\Provider;
 
-use Exception;
 use React\EventLoop\LoopInterface;
 use RuntimeException;
 use Sterlett\Hardware\Benchmark\BlockingProviderInterface;
 use Sterlett\Hardware\Benchmark\ProviderInterface;
+use Throwable;
 use function Clue\React\Block\await;
 
 /**
@@ -62,7 +62,7 @@ class BlockingProvider implements BlockingProviderInterface
 
         try {
             return await($benchmarkListPromise, $this->loop);
-        } catch (Exception $rejectionReason) {
+        } catch (Throwable $rejectionReason) {
             throw new RuntimeException(
                 'Unable to extract benchmarks from the asynchronous provider.',
                 0,

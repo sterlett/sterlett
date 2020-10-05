@@ -37,7 +37,7 @@ This one is currently at the prototyping stage :honeybee:.
 :honey_pot: Routing and load balancing capabilities \
 :honey_pot: CI ground \
 :black_square_button: Prices retrieving \
-:black_square_button: Benchmarks retrieving \
+:honey_pot: Benchmarks retrieving \
 :black_square_button: Data persistence \
 :black_square_button: Console API: CPU list \
 :black_square_button: Console API: Day/Week deals \

@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Sterlett\Tests\Bridge\React\Http;
 
-use Exception;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
@@ -23,6 +22,7 @@ use React\EventLoop\StreamSelectLoop;
 use React\Http\Browser;
 use Sterlett\Bridge\React\Http\Client;
 use Sterlett\Bridge\React\Http\Response\Middleware\BuffererMiddleware;
+use Throwable;
 use function Clue\React\Block\await;
 
 /**
@@ -70,7 +70,7 @@ final class ClientTest extends TestCase
 
         try {
             $response = await($responsePromise, $this->loop, 5.0);
-        } catch (Exception $rejectionReason) {
+        } catch (Throwable $rejectionReason) {
             $failReasonMessage = sprintf(
                 'A response promise after client request call has been rejected with a reason: %s',
                 (string) $rejectionReason

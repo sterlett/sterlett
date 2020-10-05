@@ -15,17 +15,21 @@ declare(strict_types=1);
 
 namespace Sterlett\Bridge\React\Http\Response\Middleware;
 
-use Exception;
 use Psr\Http\Message\ResponseInterface;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use React\Stream\ReadableStreamInterface;
+use RuntimeException;
 use Sterlett\Bridge\React\Http\Response\Middleware\BuffererMiddleware\ChunkBag;
 use Sterlett\Bridge\React\Http\Response\MiddlewareInterface as ResponseMiddlewareInterface;
+use Throwable;
 use function RingCentral\Psr7\stream_for;
 
 /**
  * Collects response body by small data chunks.
+ *
+ * Note: this middleware will block promise resolving chain (i.e. other middleware actions) until its work is done;
+ * ensure this middleware will be called as the last one in the middleware chain.
  */
 class BuffererMiddleware implements ResponseMiddlewareInterface
 {
@@ -101,8 +105,14 @@ class BuffererMiddleware implements ResponseMiddlewareInterface
 
                 $responseBody->on(
                     'error',
-                    function (Exception $rejectionReason) use ($bufferingDeferred) {
-                        $bufferingDeferred->reject($rejectionReason);
+                    function (Throwable $rejectionReason) use ($bufferingDeferred) {
+                        $reason = new RuntimeException(
+                            'Unable to buffer response (streaming error).',
+                            0,
+                            $rejectionReason
+                        );
+
+                        $bufferingDeferred->reject($reason);
                     }
                 );
 
@@ -114,6 +124,11 @@ class BuffererMiddleware implements ResponseMiddlewareInterface
                         $bufferingDeferred->resolve($responseBuffered);
                     }
                 );
+            },
+            function (Throwable $rejectionReason) use ($bufferingDeferred) {
+                $reason = new RuntimeException('Unable to buffer response.', 0, $rejectionReason);
+
+                $bufferingDeferred->reject($reason);
             }
         );
 

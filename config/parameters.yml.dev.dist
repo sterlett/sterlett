@@ -15,4 +15,5 @@ parameters:
 
     # Benchmarks
     app.hardware.benchmark.passmark.cpu.download_uri: 'https://www.cpubenchmark.net/high_end_cpus.html'
-    app.hardware.benchmark.passmark.cpu.download_size_estimate: 700000
+    # Estimated download size of the PassMark benchmark list (in bytes)
+    app.hardware.benchmark.passmark.cpu.download_size_bytes_estimated: 750000

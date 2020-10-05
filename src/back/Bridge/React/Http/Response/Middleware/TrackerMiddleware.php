@@ -81,7 +81,7 @@ class TrackerMiddleware implements ResponseMiddlewareInterface
 
     private function track(PromiseInterface $responsePromise): PromiseInterface
     {
-        // signalling we don't have a max steps count yet (Content-Length header will be parsed in future).
+        // signalling we don't have a max steps count yet (Content-Length header will be parsed in the future).
         $this->progressTracker->setMaxSteps(-1);
 
         $this->progressTracker->start();
@@ -96,8 +96,8 @@ class TrackerMiddleware implements ResponseMiddlewareInterface
                 /** @var ReadableStreamInterface $responseBody */
                 $responseBody = $response->getBody();
 
-                $responseBody->on('data', fn(string $bodyChunk) => $this->onBodyChunk($bodyChunk));
-                $responseBody->on('close', fn() => $this->onComplete());
+                $responseBody->on('data', fn (string $bodyChunk) => $this->onBodyChunk($bodyChunk));
+                $responseBody->on('close', fn () => $this->onComplete());
 
                 // propagating resolved value to the next callback, in case we want to chain promise handling.
                 // and we do, because we need to unwrap and react to all errors during middleware passes, building

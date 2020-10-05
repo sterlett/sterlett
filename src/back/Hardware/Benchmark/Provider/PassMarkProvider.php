@@ -18,9 +18,11 @@ namespace Sterlett\Hardware\Benchmark\Provider;
 use Psr\Http\Message\ResponseInterface;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
+use RuntimeException;
 use Sterlett\ClientInterface;
 use Sterlett\Hardware\Benchmark\ParserInterface;
 use Sterlett\Hardware\Benchmark\ProviderInterface;
+use Throwable;
 
 /**
  * Obtains a list with hardware benchmark results from the PassMark website
@@ -80,6 +82,11 @@ class PassMarkProvider implements ProviderInterface
                 $benchmarks   = $this->benchmarkParser->parse($bodyAsString);
 
                 $retrievingDeferred->resolve($benchmarks);
+            },
+            function (Throwable $rejectionReason) use ($retrievingDeferred) {
+                $reason = new RuntimeException('Unable to retrieve benchmarks.', 0, $rejectionReason);
+
+                $retrievingDeferred->reject($reason);
             }
         );
 

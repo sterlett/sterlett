@@ -92,6 +92,7 @@ class ListCommand extends BaseCommand
         $outputTable->setHeaders(['Provider', 'Hardware name', 'Benchmark rating']);
 
         $benchmarkIterator = $this->retrieveBenchmarks();
+        $benchmarkIterator->rewind();
 
         $questionHelper = $this->getHelper('question');
         // assigning a separate output section for the question line (and the answer line) to prevent content
