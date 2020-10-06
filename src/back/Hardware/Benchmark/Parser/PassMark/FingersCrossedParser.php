@@ -20,7 +20,7 @@ use Sterlett\Hardware\Benchmark\ParserInterface;
 
 /**
  * Transforms raw benchmark data from the PassMark website to the list of application-level DTOs according to the
- * defined benchmark interface.
+ * defined benchmark interface; uses regular expression with offset capturing.
  *
  * User-side should keep their fingers crossed in order to run this benchmark parser for the expected results.
  *

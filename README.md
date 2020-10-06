@@ -7,6 +7,8 @@
 - [Goals](#goals)
 - [Architecture](#architecture)
 - [Honeycomb](#honeycomb)
+- [Console API](#console-api)
+    - [List of benchmarks](#list-of-benchmarks)
 - [See also](#see-also)
 - [Changelog](#changelog)
 
@@ -42,6 +44,21 @@ This one is currently at the prototyping stage :honeybee:.
 :black_square_button: Console API: CPU list \
 :black_square_button: Console API: Day/Week deals \
 :black_square_button: Microservice: CPU list browsing
+
+## Console API
+
+### List of benchmarks
+
+Renders a list with benchmark results from the configured providers, which are used in the algorithm as a source
+for hardware efficiency measure.
+
+```
+$ docker-compose run --rm app bin/console benchmark:list
+```
+
+Example:
+
+![console_api_benchmark_list_asciicast](https://github.com/sterlett/sterlett/blob/0.x/.github/images/console-api-benchmark-list.gif)
 
 ## See also
 
