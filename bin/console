@@ -36,6 +36,7 @@ $containerConfigurator->setDefinitionFilePaths(
         __DIR__ . '/../config/services/progress_tracker.yml',
         __DIR__ . '/../config/services/async/event_loop.yml',
         __DIR__ . '/../config/services/async/client.yml',
+        __DIR__ . '/../config/services/hardware/price_providers.yml',
         __DIR__ . '/../config/services/hardware/benchmark_parsers.yml',
         __DIR__ . '/../config/services/hardware/benchmark_providers.yml',
         __DIR__ . '/../config/services/console/commands.yml',

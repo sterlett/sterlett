@@ -28,7 +28,7 @@ interface PriceInterface
     public function getHardwareName(): string;
 
     /**
-     * Returns seller identifier
+     * Returns seller's identifier
      *
      * @return string
      */

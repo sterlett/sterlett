@@ -1,0 +1,30 @@
+
+services:
+    # hardprice
+    app.hardware.price.provider.hardprice_provider.cpu.console.synchronous:
+        class: Sterlett\Hardware\Price\Provider\BlockingProvider
+        arguments:
+            - '@app.hardware.price.provider.hardprice_provider.cpu'
+            - '@app.event_loop'
+        tags:
+            -   name: 'price_provider.synchronous'
+                providerId: 'HardPrice'
+
+    # async
+    app.hardware.price.provider.hardprice_provider.cpu:
+        class: Sterlett\Hardware\Price\Provider\HardPriceProvider
+        arguments:
+            - '@app.hardware.price.provider.hardprice.id_extractor'
+        tags:
+            -   name: 'benchmark_provider'
+                providerId: 'HardPrice'
+
+    app.hardware.price.provider.hardprice.id_extractor:
+        class: Sterlett\Hardware\Price\Provider\HardPrice\IdExtractor
+        arguments:
+            - '@app.client'
+            - '@app.hardware.price.provider.hardprice.id_parser'
+            - '%app.hardware.price.hardprice.cpu.download_uri%'
+
+    app.hardware.price.provider.hardprice.id_parser:
+        class: Sterlett\Hardware\Price\Provider\HardPrice\IdParser

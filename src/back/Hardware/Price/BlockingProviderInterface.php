@@ -29,7 +29,7 @@ interface BlockingProviderInterface
      *
      * @return Traversable<PriceInterface>|PriceInterface[]
      *
-     * @throws RuntimeException Whenever an error is raised during price extracting, with context of previous one
+     * @throws RuntimeException Whenever an error is raised during price extracting, with context of the previous one
      */
     public function getPrices(): iterable;
 }
