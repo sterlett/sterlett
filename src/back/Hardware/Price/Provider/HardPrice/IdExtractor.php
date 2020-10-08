@@ -23,7 +23,7 @@ use Sterlett\ClientInterface;
 use Throwable;
 
 /**
- * Extracts a list with available hardware identifiers for data queries (external ids)
+ * Extracts a list with available hardware identifiers for data queries to the HardPrice website
  */
 class IdExtractor
 {
@@ -35,6 +35,8 @@ class IdExtractor
     private ClientInterface $httpClient;
 
     /**
+     * Transforms external identifiers from the raw format to the iterable list of normalized values
+     *
      * @var IdParser
      */
     private IdParser $idParser;
@@ -50,7 +52,8 @@ class IdExtractor
      * IdExtractor constructor.
      *
      * @param ClientInterface $httpClient  Requests data from the external source
-     * @param IdParser        $idParser
+     * @param IdParser        $idParser    Transforms external identifiers from the raw format to the iterable list of
+     *                                     normalized values
      * @param string          $downloadUri Resource identifier for data extracting
      */
     public function __construct(ClientInterface $httpClient, IdParser $idParser, string $downloadUri)

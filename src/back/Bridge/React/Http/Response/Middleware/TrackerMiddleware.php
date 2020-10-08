@@ -89,7 +89,7 @@ class TrackerMiddleware implements ResponseMiddlewareInterface
         $responseTrackedPromise = $responsePromise->then(
             function (ResponseInterface $response) {
                 $contentLengthValues     = $response->getHeader('Content-Length');
-                $contentLengthNormalized = isset($contentLengthValues[0]) ? (int) $contentLengthValues[0] : 0;
+                $contentLengthNormalized = isset($contentLengthValues[0]) ? (int) $contentLengthValues[0] : -1;
 
                 $this->progressTracker->setMaxSteps($contentLengthNormalized);
 
