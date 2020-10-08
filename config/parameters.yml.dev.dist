@@ -14,9 +14,10 @@ parameters:
     app.console.version: '0.x'
 
     # Benchmarks
-    app.hardware.benchmark.passmark.cpu.download_uri: 'https://www.cpubenchmark.net/high_end_cpus.html'
+    passmark.cpu.download_uri: 'https://www.cpubenchmark.net/high_end_cpus.html'
     # Estimated download size of the PassMark benchmark list (in bytes)
-    app.hardware.benchmark.passmark.cpu.download_size_bytes_estimated: 750000
+    passmark.cpu.download_size_bytes_estimated: 750000
 
     # Prices
-    app.hardware.price.hardprice.cpu.download_uri: 'https://hardprice.ru/media/data/c/cpu.json'
+    hardprice.authentication_uri: 'https://hardprice.ru/privacy'
+    hardprice.cpu.download_uri: 'https://hardprice.ru/media/data/c/cpu.json'

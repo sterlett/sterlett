@@ -15,13 +15,20 @@ declare(strict_types=1);
 
 namespace Sterlett\Hardware\Price\Provider;
 
+use Exception;
+use Psr\Http\Message\ResponseInterface;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use RuntimeException;
 use Sterlett\Dto\Hardware\Price;
+use Sterlett\Hardware\Price\Provider\HardPrice\Authentication;
+use Sterlett\Hardware\Price\Provider\HardPrice\Authenticator\GuestAuthenticator;
 use Sterlett\Hardware\Price\Provider\HardPrice\IdExtractor;
+use Sterlett\Hardware\Price\Provider\HardPrice\PriceRequester;
 use Sterlett\Hardware\Price\ProviderInterface;
 use Throwable;
+use Traversable;
+use function React\Promise\all;
 
 /**
  * Obtains a list with hardware prices from the HardPrice website
@@ -30,18 +37,24 @@ use Throwable;
  */
 class HardPriceProvider implements ProviderInterface
 {
-    /**
-     * @var IdExtractor
-     */
     private IdExtractor $idExtractor;
 
-    public function __construct(IdExtractor $idExtractor)
-    {
-        $this->idExtractor = $idExtractor;
+    private GuestAuthenticator $requestAuthenticator;
+
+    private PriceRequester $priceRequester;
+
+    public function __construct(
+        IdExtractor $idExtractor,
+        GuestAuthenticator $requestAuthenticator,
+        PriceRequester $priceRequester
+    ) {
+        $this->idExtractor          = $idExtractor;
+        $this->requestAuthenticator = $requestAuthenticator;
+        $this->priceRequester       = $priceRequester;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getPrices(): PromiseInterface
     {
@@ -49,30 +62,24 @@ class HardPriceProvider implements ProviderInterface
 
         $idListPromise = $this->idExtractor->getIdentifiers();
 
-        $idListPromise->then(
-            function (iterable $identifiers) use ($retrievingDeferred) {
-                $requester = function (iterable $identifiers) {
-                    $i = 0;
+        // sending authorization request (for subsequent data queries) while we still waiting for the list of available
+        // hardware identifiers.
+        $authenticationPromise = $this->requestAuthenticator->authenticate();
 
-                    foreach ($identifiers as $identifier) {
-                        // todo: actual requests for data by id
+        $idListAndAuthentication = all([$idListPromise, $authenticationPromise]);
 
-                        $price = new Price();
-                        $price->setHardwareName('Test');
-                        $price->setSellerIdentifier('seller1-item' . $identifier);
-                        $price->setAmount(10);
-                        $price->setPrecision(4);
-                        $price->setCurrency('RUR');
+        $idListAndAuthentication->then(
+            function (array $idListAndAuthenticationResolved) use ($retrievingDeferred) {
+                /** @var Traversable<int>|int[] $hardwareIdentifiers */
+                /** @var Authentication $authentication */
+                [$hardwareIdentifiers, $authentication] = $idListAndAuthenticationResolved;
 
-                        yield $price;
+                // querying data when the both authentication and identifiers are ready.
+                $priceListRequestedPromise = $this->onReady($hardwareIdentifiers, $authentication);
 
-                        if (++$i >= 5) {
-                            break 1;
-                        }
-                    }
-                };
-
-                $retrievingDeferred->resolve($requester($identifiers));
+                // transferring responsibility (resolver) from the retrieving process to the requesting process.
+                // we are closing the promise resolving chain at this point.
+                $retrievingDeferred->resolve($priceListRequestedPromise);
             },
             function (Throwable $rejectionReason) use ($retrievingDeferred) {
                 $reason = new RuntimeException('Unable to retrieve prices.', 0, $rejectionReason);
@@ -82,6 +89,41 @@ class HardPriceProvider implements ProviderInterface
         );
 
         $priceListPromise = $retrievingDeferred->promise();
+
+        return $priceListPromise;
+    }
+
+    private function onReady(iterable $hardwareIdentifiers, Authentication $authentication): PromiseInterface
+    {
+        $requestingDeferred = new Deferred();
+
+        $this->priceRequester->setAuthentication($authentication);
+
+        $requestPromise = $this->priceRequester->requestPrices($hardwareIdentifiers);
+
+        $requestPromise->then(
+            function (ResponseInterface $response) use ($requestingDeferred) {
+                // todo: parse raw data into price DTOs
+
+                $price = new Price();
+                $price->setHardwareName('Test');
+                $price->setSellerIdentifier('seller1');
+                $price->setAmount(10);
+                $price->setPrecision(4);
+                $price->setCurrency('RUR');
+
+                $prices = [$price];
+
+                $requestingDeferred->resolve($prices);
+            },
+            function (Exception $rejectionReason) use ($requestingDeferred) {
+                $reason = new RuntimeException('Unable to request prices.', 0, $rejectionReason);
+
+                $requestingDeferred->reject($reason);
+            }
+        );
+
+        $priceListPromise = $requestingDeferred->promise();
 
         return $priceListPromise;
     }

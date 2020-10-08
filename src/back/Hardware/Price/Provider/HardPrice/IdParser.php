@@ -48,6 +48,8 @@ class IdParser
             throw new RuntimeException($deserializationExceptionMessage);
         }
 
+        // todo: apply sorting behavior for $dataArray (from the most expensive to the cheapest ones)
+
         foreach ($dataArray as $dataRecord) {
             $externalIdNormalized = isset($dataRecord['id']) ? (int) $dataRecord['id'] : null;
 

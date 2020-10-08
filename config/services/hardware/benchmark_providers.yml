@@ -16,7 +16,7 @@ services:
         arguments:
             - '@app.client.passmark_cpu.console'
             - '@app.hardware.benchmark.parser.passmark_parser.cpu'
-            - '%app.hardware.benchmark.passmark.cpu.download_uri%'
+            - '%passmark.cpu.download_uri%'
 
     # async
     app.hardware.benchmark.provider.passmark_provider.cpu:
@@ -24,7 +24,7 @@ services:
         arguments:
             - '@app.client'
             - '@app.hardware.benchmark.parser.passmark_parser.cpu'
-            - '%app.hardware.benchmark.passmark.cpu.download_uri%'
+            - '%passmark.cpu.download_uri%'
         tags:
             -   name: 'benchmark_provider'
                 providerId: 'PassMark'

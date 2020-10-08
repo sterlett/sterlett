@@ -130,7 +130,7 @@ final class Price implements PriceInterface
      */
     public function getCurrency(): string
     {
-        if (!is_int($this->currency)) {
+        if (!is_string($this->currency)) {
             throw new LogicException("Currency for the price DTO must be set explicitly.");
         }
 

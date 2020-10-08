@@ -15,16 +15,33 @@ services:
         class: Sterlett\Hardware\Price\Provider\HardPriceProvider
         arguments:
             - '@app.hardware.price.provider.hardprice.id_extractor'
+            - '@app.hardware.price.provider.hardprice.authenticator'
+            - '@app.hardware.price.provider.hardprice.price_requester'
         tags:
             -   name: 'benchmark_provider'
                 providerId: 'HardPrice'
 
+    # id extractors & parsers
     app.hardware.price.provider.hardprice.id_extractor:
         class: Sterlett\Hardware\Price\Provider\HardPrice\IdExtractor
         arguments:
             - '@app.client'
             - '@app.hardware.price.provider.hardprice.id_parser'
-            - '%app.hardware.price.hardprice.cpu.download_uri%'
+            - '%hardprice.cpu.download_uri%'
 
     app.hardware.price.provider.hardprice.id_parser:
         class: Sterlett\Hardware\Price\Provider\HardPrice\IdParser
+
+    app.hardware.price.provider.hardprice.authenticator:
+        alias: 'app.hardware.price.provider.hardprice.authenticator.guest_authenticator'
+
+    # authenticators
+    app.hardware.price.provider.hardprice.authenticator.guest_authenticator:
+        class: Sterlett\Hardware\Price\Provider\HardPrice\Authenticator\GuestAuthenticator
+        arguments:
+            - '@app.client'
+            - '%hardprice.authentication_uri%'
+
+    # requesters
+    app.hardware.price.provider.hardprice.price_requester:
+        class: Sterlett\Hardware\Price\Provider\HardPrice\PriceRequester

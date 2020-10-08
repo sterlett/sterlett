@@ -18,7 +18,7 @@ services:
     app.progress.tracker.max_steps_normalizer.estimated_max_steps_normalizer.passmark_cpu:
         class: Sterlett\Progress\Tracker\MaxStepsNormalizer\EstimatedMaxStepsNormalizer
         arguments:
-            - '%app.hardware.benchmark.passmark.cpu.download_size_bytes_estimated%'
+            - '%passmark.cpu.download_size_bytes_estimated%'
 
     # progress bars
     app.bridge.symfony.console.helper.progress_bar.benchmark_downloading:
