@@ -113,9 +113,6 @@ class HardPriceProvider implements ProviderInterface
         // related data for the given identifiers at the reduce stage.
         $promisesMapped = [];
 
-        // todo: implement request delays (~0.3) to prevent rate limiting bans & replace with real identifiers
-        $hardwareIdentifiers = [2253, 2753, 2900];
-
         foreach ($hardwareIdentifiers as $hardwareIdentifier) {
             $requestPromise = $this->priceRequester->requestPrice($hardwareIdentifier);
 
@@ -133,7 +130,7 @@ class HardPriceProvider implements ProviderInterface
         // processing with the "onFulfilled" callbacks.
         $reducePromise = reduce(
             $promisesMapped,
-            // reduce function: list(id, list(response, id)) -> list(id => responses merged).
+            // reduce function: list(id, list(response, id)) -> list(id, responses merged).
             function (array $responseListById, array $responseWithId, int $requestIndex, int $requestCountTotal) {
                 /** @var ResponseInterface $response */
                 /** @var int $hardwareIdentifier */

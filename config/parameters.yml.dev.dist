@@ -9,7 +9,8 @@ parameters:
     app.server.port: '%env(int:APP_SERVER_PORT)%'
 
     app.request.uri.path_prefix: '%env(string:APP_REQUEST_URI_PATH_PREFIX)%'
-    # Proxy for all requests, which will be sent by the application (for both console API and microservice scopes)
+    # Proxy for all requests, which will be sent by the application (for both console API and microservice scopes),
+    # example: '123.123.123.123:1234'
     app.request.proxy_uri: ~
 
     app.console.name: 'Sterlett'
@@ -24,3 +25,6 @@ parameters:
     hardprice.authentication_uri: 'https://hardprice.ru/privacy'
     hardprice.cpu.download_uri: 'https://hardprice.ru/media/data/c/cpu.json'
     hardprice.price_list_uri: 'https://hardprice.ru/api/product_prices'
+    # You can speed up price collecting routine, but it may lead to permanent IP ban due to aggressive rate limiting,
+    # RPS minimum: 1
+    hardprice.requests_per_second: 1

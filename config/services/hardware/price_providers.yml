@@ -25,7 +25,7 @@ services:
     app.hardware.price.provider.hardprice.authenticator.guest_authenticator:
         class: Sterlett\Hardware\Price\Provider\HardPrice\Authenticator\GuestAuthenticator
         arguments:
-            - '@app.client'
+            - '@app.client.hardprice'
             - '@app.hardware.price.provider.hardprice.csrf_token_parser'
             - '%hardprice.authentication_uri%'
 
@@ -33,14 +33,14 @@ services:
     app.hardware.price.provider.hardprice.price_requester.guest:
         class: Sterlett\Hardware\Price\Provider\HardPrice\PriceRequester
         arguments:
-            - '@app.client'
+            - '@app.client.hardprice'
             - '%hardprice.price_list_uri%'
 
     # extractors & parsers
     app.hardware.price.provider.hardprice.id_extractor:
         class: Sterlett\Hardware\Price\Provider\HardPrice\IdExtractor
         arguments:
-            - '@app.client'
+            - '@app.client.hardprice'
             - '@app.hardware.price.provider.hardprice.id_parser'
             - '%hardprice.cpu.download_uri%'
 

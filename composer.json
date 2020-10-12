@@ -30,6 +30,7 @@
     "require": {
         "php": ">=7.4",
         "ext-pcntl": ">=7.4",
+        "ext-ds": "^1.2",
         "clue/block-react": "^1.4",
         "clue/http-proxy-react": "^1.5",
         "psr/container": "^1.0",
@@ -50,6 +51,7 @@
         "wyrihaximus/react-psr-3-stdio": "^2.1"
     },
     "require-dev": {
+        "php-ds/php-ds": "^1.2",
         "phpunit/phpunit": "^9.2",
         "symfony/event-dispatcher-contracts": "^2.1"
     },
