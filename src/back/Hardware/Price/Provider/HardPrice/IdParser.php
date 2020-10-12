@@ -32,6 +32,8 @@ class IdParser
      */
     public function parse(string $data): iterable
     {
+        // todo: migrate from sync json_decode to async regexp approach
+
         $dataArray = json_decode($data, true);
 
         $jsonDecodeErrorCode = json_last_error();
@@ -40,7 +42,7 @@ class IdParser
             $jsonDecodeErrorMessage = json_last_error_msg();
 
             $deserializationExceptionMessage = sprintf(
-                'Unable to parse external identifiers: %s. (%s)',
+                'Unable to parse hardware identifiers: %s. (%s)',
                 $jsonDecodeErrorMessage,
                 $data
             );
@@ -48,13 +50,11 @@ class IdParser
             throw new RuntimeException($deserializationExceptionMessage);
         }
 
-        // todo: apply sorting behavior for $dataArray (from the most expensive to the cheapest ones)
-
         foreach ($dataArray as $dataRecord) {
             $externalIdNormalized = isset($dataRecord['id']) ? (int) $dataRecord['id'] : null;
 
             if (null === $externalIdNormalized) {
-                throw new RuntimeException('Unable to parse an external identifier. Unexpected data format.');
+                throw new RuntimeException('Unable to parse a hardware identifier. Unexpected data format.');
             }
 
             yield $externalIdNormalized;

@@ -80,7 +80,7 @@ class BuffererMiddleware implements ResponseMiddlewareInterface
     }
 
     /**
-     * Returns a promise that will be resolved into a PSR-7 response message with buffered body
+     * Returns a promise that will be resolved to a PSR-7 response message with buffered body
      *
      * @param PromiseInterface<ResponseInterface> $responsePromise Promise of response processing
      *
@@ -92,38 +92,13 @@ class BuffererMiddleware implements ResponseMiddlewareInterface
 
         $responsePromise->then(
             function (ResponseInterface $response) use ($bufferingDeferred) {
-                /** @var ReadableStreamInterface $responseBody */
-                $responseBody = $response->getBody();
-                $bodyChunkBag = new ChunkBag();
+                try {
+                    $this->onResponse($bufferingDeferred, $response);
+                } catch (Throwable $exception) {
+                    $reason = new RuntimeException('Unable to configure response buffering.', 0, $exception);
 
-                $responseBody->on(
-                    'data',
-                    function (string $bodyChunk) use ($bodyChunkBag) {
-                        $this->onBodyChunk($bodyChunkBag, $bodyChunk);
-                    }
-                );
-
-                $responseBody->on(
-                    'error',
-                    function (Throwable $rejectionReason) use ($bufferingDeferred) {
-                        $reason = new RuntimeException(
-                            'Unable to buffer response (streaming error).',
-                            0,
-                            $rejectionReason
-                        );
-
-                        $bufferingDeferred->reject($reason);
-                    }
-                );
-
-                $responseBody->on(
-                    'close',
-                    function () use ($bufferingDeferred, $response, $bodyChunkBag) {
-                        $responseBuffered = $this->onComplete($response, $bodyChunkBag);
-
-                        $bufferingDeferred->resolve($responseBuffered);
-                    }
-                );
+                    $bufferingDeferred->reject($reason);
+                }
             },
             function (Throwable $rejectionReason) use ($bufferingDeferred) {
                 $reason = new RuntimeException('Unable to buffer response.', 0, $rejectionReason);
@@ -135,5 +110,51 @@ class BuffererMiddleware implements ResponseMiddlewareInterface
         $responseBufferedPromise = $bufferingDeferred->promise();
 
         return $responseBufferedPromise;
+    }
+
+    /**
+     * Subscribes on events from the readable stream, representing response body, to collect all body chunks
+     *
+     * @param Deferred          $bufferingDeferred Represents the buffering process itself, used to control execution
+     *                                             flow and promise handling
+     * @param ResponseInterface $response          PSR-7 response message with readable stream
+     *
+     * @return void
+     */
+    private function onResponse(Deferred $bufferingDeferred, ResponseInterface $response)
+    {
+        /** @var ReadableStreamInterface $responseBody */
+        $responseBody = $response->getBody();
+
+        $bodyChunkBag = new ChunkBag();
+
+        $responseBody->on(
+            'data',
+            function (string $bodyChunk) use ($bodyChunkBag) {
+                $this->onBodyChunk($bodyChunkBag, $bodyChunk);
+            }
+        );
+
+        $responseBody->on(
+            'error',
+            function (Throwable $rejectionReason) use ($bufferingDeferred) {
+                $reason = new RuntimeException(
+                    'Unable to buffer response (streaming error).',
+                    0,
+                    $rejectionReason
+                );
+
+                $bufferingDeferred->reject($reason);
+            }
+        );
+
+        $responseBody->on(
+            'close',
+            function () use ($bufferingDeferred, $response, $bodyChunkBag) {
+                $responseBuffered = $this->onComplete($response, $bodyChunkBag);
+
+                $bufferingDeferred->resolve($responseBuffered);
+            }
+        );
     }
 }

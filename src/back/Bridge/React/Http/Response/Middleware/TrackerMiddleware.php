@@ -79,6 +79,13 @@ class TrackerMiddleware implements ResponseMiddlewareInterface
         $this->progressTracker->finish();
     }
 
+    /**
+     * Configures handlers with tracking logic for the readable stream body, when the response will be received
+     *
+     * @param PromiseInterface $responsePromise Promise of response processing
+     *
+     * @return PromiseInterface
+     */
     private function track(PromiseInterface $responsePromise): PromiseInterface
     {
         // signalling we don't have a max steps count yet (Content-Length header will be parsed in the future).

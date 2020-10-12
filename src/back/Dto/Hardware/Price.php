@@ -97,7 +97,7 @@ final class Price implements PriceInterface
     public function getAmount(): int
     {
         if (!is_int($this->amount)) {
-            throw new LogicException("Amount for the price DTO must be set explicitly.");
+            throw new LogicException('Amount for the price DTO must be set explicitly.');
         }
 
         return $this->amount;
@@ -114,7 +114,7 @@ final class Price implements PriceInterface
     public function getPrecision(): int
     {
         if (!is_int($this->precision)) {
-            throw new LogicException("Precision for the price DTO must be set explicitly.");
+            throw new LogicException('Precision for the price DTO must be set explicitly.');
         }
 
         return $this->precision;
@@ -131,7 +131,7 @@ final class Price implements PriceInterface
     public function getCurrency(): string
     {
         if (!is_string($this->currency)) {
-            throw new LogicException("Currency for the price DTO must be set explicitly.");
+            throw new LogicException('Currency for the price DTO must be set explicitly.');
         }
 
         return $this->currency;

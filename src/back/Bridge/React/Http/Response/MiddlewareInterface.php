@@ -24,7 +24,7 @@ use React\Promise\PromiseInterface;
 interface MiddlewareInterface
 {
     /**
-     * Applies processing logic and returns a promise that will be resolved into a PSR-7 response message
+     * Applies processing logic and returns a promise that will be resolved to a PSR-7 response message
      *
      * @param PromiseInterface<ResponseInterface> $responsePromise Promise of response processing
      *

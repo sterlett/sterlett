@@ -17,28 +17,63 @@ namespace Sterlett\Hardware\Price\Provider\HardPrice;
 
 use LogicException;
 
+/**
+ * Holds authentication data payload to mimic ajax request that has been sent from the browser
+ */
 class Authentication
 {
-    private ?iterable $cookies;
+    /**
+     * An array of session cookies (i.e. "key=value", without any additional attributes like "Path" or "Expires")
+     *
+     * @var string[]
+     */
+    private array $cookies;
 
+    /**
+     * CSRF token
+     *
+     * @var string|null
+     */
     private ?string $csrfToken;
 
+    /**
+     * Authentication constructor.
+     */
     public function __construct()
     {
         $this->cookies   = [];
         $this->csrfToken = null;
     }
 
-    public function getCookies(): iterable
+    /**
+     * Returns a list of cookies for the website interaction session.
+     *
+     * Any persistent cookies (with specific attributes) must be converted into the session-compatible format.
+     *
+     * @return string[]
+     */
+    public function getCookies(): array
     {
         return $this->cookies;
     }
 
+    /**
+     * Adds a new cookie to the authentication context
+     *
+     * @param string $cookie Session cookie (key=value), as a string
+     *
+     * @return void
+     */
     public function addCookie(string $cookie): void
     {
         $this->cookies[] = $cookie;
     }
 
+    /**
+     * Returns a CSRF token
+     *
+     * @return string
+     */
     public function getCsrfToken(): string
     {
         if (!is_string($this->csrfToken)) {
@@ -48,6 +83,13 @@ class Authentication
         return $this->csrfToken;
     }
 
+    /**
+     * Sets a CSRF token
+     *
+     * @param string $csrfToken CSRF token
+     *
+     * @return void
+     */
     public function setCsrfToken(string $csrfToken): void
     {
         $this->csrfToken = $csrfToken;

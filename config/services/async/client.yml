@@ -1,4 +1,3 @@
-
 services:
     app.client:
         alias: 'app.bridge.react.http.buffering_client'
@@ -10,14 +9,14 @@ services:
     app.bridge.react.http.buffering_client:
         class: Sterlett\Bridge\React\Http\Client
         arguments:
-            - '@react.http.browser'
+            - '@app.bridge.react.http.browser.proxy_protected'
             - !iterator
                 - '@app.bridge.react.http.response.middleware.bufferer_middleware'
 
     app.bridge.react.http.client.passmark_cpu.console:
         class: Sterlett\Bridge\React\Http\Client
         arguments:
-            - '@react.http.browser'
+            - '@app.bridge.react.http.browser.proxy_protected'
             - !iterator
                 - '@app.bridge.react.http.response.middleware.tracker_middleware.passmark_cpu.console'
                 - '@app.bridge.react.http.response.middleware.bufferer_middleware'
@@ -31,8 +30,29 @@ services:
         arguments:
             - '@app.progress.tracker.passmark_cpu.console'
 
-    # react
-    react.http.browser:
+    # browsers
+    app.bridge.react.http.browser.proxy_protected:
         class: React\Http\Browser
         arguments:
             - '@app.event_loop'
+            - '@app.bridge.react.socket.connector.tcp_proxy'
+
+    # connectors
+    app.bridge.react.socket.connector.tcp_proxy:
+        class: React\Socket\Connector
+        arguments:
+            - '@app.event_loop'
+            -   tcp: '@app.bridge.clue.react.http_proxy.proxy_connector.static_uri'
+
+    app.bridge.clue.react.http_proxy.proxy_connector.static_uri:
+        class: Clue\React\HttpProxy\ProxyConnector
+        arguments:
+            - '%app.request.proxy_uri%'
+            - '@react.socket.connector'
+
+    react.socket.connector:
+        class: React\Socket\Connector
+        shared: false
+        arguments:
+            - '@app.event_loop'
+            -   timeout: !!float 5

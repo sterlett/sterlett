@@ -24,7 +24,7 @@ use React\Promise\PromiseInterface;
 interface ClientInterface
 {
     /**
-     * Performs HTTP request and returns a promise that resolves into a PSR-7 response message (async approach by
+     * Performs HTTP request and returns a promise that resolves to a PSR-7 response message (async approach by
      * default). Adapters for environments with blocking I/O should return a fulfilled promise.
      *
      * This method shouldn't throw exceptions, all errors must be handled using rejection callbacks.

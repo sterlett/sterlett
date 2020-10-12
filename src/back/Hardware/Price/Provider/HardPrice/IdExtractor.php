@@ -21,6 +21,7 @@ use React\Promise\PromiseInterface;
 use RuntimeException;
 use Sterlett\ClientInterface;
 use Throwable;
+use Traversable;
 
 /**
  * Extracts a list with available hardware identifiers for data queries to the HardPrice website
@@ -66,7 +67,7 @@ class IdExtractor
     /**
      * Returns an iterable list with available hardware identifiers.
      *
-     * Resolves into Traversable<int> or int[].
+     * Resolves to an instance of Traversable<int> or int[].
      *
      * @return PromiseInterface<iterable>
      */
@@ -78,13 +79,26 @@ class IdExtractor
 
         $responsePromise->then(
             function (ResponseInterface $response) use ($extractingDeferred) {
-                $bodyAsString        = (string) $response->getBody();
-                $hardwareIdentifiers = $this->idParser->parse($bodyAsString);
+                try {
+                    $hardwareIdentifiers = $this->onResponse($response);
 
-                $extractingDeferred->resolve($hardwareIdentifiers);
+                    $extractingDeferred->resolve($hardwareIdentifiers);
+                } catch (Throwable $exception) {
+                    $reason = new RuntimeException(
+                        'Unable to extract hardware identifiers (deserialization).',
+                        0,
+                        $exception
+                    );
+
+                    $extractingDeferred->reject($reason);
+                }
             },
             function (Throwable $rejectionReason) use ($extractingDeferred) {
-                $reason = new RuntimeException('Unable to extract external identifiers.', 0, $rejectionReason);
+                $reason = new RuntimeException(
+                    'Unable to extract hardware identifiers (request).',
+                    0,
+                    $rejectionReason
+                );
 
                 $extractingDeferred->reject($reason);
             }
@@ -93,5 +107,21 @@ class IdExtractor
         $idListPromise = $extractingDeferred->promise();
 
         return $idListPromise;
+    }
+
+    /**
+     * Returns a list with hardware identifiers (or a generator)
+     *
+     * @param ResponseInterface $response PSR-7 response message with hardware identifiers payload
+     *
+     * @return Traversable<int>|int[]
+     */
+    private function onResponse(ResponseInterface $response): iterable
+    {
+        $bodyAsString = (string) $response->getBody();
+
+        $hardwareIdentifiers = $this->idParser->parse($bodyAsString);
+
+        return $hardwareIdentifiers;
     }
 }

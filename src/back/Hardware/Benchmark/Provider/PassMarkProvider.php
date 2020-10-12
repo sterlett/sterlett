@@ -22,7 +22,9 @@ use RuntimeException;
 use Sterlett\ClientInterface;
 use Sterlett\Hardware\Benchmark\ParserInterface;
 use Sterlett\Hardware\Benchmark\ProviderInterface;
+use Sterlett\Hardware\BenchmarkInterface;
 use Throwable;
+use Traversable;
 
 /**
  * Obtains a list with hardware benchmark results from the PassMark website
@@ -76,15 +78,24 @@ class PassMarkProvider implements ProviderInterface
 
         $responsePromise = $this->httpClient->request('GET', $this->downloadUri);
 
+        // it is possible to return a direct promise, based on retval of this call (using resolution forwarding or
+        // "pipelining"), but it will make code less intuitive and predictable (because it leads to mixed value types
+        // in the signatures of resolving callbacks from the chain), so a separate deferred is used here instead.
         $responsePromise->then(
             function (ResponseInterface $response) use ($retrievingDeferred) {
-                $bodyAsString = (string) $response->getBody();
-                $benchmarks   = $this->benchmarkParser->parse($bodyAsString);
+                try {
+                    $benchmarks = $this->onResponse($response);
 
-                $retrievingDeferred->resolve($benchmarks);
+                    $retrievingDeferred->resolve($benchmarks);
+                } catch (Throwable $exception) {
+                    $reason = new RuntimeException('Unable to retrieve benchmarks (deserialization).', 0, $exception);
+
+                    $retrievingDeferred->reject($reason);
+                }
             },
+            // handling HTTP request rejection.
             function (Throwable $rejectionReason) use ($retrievingDeferred) {
-                $reason = new RuntimeException('Unable to retrieve benchmarks.', 0, $rejectionReason);
+                $reason = new RuntimeException('Unable to retrieve benchmarks (request).', 0, $rejectionReason);
 
                 $retrievingDeferred->reject($reason);
             }
@@ -93,5 +104,21 @@ class PassMarkProvider implements ProviderInterface
         $benchmarkListPromise = $retrievingDeferred->promise();
 
         return $benchmarkListPromise;
+    }
+
+    /**
+     * Returns an iterable list with benchmarks (or a generator), configured by the given response instance
+     *
+     * @param ResponseInterface $response PSR-7 response message with benchmark list in the payload
+     *
+     * @return Traversable<BenchmarkInterface>|BenchmarkInterface[]
+     */
+    private function onResponse(ResponseInterface $response): iterable
+    {
+        $bodyAsString = (string) $response->getBody();
+
+        $benchmarks = $this->benchmarkParser->parse($bodyAsString);
+
+        return $benchmarks;
     }
 }

@@ -15,13 +15,28 @@ services:
         class: Sterlett\Hardware\Price\Provider\HardPriceProvider
         arguments:
             - '@app.hardware.price.provider.hardprice.id_extractor'
-            - '@app.hardware.price.provider.hardprice.authenticator'
-            - '@app.hardware.price.provider.hardprice.price_requester'
+            - '@app.hardware.price.provider.hardprice.authenticator.guest_authenticator'
+            - '@app.hardware.price.provider.hardprice.price_requester.guest'
         tags:
             -   name: 'benchmark_provider'
                 providerId: 'HardPrice'
 
-    # id extractors & parsers
+    # authenticators
+    app.hardware.price.provider.hardprice.authenticator.guest_authenticator:
+        class: Sterlett\Hardware\Price\Provider\HardPrice\Authenticator\GuestAuthenticator
+        arguments:
+            - '@app.client'
+            - '@app.hardware.price.provider.hardprice.csrf_token_parser'
+            - '%hardprice.authentication_uri%'
+
+    # requesters
+    app.hardware.price.provider.hardprice.price_requester.guest:
+        class: Sterlett\Hardware\Price\Provider\HardPrice\PriceRequester
+        arguments:
+            - '@app.client'
+            - '%hardprice.price_list_uri%'
+
+    # extractors & parsers
     app.hardware.price.provider.hardprice.id_extractor:
         class: Sterlett\Hardware\Price\Provider\HardPrice\IdExtractor
         arguments:
@@ -32,16 +47,5 @@ services:
     app.hardware.price.provider.hardprice.id_parser:
         class: Sterlett\Hardware\Price\Provider\HardPrice\IdParser
 
-    app.hardware.price.provider.hardprice.authenticator:
-        alias: 'app.hardware.price.provider.hardprice.authenticator.guest_authenticator'
-
-    # authenticators
-    app.hardware.price.provider.hardprice.authenticator.guest_authenticator:
-        class: Sterlett\Hardware\Price\Provider\HardPrice\Authenticator\GuestAuthenticator
-        arguments:
-            - '@app.client'
-            - '%hardprice.authentication_uri%'
-
-    # requesters
-    app.hardware.price.provider.hardprice.price_requester:
-        class: Sterlett\Hardware\Price\Provider\HardPrice\PriceRequester
+    app.hardware.price.provider.hardprice.csrf_token_parser:
+        class: Sterlett\Hardware\Price\Provider\HardPrice\CsrfTokenParser

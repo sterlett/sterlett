@@ -20,7 +20,6 @@ use Psr\Http\Message\ResponseInterface;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use RuntimeException;
-use Sterlett\Dto\Hardware\Price;
 use Sterlett\Hardware\Price\Provider\HardPrice\Authentication;
 use Sterlett\Hardware\Price\Provider\HardPrice\Authenticator\GuestAuthenticator;
 use Sterlett\Hardware\Price\Provider\HardPrice\IdExtractor;
@@ -29,6 +28,7 @@ use Sterlett\Hardware\Price\ProviderInterface;
 use Throwable;
 use Traversable;
 use function React\Promise\all;
+use function React\Promise\reduce;
 
 /**
  * Obtains a list with hardware prices from the HardPrice website
@@ -70,6 +70,8 @@ class HardPriceProvider implements ProviderInterface
 
         $idListAndAuthentication->then(
             function (array $idListAndAuthenticationResolved) use ($retrievingDeferred) {
+                // todo: try-catch
+
                 /** @var Traversable<int>|int[] $hardwareIdentifiers */
                 /** @var Authentication $authentication */
                 [$hardwareIdentifiers, $authentication] = $idListAndAuthenticationResolved;
@@ -93,28 +95,71 @@ class HardPriceProvider implements ProviderInterface
         return $priceListPromise;
     }
 
+    /**
+     * Sending requests and collecting responses using MapReduce pattern
+     *
+     * @param Traversable<int>|int[] $hardwareIdentifiers
+     * @param Authentication         $authentication
+     *
+     * @return PromiseInterface
+     */
     private function onReady(iterable $hardwareIdentifiers, Authentication $authentication): PromiseInterface
     {
         $requestingDeferred = new Deferred();
 
         $this->priceRequester->setAuthentication($authentication);
 
-        $requestPromise = $this->priceRequester->requestPrices($hardwareIdentifiers);
+        // map stage: acquiring a request promise for each hardware identifier and applying map function, to collect all
+        // related data for the given identifiers at the reduce stage.
+        $promisesMapped = [];
 
-        $requestPromise->then(
-            function (ResponseInterface $response) use ($requestingDeferred) {
-                // todo: parse raw data into price DTOs
+        // todo: implement request delays (~0.3) to prevent rate limiting bans & replace with real identifiers
+        $hardwareIdentifiers = [2253, 2753, 2900];
 
-                $price = new Price();
-                $price->setHardwareName('Test');
-                $price->setSellerIdentifier('seller1');
-                $price->setAmount(10);
-                $price->setPrecision(4);
-                $price->setCurrency('RUR');
+        foreach ($hardwareIdentifiers as $hardwareIdentifier) {
+            $requestPromise = $this->priceRequester->requestPrice($hardwareIdentifier);
 
-                $prices = [$price];
+            // map function: list(promise, id) -> list(response, id).
+            $promiseMapped = $requestPromise->then(
+                function (ResponseInterface $response) use ($hardwareIdentifier) {
+                    return [$response, $hardwareIdentifier];
+                }
+            );
 
-                $requestingDeferred->resolve($prices);
+            $promisesMapped[] = $promiseMapped;
+        }
+
+        // reduce stage: collecting all responses and aggregating them into a single data structure for centralized
+        // processing with the "onFulfilled" callbacks.
+        $reducePromise = reduce(
+            $promisesMapped,
+            // reduce function: list(id, list(response, id)) -> list(id => responses merged).
+            function (array $responseListById, array $responseWithId, int $requestIndex, int $requestCountTotal) {
+                /** @var ResponseInterface $response */
+                /** @var int $hardwareIdentifier */
+                [$response, $hardwareIdentifier] = $responseWithId;
+
+                if (!array_key_exists($hardwareIdentifier, $responseListById)) {
+                    $responseListById[$hardwareIdentifier] = [$response];
+                } else {
+                    $responseListById[$hardwareIdentifier][] = $response;
+                }
+
+                return $responseListById;
+            },
+            // initial value for the reduce container: $responseListById (responses merged).
+            []
+        );
+
+        $reducePromise->then(
+            function (iterable $responseListById) use ($requestingDeferred) {
+                foreach ($responseListById as $hardwareIdentifier => $responseList) {
+                    // todo: apply sorting behavior (from the most expensive to the cheapest ones)
+                }
+
+                // todo: parse raw data into price DTOs (+ try-catch)
+
+                $requestingDeferred->resolve([]);
             },
             function (Exception $rejectionReason) use ($requestingDeferred) {
                 $reason = new RuntimeException('Unable to request prices.', 0, $rejectionReason);

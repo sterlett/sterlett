@@ -70,6 +70,9 @@ class Client implements ClientInterface
             $headerArray = (array) $headers;
         }
 
+        // todo: extract into the config layer & validate via an options resolver
+        $headerArray['user-agent'] = 'Sterlett/0.x-dev';
+
         $responsePromise = $this->browser->requestStreaming($method, $url, $headerArray, $body);
 
         // all individual response body chunks will be collected one by one manually, with middleware, to control and

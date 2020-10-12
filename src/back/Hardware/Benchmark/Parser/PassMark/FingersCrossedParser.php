@@ -61,6 +61,8 @@ class FingersCrossedParser implements ParserInterface
         $matches = [];
 
         while (1 === preg_match(self::RECORD_PATTERN, $data, $matches, PREG_OFFSET_CAPTURE, $offsetEstimated)) {
+            // todo: handle exceptions, with context logging
+
             $benchmarkHardwareName = $matches[1][0];
             $benchmarkValue        = $matches[2][0];
 

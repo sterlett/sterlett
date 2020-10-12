@@ -25,7 +25,7 @@ use Traversable;
 interface ProviderInterface
 {
     /**
-     * Returns a promise that resolves into a list with price records for the configured hardware category
+     * Returns a promise that resolves to a list with price records for the configured hardware category
      *
      * @return PromiseInterface<Traversable<PriceInterface>|PriceInterface[]>
      */
