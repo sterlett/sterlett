@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace Sterlett\Hardware\Price\Provider\HardPrice;
 
 use Psr\Http\Message\ResponseInterface;
+use React\Http\Message\ResponseException;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use RuntimeException;
@@ -75,12 +76,13 @@ class IdExtractor
     {
         $extractingDeferred = new Deferred();
 
-        $responsePromise = $this->httpClient->request('GET', $this->downloadUri);
+        $requestHeaders  = ChromiumHeaders::makeFrom([]);
+        $responsePromise = $this->httpClient->request('GET', $this->downloadUri, $requestHeaders);
 
         $responsePromise->then(
             function (ResponseInterface $response) use ($extractingDeferred) {
                 try {
-                    $hardwareIdentifiers = $this->onResponse($response);
+                    $hardwareIdentifiers = $this->onResponseSuccess($response);
 
                     $extractingDeferred->resolve($hardwareIdentifiers);
                 } catch (Throwable $exception) {
@@ -116,7 +118,7 @@ class IdExtractor
      *
      * @return Traversable<int>|int[]
      */
-    private function onResponse(ResponseInterface $response): iterable
+    private function onResponseSuccess(ResponseInterface $response): iterable
     {
         $bodyAsString = (string) $response->getBody();
 

@@ -4,21 +4,22 @@ services:
     app.hardware.price.provider.hardprice_provider.cpu.console.synchronous:
         class: Sterlett\Hardware\Price\Provider\BlockingProvider
         arguments:
-            - '@app.hardware.price.provider.hardprice_provider.cpu'
+            - '@app.hardware.price.provider.hardprice_provider.cpu.trackable'
             - '@app.event_loop'
         tags:
             -   name: 'price_provider.synchronous'
                 providerId: 'HardPrice'
 
     # async
-    app.hardware.price.provider.hardprice_provider.cpu:
+    app.hardware.price.provider.hardprice_provider.cpu.trackable:
         class: Sterlett\Hardware\Price\Provider\HardPriceProvider
         arguments:
             - '@app.hardware.price.provider.hardprice.id_extractor'
             - '@app.hardware.price.provider.hardprice.authenticator.guest_authenticator'
             - '@app.hardware.price.provider.hardprice.price_requester.guest'
+            - '@app.hardware.price.provider.hardprice.price_response_reducer.trackable'
         tags:
-            -   name: 'benchmark_provider'
+            -   name: 'price_provider'
                 providerId: 'HardPrice'
 
     # authenticators
@@ -35,6 +36,13 @@ services:
         arguments:
             - '@app.client.hardprice'
             - '%hardprice.price_list_uri%'
+
+    # response reducers
+    app.hardware.price.provider.hardprice.price_response_reducer.trackable:
+        class: Sterlett\Hardware\Price\Provider\HardPrice\PriceResponseReducer
+        calls:
+            - setProgressTracker:
+                - '@app.progress.tracker.hardprice.console'
 
     # extractors & parsers
     app.hardware.price.provider.hardprice.id_extractor:

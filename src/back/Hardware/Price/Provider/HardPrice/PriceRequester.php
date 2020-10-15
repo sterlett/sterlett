@@ -37,18 +37,22 @@ class PriceRequester
     public function requestPrice(int $hardwareIdentifier): PromiseInterface
     {
         $requestHeaders = [
-            'content-type' => 'application/x-www-form-urlencoded; charset=UTF-8',
+            'Content-Type' => 'application/x-www-form-urlencoded; charset=UTF-8',
         ];
 
         $sessionCookies           = $this->authentication->getCookies();
         $sessionCookieAggregated  = implode(';', $sessionCookies);
-        $requestHeaders['cookie'] = $sessionCookieAggregated;
+        $requestHeaders['Cookie'] = $sessionCookieAggregated;
 
         $csrfToken                      = $this->authentication->getCsrfToken();
-        $requestHeaders['x-csrf-token'] = $csrfToken;
+        $requestHeaders['X-CSRF-TOKEN'] = $csrfToken;
 
         $requestPayload = ['id' => $hardwareIdentifier];
         $requestBody    = http_build_query($requestPayload);
+
+        $requestHeaders['Content-Length'] = strlen($requestBody);
+
+        $requestHeaders = ChromiumHeaders::makeFrom($requestHeaders);
 
         $responsePromise = $this->httpClient->request('POST', $this->priceListUri, $requestHeaders, $requestBody);
 

@@ -24,11 +24,11 @@ use Sterlett\Hardware\Price\Provider\HardPrice\Authentication;
 use Sterlett\Hardware\Price\Provider\HardPrice\Authenticator\GuestAuthenticator;
 use Sterlett\Hardware\Price\Provider\HardPrice\IdExtractor;
 use Sterlett\Hardware\Price\Provider\HardPrice\PriceRequester;
+use Sterlett\Hardware\Price\Provider\HardPrice\PriceResponseReducer;
 use Sterlett\Hardware\Price\ProviderInterface;
 use Throwable;
 use Traversable;
 use function React\Promise\all;
-use function React\Promise\reduce;
 
 /**
  * Obtains a list with hardware prices from the HardPrice website
@@ -43,14 +43,18 @@ class HardPriceProvider implements ProviderInterface
 
     private PriceRequester $priceRequester;
 
+    private PriceResponseReducer $responseReducer;
+
     public function __construct(
         IdExtractor $idExtractor,
         GuestAuthenticator $requestAuthenticator,
-        PriceRequester $priceRequester
+        PriceRequester $priceRequester,
+        PriceResponseReducer $responseReducer
     ) {
         $this->idExtractor          = $idExtractor;
         $this->requestAuthenticator = $requestAuthenticator;
         $this->priceRequester       = $priceRequester;
+        $this->responseReducer      = $responseReducer;
     }
 
     /**
@@ -70,21 +74,25 @@ class HardPriceProvider implements ProviderInterface
 
         $idListAndAuthentication->then(
             function (array $idListAndAuthenticationResolved) use ($retrievingDeferred) {
-                // todo: try-catch
+                try {
+                    /** @var Traversable<int>|int[] $hardwareIdentifiers */
+                    /** @var Authentication $authentication */
+                    [$hardwareIdentifiers, $authentication] = $idListAndAuthenticationResolved;
 
-                /** @var Traversable<int>|int[] $hardwareIdentifiers */
-                /** @var Authentication $authentication */
-                [$hardwareIdentifiers, $authentication] = $idListAndAuthenticationResolved;
+                    // querying data when the both authentication and identifiers are ready.
+                    $priceListRequestedPromise = $this->onReady($hardwareIdentifiers, $authentication);
 
-                // querying data when the both authentication and identifiers are ready.
-                $priceListRequestedPromise = $this->onReady($hardwareIdentifiers, $authentication);
+                    // transferring responsibility (resolver) from the retrieving process to the requesting process.
+                    // we are closing the promise resolving chain at this point.
+                    $retrievingDeferred->resolve($priceListRequestedPromise);
+                } catch (Throwable $exception) {
+                    $reason = new RuntimeException('Unable to retrieve prices (requests).', 0, $exception);
 
-                // transferring responsibility (resolver) from the retrieving process to the requesting process.
-                // we are closing the promise resolving chain at this point.
-                $retrievingDeferred->resolve($priceListRequestedPromise);
+                    $retrievingDeferred->reject($reason);
+                }
             },
             function (Throwable $rejectionReason) use ($retrievingDeferred) {
-                $reason = new RuntimeException('Unable to retrieve prices.', 0, $rejectionReason);
+                $reason = new RuntimeException('Unable to retrieve prices (ids, auth).', 0, $rejectionReason);
 
                 $retrievingDeferred->reject($reason);
             }
@@ -114,12 +122,15 @@ class HardPriceProvider implements ProviderInterface
         $promisesMapped = [];
 
         foreach ($hardwareIdentifiers as $hardwareIdentifier) {
-            $requestPromise = $this->priceRequester->requestPrice($hardwareIdentifier);
+            $responsePromise = $this->priceRequester->requestPrice($hardwareIdentifier);
 
             // map function: list(promise, id) -> list(response, id).
-            $promiseMapped = $requestPromise->then(
+            $promiseMapped = $responsePromise->then(
                 function (ResponseInterface $response) use ($hardwareIdentifier) {
                     return [$response, $hardwareIdentifier];
+                },
+                function (Throwable $rejectionReason) {
+                    throw new RuntimeException('Unable to apply map function to the response.', 0, $rejectionReason);
                 }
             );
 
@@ -128,25 +139,7 @@ class HardPriceProvider implements ProviderInterface
 
         // reduce stage: collecting all responses and aggregating them into a single data structure for centralized
         // processing with the "onFulfilled" callbacks.
-        $reducePromise = reduce(
-            $promisesMapped,
-            // reduce function: list(id, list(response, id)) -> list(id, responses merged).
-            function (array $responseListById, array $responseWithId, int $requestIndex, int $requestCountTotal) {
-                /** @var ResponseInterface $response */
-                /** @var int $hardwareIdentifier */
-                [$response, $hardwareIdentifier] = $responseWithId;
-
-                if (!array_key_exists($hardwareIdentifier, $responseListById)) {
-                    $responseListById[$hardwareIdentifier] = [$response];
-                } else {
-                    $responseListById[$hardwareIdentifier][] = $response;
-                }
-
-                return $responseListById;
-            },
-            // initial value for the reduce container: $responseListById (responses merged).
-            []
-        );
+        $reducePromise = $this->responseReducer->reduce($promisesMapped);
 
         $reducePromise->then(
             function (iterable $responseListById) use ($requestingDeferred) {
@@ -159,7 +152,7 @@ class HardPriceProvider implements ProviderInterface
                 $requestingDeferred->resolve([]);
             },
             function (Exception $rejectionReason) use ($requestingDeferred) {
-                $reason = new RuntimeException('Unable to request prices.', 0, $rejectionReason);
+                $reason = new RuntimeException('Unable to reduce price responses.', 0, $rejectionReason);
 
                 $requestingDeferred->reject($reason);
             }

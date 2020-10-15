@@ -29,6 +29,8 @@ use Traversable;
  * streaming and non-streaming mode. Middleware can also be used to track progress of chunked transfer and other
  * data analysis.
  *
+ * todo: response rejection logger middleware
+ *
  * @see ResponseMiddlewareInterface
  */
 class Client implements ClientInterface
@@ -69,9 +71,6 @@ class Client implements ClientInterface
         } else {
             $headerArray = (array) $headers;
         }
-
-        // todo: extract into the config layer & validate via an options resolver
-        $headerArray['user-agent'] = 'Sterlett/0.x-dev';
 
         $responsePromise = $this->browser->requestStreaming($method, $url, $headerArray, $body);
 

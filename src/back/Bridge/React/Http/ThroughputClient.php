@@ -21,6 +21,8 @@ use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use RuntimeException;
 use Sterlett\ClientInterface;
+use Symfony\Component\OptionsResolver\Options;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use Throwable;
 
 /**
@@ -43,33 +45,72 @@ class ThroughputClient implements ClientInterface
     private LoopInterface $loop;
 
     /**
-     * The limit for all outgoing requests, per second
+     * Options for the client
      *
-     * @var int
+     * @var array
      */
-    private int $requestPerSecondCount;
+    private array $options;
 
     /**
-     * A queue with requests for sending
+     * Internal queue with delayed requests
      *
      * @var Queue
      */
     private Queue $_requestsPending;
 
     /**
+     * An internal counter, that is used to maintain configured throughput
+     *
+     * @var int
+     */
+    private int $_concurrentRequests;
+
+    /**
      * ThroughputClient constructor.
      *
-     * @param ClientInterface $httpClient            A base client implementation that performs actual requests
-     * @param LoopInterface   $loop                  Event loop that is used by the base client implementation
-     * @param int             $requestPerSecondCount The limit for all outgoing requests, per second
+     * @param ClientInterface $httpClient A base client implementation that performs actual requests
+     * @param LoopInterface   $loop       Event loop that is used by the base client implementation
+     * @param array           $options    Options for the client
      */
-    public function __construct(ClientInterface $httpClient, LoopInterface $loop, int $requestPerSecondCount)
+    public function __construct(ClientInterface $httpClient, LoopInterface $loop, array $options)
     {
-        $this->httpClient            = $httpClient;
-        $this->loop                  = $loop;
-        $this->requestPerSecondCount = $requestPerSecondCount;
+        $this->httpClient = $httpClient;
+        $this->loop       = $loop;
 
-        $this->_requestsPending = new Queue();
+        $optionsResolver = new OptionsResolver();
+
+        $optionsResolver
+            ->define('requests_per_second')
+            ->info('The limit for all outgoing requests, per second')
+            ->allowedTypes('int', 'float')
+            ->default(1.0)
+            ->normalize(
+                function (Options $options, $requestsPerSecond) {
+                    $requestsPerSecondNormalized = (float) max(0.1, $requestsPerSecond);
+
+                    return $requestsPerSecondNormalized;
+                }
+            )
+        ;
+
+        $optionsResolver
+            ->define('concurrent_requests')
+            ->info('Max count of pending requests at the same unit of time')
+            ->allowedTypes('int')
+            ->default(1)
+            ->normalize(
+                function (Options $options, int $concurrentRequests) {
+                    $concurrentRequestsNormalized = max(1, $concurrentRequests);
+
+                    return $concurrentRequestsNormalized;
+                }
+            )
+        ;
+
+        $this->options = $optionsResolver->resolve($options);
+
+        $this->_requestsPending    = new Queue();
+        $this->_concurrentRequests = 0;
 
         $this->registerPeriodicTimer();
     }
@@ -96,15 +137,17 @@ class ThroughputClient implements ClientInterface
      */
     private function registerPeriodicTimer(): void
     {
-        $rpsNormalized = max(1, $this->requestPerSecondCount);
-
         // calculated delay for all outgoing requests (based on the given RPS count).
-        $sendingDelayInSeconds = round(1 / $rpsNormalized, 3);
+        $sendingDelayInSeconds = round(1 / $this->options['requests_per_second'], 3);
 
         $this->loop->addPeriodicTimer(
             $sendingDelayInSeconds,
             function () {
                 if ($this->_requestsPending->isEmpty()) {
+                    return;
+                }
+
+                if ($this->_concurrentRequests >= $this->options['concurrent_requests']) {
                     return;
                 }
 
@@ -115,6 +158,17 @@ class ThroughputClient implements ClientInterface
                     [$method, $url, $headers, $body] = $requestContext;
 
                     $responsePromise = $this->httpClient->request($method, $url, $headers, $body);
+
+                    ++$this->_concurrentRequests;
+
+                    $responsePromise->then(
+                        function () {
+                            --$this->_concurrentRequests;
+                        },
+                        function () {
+                            --$this->_concurrentRequests;
+                        }
+                    );
 
                     $requestingDeferred->resolve($responsePromise);
                 } catch (Throwable $exception) {

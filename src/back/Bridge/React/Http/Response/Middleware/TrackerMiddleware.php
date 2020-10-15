@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace Sterlett\Bridge\React\Http\Response\Middleware;
 
 use Psr\Http\Message\ResponseInterface;
+use React\Http\Message\ResponseException;
 use React\Promise\PromiseInterface;
 use React\Stream\ReadableStreamInterface;
 use RuntimeException;

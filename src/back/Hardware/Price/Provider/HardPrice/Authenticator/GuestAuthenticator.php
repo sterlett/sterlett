@@ -21,6 +21,7 @@ use React\Promise\PromiseInterface;
 use RuntimeException;
 use Sterlett\ClientInterface;
 use Sterlett\Hardware\Price\Provider\HardPrice\Authentication;
+use Sterlett\Hardware\Price\Provider\HardPrice\ChromiumHeaders;
 use Sterlett\Hardware\Price\Provider\HardPrice\CsrfTokenParser;
 use Throwable;
 
@@ -76,12 +77,13 @@ class GuestAuthenticator
     {
         $authenticationDeferred = new Deferred();
 
-        $responsePromise = $this->httpClient->request('GET', $this->authenticationUri);
+        $requestHeaders  = ChromiumHeaders::makeFrom([]);
+        $responsePromise = $this->httpClient->request('GET', $this->authenticationUri, $requestHeaders);
 
         $responsePromise->then(
             function (ResponseInterface $response) use ($authenticationDeferred) {
                 try {
-                    $authentication = $this->onResponse($response);
+                    $authentication = $this->onResponseSuccess($response);
 
                     $authenticationDeferred->resolve($authentication);
                 } catch (Throwable $exception) {
@@ -109,7 +111,7 @@ class GuestAuthenticator
      *
      * @return Authentication
      */
-    private function onResponse(ResponseInterface $response): Authentication
+    private function onResponseSuccess(ResponseInterface $response): Authentication
     {
         $authentication = new Authentication();
 

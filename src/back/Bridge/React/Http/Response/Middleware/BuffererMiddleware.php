@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace Sterlett\Bridge\React\Http\Response\Middleware;
 
 use Psr\Http\Message\ResponseInterface;
+use React\Http\Message\ResponseException;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use React\Stream\ReadableStreamInterface;
@@ -93,7 +94,7 @@ class BuffererMiddleware implements ResponseMiddlewareInterface
         $responsePromise->then(
             function (ResponseInterface $response) use ($bufferingDeferred) {
                 try {
-                    $this->onResponse($bufferingDeferred, $response);
+                    $this->onResponseSuccess($bufferingDeferred, $response);
                 } catch (Throwable $exception) {
                     $reason = new RuntimeException('Unable to configure response buffering.', 0, $exception);
 
@@ -121,7 +122,7 @@ class BuffererMiddleware implements ResponseMiddlewareInterface
      *
      * @return void
      */
-    private function onResponse(Deferred $bufferingDeferred, ResponseInterface $response)
+    private function onResponseSuccess(Deferred $bufferingDeferred, ResponseInterface $response)
     {
         /** @var ReadableStreamInterface $responseBody */
         $responseBody = $response->getBody();

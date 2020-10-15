@@ -84,7 +84,7 @@ class PassMarkProvider implements ProviderInterface
         $responsePromise->then(
             function (ResponseInterface $response) use ($retrievingDeferred) {
                 try {
-                    $benchmarks = $this->onResponse($response);
+                    $benchmarks = $this->onResponseSuccess($response);
 
                     $retrievingDeferred->resolve($benchmarks);
                 } catch (Throwable $exception) {
@@ -113,7 +113,7 @@ class PassMarkProvider implements ProviderInterface
      *
      * @return Traversable<BenchmarkInterface>|BenchmarkInterface[]
      */
-    private function onResponse(ResponseInterface $response): iterable
+    private function onResponseSuccess(ResponseInterface $response): iterable
     {
         $bodyAsString = (string) $response->getBody();
 
