@@ -8,6 +8,7 @@ services:
 
     app.client.hardprice:
         alias: 'app.bridge.react.http.throughput_client.hardprice.proxy_protected'
+        # alias: 'app.bridge.react.http.throughput_client.hardprice'
 
     # client mixins
     app.bridge.react.http.buffering_client.passmark_cpu.console:

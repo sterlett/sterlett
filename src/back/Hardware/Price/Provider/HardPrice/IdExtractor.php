@@ -16,7 +16,6 @@ declare(strict_types=1);
 namespace Sterlett\Hardware\Price\Provider\HardPrice;
 
 use Psr\Http\Message\ResponseInterface;
-use React\Http\Message\ResponseException;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use RuntimeException;
