@@ -30,7 +30,7 @@ use function React\Promise\resolve;
 /**
  * Tests guest authentication for HardPrice website
  */
-class GuestAuthenticatorTest extends TestCase
+final class GuestAuthenticatorTest extends TestCase
 {
     /**
      * Performs authentication for the subsequent requests to mimic guest activity

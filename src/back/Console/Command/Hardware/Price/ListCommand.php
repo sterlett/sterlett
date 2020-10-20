@@ -43,10 +43,10 @@ class ListCommand extends BaseCommand
     {
         $prices = $this->priceProvider->getPrices();
 
-        foreach ($prices as $price) {
+        foreach ($prices as $hardwareIdentifier => $hardwarePrices) {
             // todo: better price rendering
 
-            print_r($price);
+            var_dump($hardwareIdentifier, $hardwarePrices);
         }
 
         return parent::SUCCESS;

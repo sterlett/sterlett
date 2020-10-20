@@ -61,7 +61,7 @@ class PriceResponseReducer
             $promiseArray = (array) $responsePromises;
         }
 
-        // todo: move tracking logic to the mapper instead
+        // todo: move tracking logic to the separate unit (at onReady level) instead
         if ($this->progressTracker instanceof TrackerInterface) {
             $promiseCount = count($promiseArray);
 

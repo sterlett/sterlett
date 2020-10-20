@@ -23,6 +23,7 @@ use RuntimeException;
 use Sterlett\Hardware\Price\Provider\HardPrice\Authentication;
 use Sterlett\Hardware\Price\Provider\HardPrice\Authenticator\GuestAuthenticator;
 use Sterlett\Hardware\Price\Provider\HardPrice\IdExtractor;
+use Sterlett\Hardware\Price\Provider\HardPrice\PriceCollector;
 use Sterlett\Hardware\Price\Provider\HardPrice\PriceRequester;
 use Sterlett\Hardware\Price\Provider\HardPrice\PriceResponseReducer;
 use Sterlett\Hardware\Price\ProviderInterface;
@@ -37,24 +38,62 @@ use function React\Promise\all;
  */
 class HardPriceProvider implements ProviderInterface
 {
+    /**
+     * Extracts a list with available hardware identifiers for data queries to the HardPrice website
+     *
+     * @var IdExtractor
+     */
     private IdExtractor $idExtractor;
 
+    /**
+     * Performs authentication for the subsequent requests to mimic guest activity
+     *
+     * @var GuestAuthenticator
+     */
     private GuestAuthenticator $requestAuthenticator;
 
+    /**
+     * Sends price data fetching requests to the HardPrice endpoint
+     *
+     * @var PriceRequester
+     */
     private PriceRequester $priceRequester;
 
+    /**
+     * Applies a reduce function to the list of response promises for collecting stage
+     *
+     * @var PriceResponseReducer
+     */
     private PriceResponseReducer $responseReducer;
 
+    /**
+     * Collects price responses and builds an iterator to access price data, keyed by the specific hardware identifiers
+     *
+     * @var PriceCollector
+     */
+    private PriceCollector $priceCollector;
+
+    /**
+     * HardPriceProvider constructor.
+     *
+     * @param IdExtractor          $idExtractor          Extracts a list with available hardware identifiers
+     * @param GuestAuthenticator   $requestAuthenticator Performs authentication for the subsequent requests
+     * @param PriceRequester       $priceRequester       Sends price data fetching requests
+     * @param PriceResponseReducer $responseReducer      Applies a reduce function to the list of response promises
+     * @param PriceCollector       $priceCollector       Collects price responses and builds price data iterator
+     */
     public function __construct(
         IdExtractor $idExtractor,
         GuestAuthenticator $requestAuthenticator,
         PriceRequester $priceRequester,
-        PriceResponseReducer $responseReducer
+        PriceResponseReducer $responseReducer,
+        PriceCollector $priceCollector
     ) {
         $this->idExtractor          = $idExtractor;
         $this->requestAuthenticator = $requestAuthenticator;
         $this->priceRequester       = $priceRequester;
         $this->responseReducer      = $responseReducer;
+        $this->priceCollector       = $priceCollector;
     }
 
     /**
@@ -104,12 +143,14 @@ class HardPriceProvider implements ProviderInterface
     }
 
     /**
-     * Sending requests and collecting responses using MapReduce pattern
+     * Sends requests for hardware price data and collects incoming responses using MapReduce pattern. Returned promise
+     * will be resolved to the iterable list of hardware prices (Traversable<PriceInterface> or PriceInterface[]),
+     * keyed by their identifiers.
      *
-     * @param Traversable<int>|int[] $hardwareIdentifiers
-     * @param Authentication         $authentication
+     * @param Traversable<int>|int[] $hardwareIdentifiers A list with hardware identifiers
+     * @param Authentication         $authentication      Holds authentication data payload
      *
-     * @return PromiseInterface
+     * @return PromiseInterface<iterable>
      */
     private function onReady(iterable $hardwareIdentifiers, Authentication $authentication): PromiseInterface
     {
@@ -143,13 +184,17 @@ class HardPriceProvider implements ProviderInterface
 
         $reducePromise->then(
             function (iterable $responseListById) use ($requestingDeferred) {
-                foreach ($responseListById as $hardwareIdentifier => $responseList) {
-                    // todo: apply sorting behavior (from the most expensive to the cheapest ones)
+                try {
+                    $hardwarePrices = $this->priceCollector->makeIterator($responseListById);
+
+                    // todo: implement merging iterator
+
+                    $requestingDeferred->resolve($hardwarePrices);
+                } catch (Throwable $exception) {
+                    $reason = new RuntimeException('Unable to collect price responses.', 0, $exception);
+
+                    $requestingDeferred->reject($reason);
                 }
-
-                // todo: parse raw data into price DTOs (+ try-catch)
-
-                $requestingDeferred->resolve([]);
             },
             function (Exception $rejectionReason) use ($requestingDeferred) {
                 $reason = new RuntimeException('Unable to reduce price responses.', 0, $rejectionReason);

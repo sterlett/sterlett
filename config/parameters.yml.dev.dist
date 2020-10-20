@@ -33,6 +33,6 @@ parameters:
     # 8-8: 54 sec           16-8: 53 sec
     # 16-12: 39 sec         16-16: 31 sec
     # Defines how fast requests will be registered in the event loop (RPS minimum: 0.1)
-    hardprice.requests_per_second: 16
+    hardprice.requests_per_second: 8
     # Count of requests, which can be registered in the event loop at the same time (concurrent requests minimum: 1)
-    hardprice.concurrent_requests: 16
+    hardprice.concurrent_requests: 8

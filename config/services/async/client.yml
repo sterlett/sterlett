@@ -7,8 +7,8 @@ services:
         alias: 'app.bridge.react.http.buffering_client.passmark_cpu.console'
 
     app.client.hardprice:
-        alias: 'app.bridge.react.http.throughput_client.hardprice.proxy_protected'
-        # alias: 'app.bridge.react.http.throughput_client.hardprice'
+        # alias: 'app.bridge.react.http.throughput_client.hardprice.proxy_protected'
+        alias: 'app.bridge.react.http.throughput_client.hardprice'
 
     # client mixins
     app.bridge.react.http.buffering_client.passmark_cpu.console:
@@ -28,13 +28,13 @@ services:
             -   requests_per_second: '%hardprice.requests_per_second%'
                 concurrent_requests: '%hardprice.concurrent_requests%'
 
-#    app.bridge.react.http.throughput_client.hardprice:
-#        class: Sterlett\Bridge\React\Http\ThroughputClient
-#        arguments:
-#            - '@app.bridge.react.http.buffering_client.take_five'
-#            - '@app.event_loop'
-#            -   requests_per_second: '%hardprice.requests_per_second%'
-#                concurrent_requests: '%hardprice.concurrent_requests%'
+    app.bridge.react.http.throughput_client.hardprice:
+        class: Sterlett\Bridge\React\Http\ThroughputClient
+        arguments:
+            - '@app.bridge.react.http.buffering_client.take_five'
+            - '@app.event_loop'
+            -   requests_per_second: '%hardprice.requests_per_second%'
+                concurrent_requests: '%hardprice.concurrent_requests%'
     # ---
 
     app.bridge.react.http.buffering_client.proxy_protected:

@@ -22,7 +22,7 @@ use Traversable;
 /**
  * Tests hardware identifiers parsing for HardPrice website
  */
-class IdParserTest extends TestCase
+final class IdParserTest extends TestCase
 {
     /**
      * Extracts a list with hardware identifiers from the website page content

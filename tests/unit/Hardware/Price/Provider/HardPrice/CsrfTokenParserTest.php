@@ -21,7 +21,7 @@ use Sterlett\Hardware\Price\Provider\HardPrice\CsrfTokenParser;
 /**
  * Tests CSRF token parsing for HardPrice website
  */
-class CsrfTokenParserTest extends TestCase
+final class CsrfTokenParserTest extends TestCase
 {
     /**
      * Extracts a CSRF token from the website page content
