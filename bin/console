@@ -33,12 +33,21 @@ $containerConfigurator->setDefinitionFilePaths(
     [
         __DIR__ . '/../config/services.yml',
         __DIR__ . '/../config/services/loggers.yml',
-        __DIR__ . '/../config/services/progress_tracker.yml',
+        __DIR__ . '/../config/services/progress_trackers.yml',
         __DIR__ . '/../config/services/async/event_loop.yml',
-        __DIR__ . '/../config/services/async/client.yml',
-        __DIR__ . '/../config/services/hardware/price_providers.yml',
-        __DIR__ . '/../config/services/hardware/benchmark_parsers.yml',
+        __DIR__ . '/../config/services/async/clients.yml',
+        // PassMark
+        __DIR__ . '/../config/services/passmark/parsers.yml',
+        // HardPrice
+        __DIR__ . '/../config/services/hardprice/parsers.yml',
+        __DIR__ . '/../config/services/hardprice/authenticator.yml',
+        __DIR__ . '/../config/services/hardprice/requesters.yml',
+        __DIR__ . '/../config/services/hardprice/response_reducers.yml',
+        __DIR__ . '/../config/services/hardprice/price_collectors.yml',
+        // providers
         __DIR__ . '/../config/services/hardware/benchmark_providers.yml',
+        __DIR__ . '/../config/services/hardware/price_providers.yml',
+        // console
         __DIR__ . '/../config/services/console/commands.yml',
     ]
 );

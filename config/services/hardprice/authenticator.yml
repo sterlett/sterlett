@@ -1,0 +1,10 @@
+
+services:
+    # app.hardprice.authenticator
+
+    app.hardprice.authenticator.guest_authenticator:
+        class: Sterlett\HardPrice\Authenticator\GuestAuthenticator
+        arguments:
+            - '@app.client.hardprice'
+            - '@app.hardprice.parser.csrf_token_parser'
+            - '%hardprice.authentication_uri%'

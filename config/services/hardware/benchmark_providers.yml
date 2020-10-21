@@ -15,7 +15,7 @@ services:
         class: Sterlett\Hardware\Benchmark\Provider\PassMarkProvider
         arguments:
             - '@app.client.passmark_cpu.console'
-            - '@app.hardware.benchmark.parser.passmark_parser.cpu'
+            - '@app.passmark.parser.cpu'
             - '%passmark.cpu.download_uri%'
 
     # async
@@ -23,7 +23,7 @@ services:
         class: Sterlett\Hardware\Benchmark\Provider\PassMarkProvider
         arguments:
             - '@app.client'
-            - '@app.hardware.benchmark.parser.passmark_parser.cpu'
+            - '@app.passmark.parser.cpu'
             - '%passmark.cpu.download_uri%'
         tags:
             -   name: 'benchmark_provider'

@@ -1,0 +1,6 @@
+
+services:
+    app.hardprice.price_collector.non_deterministic:
+        class: Sterlett\HardPrice\PriceCollector
+        arguments:
+            - '@app.hardprice.parser.price_parser'

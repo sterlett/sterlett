@@ -14,7 +14,7 @@ services:
     app.console.command.hardware.price.list_command.cpu:
         class: Sterlett\Console\Command\Hardware\Price\ListCommand
         arguments:
-            - '@app.hardware.price.provider.hardprice_provider.cpu.console.synchronous'
+            - '@app.hardware.price.provider.hardprice_provider.cpu.synchronous'
             - 'Prints a list with live prices for the CPU hardware category'
         tags:
             -   name: 'console.command'

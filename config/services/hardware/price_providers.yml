@@ -1,69 +1,37 @@
 
+# todo: change price collector to deterministic, when it becomes available
 services:
-    # hardprice
-    app.hardware.price.provider.hardprice_provider.cpu.console.synchronous:
+    # --- hardprice
+    app.hardware.price.provider.hardprice_provider.cpu.synchronous:
         class: Sterlett\Hardware\Price\Provider\BlockingProvider
         arguments:
-            - '@app.hardware.price.provider.hardprice_provider.cpu.trackable'
+            - '@app.hardware.price.provider.hardprice_provider.cpu.console'
             - '@app.event_loop'
         tags:
             -   name: 'price_provider.synchronous'
                 providerId: 'HardPrice'
 
-    # async
-    app.hardware.price.provider.hardprice_provider.cpu.trackable:
+    # 'cpu' modifier is assigned by id_requester, which is configured to acquire identifiers for the CPU category
+    # 'console' modifier is assigned by the reducer mixin, which is configured with a progress tracker for console env
+    app.hardware.price.provider.hardprice_provider.cpu.console:
         class: Sterlett\Hardware\Price\Provider\HardPriceProvider
         arguments:
-            - '@app.hardware.price.provider.hardprice.id_extractor'
-            - '@app.hardware.price.provider.hardprice.authenticator.guest_authenticator'
-            - '@app.hardware.price.provider.hardprice.price_requester.guest'
-            - '@app.hardware.price.provider.hardprice.price_response_reducer.trackable'
-            - '@app.hardware.price.provider.hardprice.price_collector'
+            - '@app.hardprice.requester.id_requester.cpu'
+            - '@app.hardprice.authenticator.guest_authenticator'
+            - '@app.hardprice.requester.price_requester'
+            - '@app.hardprice.response.reducer.trackable.console'
+            - '@app.hardprice.price_collector.non_deterministic'
+
+    # for the microservice scope; used within an async execution flow, without progress tracking
+    app.hardware.price.provider.hardprice_provider.cpu:
+        class: Sterlett\Hardware\Price\Provider\HardPriceProvider
+        arguments:
+            - '@app.hardprice.requester.id_requester.cpu'
+            - '@app.hardprice.authenticator.guest_authenticator'
+            - '@app.hardprice.requester.price_requester'
+            - '@app.hardprice.response.reducer'
+            - '@app.hardprice.price_collector.non_deterministic'
         tags:
             -   name: 'price_provider'
                 providerId: 'HardPrice'
-
-    # authenticators
-    app.hardware.price.provider.hardprice.authenticator.guest_authenticator:
-        class: Sterlett\Hardware\Price\Provider\HardPrice\Authenticator\GuestAuthenticator
-        arguments:
-            - '@app.client.hardprice'
-            - '@app.hardware.price.provider.hardprice.csrf_token_parser'
-            - '%hardprice.authentication_uri%'
-
-    # requesters
-    app.hardware.price.provider.hardprice.price_requester.guest:
-        class: Sterlett\Hardware\Price\Provider\HardPrice\PriceRequester
-        arguments:
-            - '@app.client.hardprice'
-            - '%hardprice.price_list_uri%'
-
-    # response reducers
-    app.hardware.price.provider.hardprice.price_response_reducer.trackable:
-        class: Sterlett\Hardware\Price\Provider\HardPrice\PriceResponseReducer
-        calls:
-            - setProgressTracker:
-                - '@app.progress.tracker.hardprice.console'
-
-    # collectors
-    app.hardware.price.provider.hardprice.price_collector:
-        class: Sterlett\Hardware\Price\Provider\HardPrice\PriceCollector
-        arguments:
-            - '@app.hardware.price.provider.hardprice.price_parser'
-
-    # extractors & parsers
-    app.hardware.price.provider.hardprice.id_extractor:
-        class: Sterlett\Hardware\Price\Provider\HardPrice\IdExtractor
-        arguments:
-            - '@app.client.hardprice'
-            - '@app.hardware.price.provider.hardprice.id_parser'
-            - '%hardprice.cpu.download_uri%'
-
-    app.hardware.price.provider.hardprice.id_parser:
-        class: Sterlett\Hardware\Price\Provider\HardPrice\IdParser
-
-    app.hardware.price.provider.hardprice.csrf_token_parser:
-        class: Sterlett\Hardware\Price\Provider\HardPrice\CsrfTokenParser
-
-    app.hardware.price.provider.hardprice.price_parser:
-        class: Sterlett\Hardware\Price\Provider\HardPrice\PriceParser
+    # ---

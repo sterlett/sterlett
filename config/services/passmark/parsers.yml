@@ -1,0 +1,7 @@
+
+services:
+    app.passmark.parser.cpu:
+        alias: 'app.passmark.parser.fingers_crossed_parser'
+
+    app.passmark.parser.fingers_crossed_parser:
+        class: Sterlett\PassMark\Parser\FingersCrossedParser
