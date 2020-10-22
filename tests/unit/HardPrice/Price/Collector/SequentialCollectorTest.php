@@ -13,25 +13,25 @@
 
 declare(strict_types=1);
 
-namespace Sterlett\Tests\HardPrice;
+namespace Sterlett\Tests\HardPrice\Price\Collector;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Sterlett\HardPrice\Parser\PriceParser;
-use Sterlett\HardPrice\PriceCollector;
+use Sterlett\HardPrice\Price\Collector\SequentialCollector;
 use Sterlett\Hardware\PriceInterface;
 
 /**
  * Tests price collecting stage logic (transforming from the raw responses to the price DTO list)
  */
-final class PriceCollectorTest extends TestCase
+final class SequentialCollectorTest extends TestCase
 {
     /**
      * Collects price responses and builds an iterator to access price data, keyed by the specific hardware identifiers
      *
-     * @var PriceCollector
+     * @var SequentialCollector
      */
-    private PriceCollector $priceCollector;
+    private SequentialCollector $sequentialCollector;
 
     /**
      * {@inheritDoc}
@@ -60,7 +60,7 @@ final class PriceCollectorTest extends TestCase
             ->willReturn([$priceMock])
         ;
 
-        $this->priceCollector = new PriceCollector($priceParserMock);
+        $this->sequentialCollector = new SequentialCollector($priceParserMock);
     }
 
     /**
@@ -94,7 +94,7 @@ final class PriceCollectorTest extends TestCase
             ],
         ];
 
-        $hardwarePricesActual = $this->priceCollector->makeIterator($responseListById);
+        $hardwarePricesActual = $this->sequentialCollector->makeIterator($responseListById);
 
         $priceFormatter = function (iterable $prices) {
             /** @var PriceInterface $price */

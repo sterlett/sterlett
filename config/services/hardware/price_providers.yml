@@ -20,7 +20,7 @@ services:
             - '@app.hardprice.authenticator.guest_authenticator'
             - '@app.hardprice.requester.price_requester'
             - '@app.hardprice.response.reducer.trackable.console'
-            - '@app.hardprice.price_collector.non_deterministic'
+            - '@app.hardprice.price.collector.sequential_collector'
 
     # for the microservice scope; used within an async execution flow, without progress tracking
     app.hardware.price.provider.hardprice_provider.cpu:
@@ -30,7 +30,7 @@ services:
             - '@app.hardprice.authenticator.guest_authenticator'
             - '@app.hardprice.requester.price_requester'
             - '@app.hardprice.response.reducer'
-            - '@app.hardprice.price_collector.non_deterministic'
+            - '@app.hardprice.price.collector.sequential_collector'
         tags:
             -   name: 'price_provider'
                 providerId: 'HardPrice'

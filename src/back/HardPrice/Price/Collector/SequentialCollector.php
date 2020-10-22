@@ -13,28 +13,31 @@
 
 declare(strict_types=1);
 
-namespace Sterlett\HardPrice;
+namespace Sterlett\HardPrice\Price\Collector;
 
 use ArrayIterator;
+use Iterator;
 use IteratorIterator;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
 use Sterlett\HardPrice\Parser\PriceParser;
+use Sterlett\HardPrice\Price\CollectorInterface;
 use Sterlett\Hardware\PriceInterface;
 use Throwable;
 use Traversable;
 
 /**
- * Collects price responses and builds an iterator to access price data, keyed by the specific hardware identifiers.
+ * Collects price responses and builds a sequential iterator, that gives access to a single pair {id => price DTO} at
+ * each iterating step (suited for async approach, whenever we need to pause the whole parsing routine until next
+ * tick/context-switch).
  *
- * It makes an iterator that returns a hardware identifier and related price DTOs on each iterating step (will be
- * parsed from the raw HTTP responses on the fly).
+ * Note: behavior for the iterator instance, as described above, is considered as non-deterministic, i.e. for each
+ * hardware identifier (as a key) there may be different price DTOs (values), using the same input, so it is not safe,
+ * for example, to call iterator_to_array with default positive value for the "use_keys" flag.
  *
- * Note: iterating behavior for the iterator instance, that will be created, is non-deterministic, i.e. for each
- * hardware identifier (as a key) there may be multiple price DTO lists (values), so it is not safe, for example, to
- * call iterator_to_array with default positive value for the "use_keys" flag.
+ * @see {tbd} for the deterministic approach (blocks until all data for the given key will be accumulated)
  */
-class PriceCollector
+class SequentialCollector implements CollectorInterface
 {
     /**
      * Transforms price data from the raw format to the list of application-level DTOs
@@ -54,17 +57,9 @@ class PriceCollector
     }
 
     /**
-     * Returns a traversable list with pairs {hardware identifier => price DTOs}. Input contains raw data with hardware
-     * prices from website.
-     *
-     * An iterable list, representing an element of returning collection, will be Traversable<PriceInterface> or
-     * PriceInterface[].
-     *
-     * @param iterable $responseListById A map {id => responses} with raw price data from the website
-     *
-     * @return Traversable<iterable>
+     * {@inheritDoc}
      */
-    public function makeIterator(iterable $responseListById): Traversable
+    public function makeIterator(iterable $responseListById): Iterator
     {
         // todo: apply sorting behavior (from the most expensive to the cheapest ones)
 

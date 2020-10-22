@@ -73,7 +73,7 @@ class IdRequester
      *
      * @return PromiseInterface<iterable>
      */
-    public function getIdentifiers(): PromiseInterface
+    public function requestIdentifiers(): PromiseInterface
     {
         $extractingDeferred = new Deferred();
 

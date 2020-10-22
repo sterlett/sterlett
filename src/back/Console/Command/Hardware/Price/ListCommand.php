@@ -19,6 +19,7 @@ use Sterlett\Hardware\Price\BlockingProviderInterface;
 use Symfony\Component\Console\Command\Command as BaseCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Traversable;
 
 class ListCommand extends BaseCommand
 {
@@ -46,7 +47,13 @@ class ListCommand extends BaseCommand
         foreach ($prices as $hardwareIdentifier => $hardwarePrices) {
             // todo: better price rendering
 
-            var_dump($hardwareIdentifier, $hardwarePrices);
+            if ($hardwarePrices instanceof Traversable) {
+                $priceArray = iterator_to_array($hardwarePrices);
+            } else {
+                $priceArray = (array) $hardwarePrices;
+            }
+
+            var_dump($hardwareIdentifier, $priceArray);
         }
 
         return parent::SUCCESS;

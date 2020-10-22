@@ -16,7 +16,6 @@ declare(strict_types=1);
 namespace Sterlett\Hardware\Price;
 
 use RuntimeException;
-use Sterlett\Hardware\PriceInterface;
 use Traversable;
 
 /**
@@ -27,7 +26,9 @@ interface BlockingProviderInterface
     /**
      * Returns a list with price records for the configured hardware category
      *
-     * @return Traversable<PriceInterface>|PriceInterface[]
+     * An iterable element of the resulting collection represents Traversable<PriceInterface> or PriceInterface[].
+     *
+     * @return Traversable<int, iterable>|iterable[]
      *
      * @throws RuntimeException Whenever an error is raised during price extracting, with context of the previous one
      */
