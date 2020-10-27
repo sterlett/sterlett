@@ -35,7 +35,7 @@ use Traversable;
  * hardware identifier (as a key) there may be different price DTOs (values), using the same input, so it is not safe,
  * for example, to call iterator_to_array with default positive value for the "use_keys" flag.
  *
- * @see {tbd} for the deterministic approach (blocks until all data for the given key will be accumulated)
+ * @see MergingCollector for the deterministic approach (blocks until all data for the given key will be accumulated)
  */
 class SequentialCollector implements CollectorInterface
 {
@@ -47,7 +47,7 @@ class SequentialCollector implements CollectorInterface
     private PriceParser $priceParser;
 
     /**
-     * PriceCollector constructor.
+     * SequentialCollector constructor.
      *
      * @param PriceParser $priceParser Transforms price data from the raw format to the list of application-level DTOs
      */

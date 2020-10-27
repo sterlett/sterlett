@@ -16,22 +16,21 @@ declare(strict_types=1);
 namespace Sterlett\Tests\HardPrice\Price\Collector;
 
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\ResponseInterface;
-use Sterlett\HardPrice\Parser\PriceParser;
+use Sterlett\HardPrice\Price\Collector\MergingCollector;
 use Sterlett\HardPrice\Price\Collector\SequentialCollector;
 use Sterlett\Hardware\PriceInterface;
 
 /**
- * Tests core price collecting stage logic (transforming from the raw responses to the price DTO list)
+ * Tests merging price collector to ensure it aggregates price data by hardware identifiers correctly
  */
-final class SequentialCollectorTest extends TestCase
+final class MergingCollectorTest extends TestCase
 {
     /**
-     * Collects price responses and builds an iterator to access price data, keyed by the specific hardware identifiers
+     * Makes a deterministic iterator for the hardware price collection
      *
-     * @var SequentialCollector
+     * @var MergingCollector
      */
-    private SequentialCollector $sequentialCollector;
+    private MergingCollector $mergingCollector;
 
     /**
      * {@inheritDoc}
@@ -41,60 +40,64 @@ final class SequentialCollectorTest extends TestCase
         $priceMock = $this->createMock(PriceInterface::class);
         $priceMock
             ->method('getAmount')
-            ->willReturn(15554)
+            ->willReturn(13283)
         ;
         $priceMock
             ->method('getPrecision')
-            ->willReturn(2)
+            ->willReturn(3)
         ;
         $priceMock
             ->method('getCurrency')
-            ->willReturn('USD')
+            ->willReturn('EUR')
         ;
 
-        $priceParserMock = $this->createMock(PriceParser::class);
-        $priceParserMock
-            ->expects($this->atLeastOnce())
-            ->method('parse')
+        $sequentialCollectorMock = $this->createMock(SequentialCollector::class);
+        $sequentialCollectorMock
+            ->expects($this->once())
+            ->method('makeIterator')
             ->withAnyParameters()
-            ->willReturn([$priceMock])
+            ->willReturn(
+                (function () use ($priceMock) {
+                    yield 2533 => [$priceMock];
+                    yield 2533 => [$priceMock, $priceMock];
+                    yield 2533 => [$priceMock, $priceMock, $priceMock];
+                    yield 2700 => [$priceMock];
+                    yield 2900 => [$priceMock, $priceMock];
+                    yield 2900 => [$priceMock];
+                })()
+            )
         ;
 
-        $this->sequentialCollector = new SequentialCollector($priceParserMock);
+        $this->mergingCollector = new MergingCollector($sequentialCollectorMock);
     }
 
     /**
-     * Ensures hardware prices are properly collected using a specified price parser and generator's logic
+     * Ensures hardware prices are properly collected with merge logic
      *
      * @return void
      */
-    public function testHardwarePricesAreCollected(): void
+    public function testHardwarePricesAreCollectedWithMerge(): void
     {
-        $responseMock = $this->createMock(ResponseInterface::class);
-
-        $responseListById = [
-            2533 => [
-                $responseMock,
-                $responseMock,
-                $responseMock,
-            ],
-            2900 => [
-                $responseMock,
-            ],
-        ];
-
         $hardwarePriceArrayExpected = [
             2533 => [
-                '155,54 USD',
-                '155,54 USD',
-                '155,54 USD',
+                '13,283 EUR',
+                '13,283 EUR',
+                '13,283 EUR',
+                '13,283 EUR',
+                '13,283 EUR',
+                '13,283 EUR',
+            ],
+            2700 => [
+                '13,283 EUR',
             ],
             2900 => [
-                '155,54 USD',
+                '13,283 EUR',
+                '13,283 EUR',
+                '13,283 EUR',
             ],
         ];
 
-        $hardwarePricesActual = $this->sequentialCollector->makeIterator($responseListById);
+        $hardwarePricesActual = $this->mergingCollector->makeIterator([]);
 
         $priceFormatter = function (iterable $prices) {
             /** @var PriceInterface $price */
@@ -114,16 +117,7 @@ final class SequentialCollectorTest extends TestCase
         foreach ($hardwarePricesActual as $hardwareIdentifier => $hardwarePrices) {
             $pricesFormatted = iterator_to_array($priceFormatter($hardwarePrices), false);
 
-            if (!array_key_exists($hardwareIdentifier, $hardwarePriceArrayActual)) {
-                $hardwarePriceArrayActual[$hardwareIdentifier] = $pricesFormatted;
-
-                continue;
-            }
-
-            $hardwarePriceArrayActual[$hardwareIdentifier] = array_merge(
-                $hardwarePriceArrayActual[$hardwareIdentifier],
-                $pricesFormatted
-            );
+            $hardwarePriceArrayActual[$hardwareIdentifier] = $pricesFormatted;
         }
 
         $this->assertEqualsCanonicalizing(

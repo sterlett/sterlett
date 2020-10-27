@@ -1,5 +1,4 @@
 
-# todo: change price collector to deterministic, when it becomes available
 services:
     # --- hardprice
     app.hardware.price.provider.hardprice_provider.cpu.synchronous:
@@ -20,7 +19,7 @@ services:
             - '@app.hardprice.authenticator.guest_authenticator'
             - '@app.hardprice.requester.price_requester'
             - '@app.hardprice.response.reducer.trackable.console'
-            - '@app.hardprice.price.collector.sequential_collector'
+            - '@app.hardprice.price.collector.merging_collector'
 
     # for the microservice scope; used within an async execution flow, without progress tracking
     app.hardware.price.provider.hardprice_provider.cpu:

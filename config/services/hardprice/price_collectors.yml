@@ -1,5 +1,10 @@
 
 services:
+    app.hardprice.price.collector.merging_collector:
+        class: Sterlett\HardPrice\Price\Collector\MergingCollector
+        arguments:
+            - '@app.hardprice.price.collector.sequential_collector'
+
     app.hardprice.price.collector.sequential_collector:
         class: Sterlett\HardPrice\Price\Collector\SequentialCollector
         arguments:

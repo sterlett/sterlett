@@ -148,7 +148,7 @@ class HardPriceProvider implements ProviderInterface
      * keyed by their identifiers.
      *
      * @param Traversable<int>|int[] $hardwareIdentifiers A list with hardware identifiers
-     * @param Authentication         $authentication      Holds authentication data payload
+     * @param Authentication         $authentication      Holds data payload for request authentication
      *
      * @return PromiseInterface<iterable>
      */
