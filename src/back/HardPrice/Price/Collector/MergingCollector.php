@@ -20,10 +20,11 @@ use Sterlett\HardPrice\Price\CollectorInterface;
 use Sterlett\HardPrice\Price\MergingIterator;
 
 /**
- * Makes a deterministic iterator for the hardware price collection, which provides complete pairs with unique key on
- * each iteration (hardware identifier) and accumulated values (price collection).
+ * Makes a deterministic iterator for the hardware price collection, which provides complete pairs with unique keys
+ * (hardware identifiers) on each iteration and accumulated values (price collection).
  *
- * Acts like a data bufferer for blocking environment, to prevent multiple iterations for the same hardware identifier.
+ * Acts like a data bufferer for blocking environment, to prevent multiple iterations with the same hardware identifier
+ * as a key.
  */
 class MergingCollector implements CollectorInterface
 {
@@ -51,6 +52,8 @@ class MergingCollector implements CollectorInterface
     {
         $hardwarePrices = $this->priceCollector->makeIterator($responseListById);
 
-        return new MergingIterator($hardwarePrices);
+        $priceIterator = new MergingIterator($hardwarePrices);
+
+        return $priceIterator;
     }
 }

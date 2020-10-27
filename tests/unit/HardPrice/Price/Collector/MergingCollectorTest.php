@@ -58,12 +58,12 @@ final class MergingCollectorTest extends TestCase
             ->withAnyParameters()
             ->willReturn(
                 (function () use ($priceMock) {
-                    yield 2533 => [$priceMock];
-                    yield 2533 => [$priceMock, $priceMock];
-                    yield 2533 => [$priceMock, $priceMock, $priceMock];
-                    yield 2700 => [$priceMock];
-                    yield 2900 => [$priceMock, $priceMock];
-                    yield 2900 => [$priceMock];
+                    yield 2533 => $priceMock;
+                    yield 2533 => $priceMock;
+                    yield 2533 => $priceMock;
+                    yield 2700 => $priceMock;
+                    yield 2900 => $priceMock;
+                    yield 2900 => $priceMock;
                 })()
             )
         ;
@@ -83,15 +83,11 @@ final class MergingCollectorTest extends TestCase
                 '13,283 EUR',
                 '13,283 EUR',
                 '13,283 EUR',
-                '13,283 EUR',
-                '13,283 EUR',
-                '13,283 EUR',
             ],
             2700 => [
                 '13,283 EUR',
             ],
             2900 => [
-                '13,283 EUR',
                 '13,283 EUR',
                 '13,283 EUR',
             ],

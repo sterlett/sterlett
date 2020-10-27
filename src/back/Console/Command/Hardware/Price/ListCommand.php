@@ -48,7 +48,7 @@ class ListCommand extends BaseCommand
             // todo: better price rendering
 
             if ($hardwarePrices instanceof Traversable) {
-                $priceArray = iterator_to_array($hardwarePrices, false);
+                $priceArray = iterator_to_array($hardwarePrices);
             } else {
                 $priceArray = (array) $hardwarePrices;
             }

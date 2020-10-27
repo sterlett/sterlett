@@ -76,12 +76,12 @@ class SequentialCollector implements CollectorInterface
             $responses          = $responseListIterator->current();
 
             try {
-                $hardwarePrices = $this->parseResponses($hardwareIdentifier, $responses);
+                $hardwareIdWithPricePairs = $this->parseResponses($hardwareIdentifier, $responses);
             } catch (Throwable $exception) {
                 throw new RuntimeException('An error has been occurred during price response parsing.', 0, $exception);
             }
 
-            yield from $hardwarePrices;
+            yield from $hardwareIdWithPricePairs;
 
             $responseListIterator->next();
         }
@@ -95,17 +95,33 @@ class SequentialCollector implements CollectorInterface
      * @param int      $hardwareIdentifier Hardware identifier
      * @param iterable $responses          A list with responses which contains price data
      *
-     * @return Traversable<PriceInterface>|PriceInterface[]
+     * @return Traversable<int, PriceInterface>|PriceInterface[]
      */
     private function parseResponses(int $hardwareIdentifier, iterable $responses): iterable
     {
         /** @var ResponseInterface $response */
         foreach ($responses as $response) {
-            $bodyContents = (string) $response->getBody();
+            $hardwarePricesBySellers = $this->extractPrices($response);
 
-            $hardwarePricesPartial = $this->priceParser->parse($bodyContents);
-
-            yield $hardwareIdentifier => $hardwarePricesPartial;
+            foreach ($hardwarePricesBySellers as $hardwarePrice) {
+                yield $hardwareIdentifier => $hardwarePrice;
+            }
         }
+    }
+
+    /**
+     * Returns a list with hardware prices from the different vendors using provided response message
+     *
+     * @param ResponseInterface $response PSR-7 response message with price data
+     *
+     * @return Traversable<PriceInterface>|PriceInterface[]
+     */
+    private function extractPrices(ResponseInterface $response): iterable
+    {
+        $bodyContents = (string) $response->getBody();
+
+        $hardwarePricesBySellers = $this->priceParser->parse($bodyContents);
+
+        return $hardwarePricesBySellers;
     }
 }

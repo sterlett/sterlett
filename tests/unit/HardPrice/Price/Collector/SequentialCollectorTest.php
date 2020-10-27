@@ -96,34 +96,28 @@ final class SequentialCollectorTest extends TestCase
 
         $hardwarePricesActual = $this->sequentialCollector->makeIterator($responseListById);
 
-        $priceFormatter = function (iterable $prices) {
-            /** @var PriceInterface $price */
-            foreach ($prices as $price) {
-                $priceAmount    = $price->getAmount();
-                $pricePrecision = $price->getPrecision();
-                $priceCurrency  = $price->getCurrency();
+        $priceFormatter = function (PriceInterface $price) {
+            $priceAmount    = $price->getAmount();
+            $pricePrecision = $price->getPrecision();
+            $priceCurrency  = $price->getCurrency();
 
-                $priceFormatted = substr_replace($priceAmount, ',', -$pricePrecision, 0) . ' ' . $priceCurrency;
+            $priceFormatted = substr_replace($priceAmount, ',', -$pricePrecision, 0) . ' ' . $priceCurrency;
 
-                yield $priceFormatted;
-            }
+            return $priceFormatted;
         };
 
         $hardwarePriceArrayActual = [];
 
-        foreach ($hardwarePricesActual as $hardwareIdentifier => $hardwarePrices) {
-            $pricesFormatted = iterator_to_array($priceFormatter($hardwarePrices), false);
+        foreach ($hardwarePricesActual as $hardwareIdentifier => $hardwarePrice) {
+            $priceFormatted = $priceFormatter($hardwarePrice);
 
             if (!array_key_exists($hardwareIdentifier, $hardwarePriceArrayActual)) {
-                $hardwarePriceArrayActual[$hardwareIdentifier] = $pricesFormatted;
+                $hardwarePriceArrayActual[$hardwareIdentifier] = [$priceFormatted];
 
                 continue;
             }
 
-            $hardwarePriceArrayActual[$hardwareIdentifier] = array_merge(
-                $hardwarePriceArrayActual[$hardwareIdentifier],
-                $pricesFormatted
-            );
+            $hardwarePriceArrayActual[$hardwareIdentifier][] = $priceFormatted;
         }
 
         $this->assertEqualsCanonicalizing(

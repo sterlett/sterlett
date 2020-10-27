@@ -15,23 +15,24 @@ declare(strict_types=1);
 
 namespace Sterlett\HardPrice\Price;
 
-use AppendIterator;
-use ArrayIterator;
 use Iterator;
-use IteratorIterator;
-use Traversable;
+use Sterlett\HardPrice\Price\Collector\MergingCollector;
 
 /**
- * Iterates price collection and accumulates values for the same keys (hardware identifiers) into a single sequence
+ * Iterates price collection and accumulates values for the same keys (hardware identifiers) into a single sequence.
+ *
+ * Should not be used in the async environment due to its buffering/blocking behavior.
+ *
+ * @see MergingCollector
  */
 class MergingIterator implements Iterator
 {
     /**
-     * Yields price data collections, keyed by the related identifiers for aggregation
+     * Yields price DTOs, keyed by the related hardware identifiers
      *
      * @var Iterator
      */
-    private iterable $priceDataIterator;
+    private iterable $priceIterator;
 
     /**
      * Holds current key for the merging iteration (hardware identifier)
@@ -41,15 +42,23 @@ class MergingIterator implements Iterator
     private ?int $_aggregationKey;
 
     /**
+     * Holds current values for the iteration (a collection with merged prices for the same hardware identifier)
+     *
+     * @var array|null
+     */
+    private ?array $_priceListAggregated;
+
+    /**
      * MergingIterator constructor.
      *
-     * @param Iterator $priceDataIterator Yields hardware price data collections, keyed by the related identifiers
+     * @param Iterator $priceIterator Yields price DTOs, keyed by the related hardware identifiers
      */
-    public function __construct(Iterator $priceDataIterator)
+    public function __construct(Iterator $priceIterator)
     {
-        $this->priceDataIterator = $priceDataIterator;
+        $this->priceIterator = $priceIterator;
 
-        $this->_aggregationKey = null;
+        $this->_aggregationKey      = $this->priceIterator->key();
+        $this->_priceListAggregated = null;
     }
 
     /**
@@ -57,29 +66,24 @@ class MergingIterator implements Iterator
      */
     public function current()
     {
-        $priceListMerged = new AppendIterator();
+        if (null !== $this->_priceListAggregated) {
+            return $this->_priceListAggregated;
+        }
 
-        for (; $this->priceDataIterator->valid();) {
-            $hardwareIdentifier = $this->priceDataIterator->key();
+        for (; $this->priceIterator->valid();) {
+            $hardwareIdentifier = $this->priceIterator->key();
 
             if ($this->_aggregationKey !== $hardwareIdentifier) {
                 break;
             }
 
-            $hardwarePrices = $this->priceDataIterator->current();
+            $hardwarePrice                = $this->priceIterator->current();
+            $this->_priceListAggregated[] = $hardwarePrice;
 
-            if ($hardwarePrices instanceof Traversable) {
-                $priceListIterator = new IteratorIterator($hardwarePrices);
-            } else {
-                $priceListIterator = new ArrayIterator($hardwarePrices);
-            }
-
-            $priceListMerged->append($priceListIterator);
-
-            $this->priceDataIterator->next();
+            $this->priceIterator->next();
         }
 
-        return $priceListMerged;
+        return $this->_priceListAggregated;
     }
 
     /**
@@ -87,16 +91,17 @@ class MergingIterator implements Iterator
      */
     public function next()
     {
-        for (; $this->priceDataIterator->valid();) {
-            $hardwareIdentifier = $this->priceDataIterator->key();
+        for (; $this->priceIterator->valid();) {
+            $hardwareIdentifier = $this->priceIterator->key();
 
             if ($this->_aggregationKey !== $hardwareIdentifier) {
-                $this->_aggregationKey = $hardwareIdentifier;
+                $this->_aggregationKey      = $hardwareIdentifier;
+                $this->_priceListAggregated = null;
 
                 break 1;
             }
 
-            $this->priceDataIterator->next();
+            $this->priceIterator->next();
         }
     }
 
@@ -113,7 +118,7 @@ class MergingIterator implements Iterator
      */
     public function valid()
     {
-        return $this->priceDataIterator->valid();
+        return $this->priceIterator->valid();
     }
 
     /**
@@ -121,8 +126,9 @@ class MergingIterator implements Iterator
      */
     public function rewind()
     {
-        $this->priceDataIterator->rewind();
+        $this->priceIterator->rewind();
 
-        $this->_aggregationKey = $this->priceDataIterator->key();
+        $this->_aggregationKey      = $this->priceIterator->key();
+        $this->_priceListAggregated = null;
     }
 }
