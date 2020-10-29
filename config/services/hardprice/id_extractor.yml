@@ -1,0 +1,7 @@
+
+services:
+    app.hardprice.id.extractor.cpu:
+        class: Sterlett\HardPrice\Id\Extractor
+        arguments:
+            - '@app.hardprice.id.requester.cpu'
+            - '@app.hardprice.parser.id_parser'

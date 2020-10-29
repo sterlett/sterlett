@@ -13,7 +13,7 @@
 
 declare(strict_types=1);
 
-namespace Sterlett\HardPrice\Requester;
+namespace Sterlett\HardPrice\Price;
 
 use Psr\Http\Message\ResponseInterface;
 use React\Promise\PromiseInterface;
@@ -24,7 +24,7 @@ use Sterlett\HardPrice\ChromiumHeaders;
 /**
  * Sends price data fetching requests to the HardPrice endpoint
  */
-class PriceRequester
+class Requester
 {
     /**
      * Requests data from the external source
@@ -48,7 +48,7 @@ class PriceRequester
     private string $priceListUri;
 
     /**
-     * PriceRequester constructor.
+     * Requester constructor.
      *
      * @param ClientInterface $httpClient   Requests data from the external source
      * @param string          $priceListUri Endpoint for price fetching requests

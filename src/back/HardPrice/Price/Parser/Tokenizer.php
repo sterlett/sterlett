@@ -13,32 +13,31 @@
 
 declare(strict_types=1);
 
-namespace Sterlett\HardPrice\Parser;
+namespace Sterlett\HardPrice\Price\Parser;
 
 use Ds\Set;
-use Sterlett\Hardware\PriceInterface;
 use Traversable;
 
 /**
- * Transforms price data from the raw format to the list of application-level DTOs
+ * Recognizes data primitives to make properties for the price DTOs from the response message body
  */
-class PriceParser
+class Tokenizer
 {
     /**
-     * Price record pattern to extract an external store (seller) identifier and price amount
+     * Price record pattern to recognize an external store (seller) identifier and price amount
      *
      * @var string
      */
     private const RECORD_PATTERN = '/data-store.*(\d+?)(?=\\\\|"|\').*>(?=\d|\s)([\d\s.,]+)[^\d\s]*</Ui';
 
     /**
-     * Returns a list with hardware price DTOs
+     * Returns a list with data primitives to build properties for a price DTO
      *
      * @param string $data Price data in raw format
      *
-     * @return Traversable<PriceInterface>|PriceInterface[]
+     * @return Traversable<array>|array[]
      */
-    public function parse(string $data): iterable
+    public function tokenize(string $data): iterable
     {
         // a rough offset, representing cursor position to extract data from the next price record.
         $offsetEstimated = 0;

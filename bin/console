@@ -41,8 +41,11 @@ $containerConfigurator->setDefinitionFilePaths(
         // HardPrice
         __DIR__ . '/../config/services/hardprice/parsers.yml',
         __DIR__ . '/../config/services/hardprice/authenticator.yml',
-        __DIR__ . '/../config/services/hardprice/requesters.yml',
+        __DIR__ . '/../config/services/hardprice/id_requester.yml',
+        __DIR__ . '/../config/services/hardprice/id_extractor.yml',
+        __DIR__ . '/../config/services/hardprice/price_requester.yml',
         __DIR__ . '/../config/services/hardprice/response_reducers.yml',
+        __DIR__ . '/../config/services/hardprice/price_parser.yml',
         __DIR__ . '/../config/services/hardprice/price_collectors.yml',
         // providers
         __DIR__ . '/../config/services/hardware/benchmark_providers.yml',

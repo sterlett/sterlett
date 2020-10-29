@@ -13,29 +13,27 @@
 
 declare(strict_types=1);
 
-namespace Sterlett\HardPrice\Requester;
+namespace Sterlett\HardPrice\Id;
 
 use Psr\Http\Message\ResponseInterface;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use RuntimeException;
-use Sterlett\ClientInterface;
-use Sterlett\HardPrice\ChromiumHeaders;
 use Sterlett\HardPrice\Parser\IdParser;
 use Throwable;
 use Traversable;
 
 /**
- * Extracts a list with available hardware identifiers for data queries to the HardPrice website
+ * Extracts a list with available hardware identifiers from the HardPrice website
  */
-class IdRequester
+class Extractor
 {
     /**
-     * Requests data from the external source
+     * Sends a request to get available hardware identifiers from the HardPrice website
      *
-     * @var ClientInterface
+     * @var Requester
      */
-    private ClientInterface $httpClient;
+    private Requester $idRequester;
 
     /**
      * Transforms external identifiers from the raw format to the iterable list of normalized values
@@ -45,25 +43,16 @@ class IdRequester
     private IdParser $idParser;
 
     /**
-     * Resource identifier for data extracting
+     * Extractor constructor.
      *
-     * @var string
+     * @param Requester $idRequester Sends a request to get available hardware identifiers from the website
+     * @param IdParser  $idParser    Transforms external identifiers from the raw format to the iterable list of
+     *                               normalized values
      */
-    private string $downloadUri;
-
-    /**
-     * IdRequester constructor.
-     *
-     * @param ClientInterface $httpClient  Requests data from the external source
-     * @param IdParser        $idParser    Transforms external identifiers from the raw format to the iterable list of
-     *                                     normalized values
-     * @param string          $downloadUri Resource identifier for data extracting
-     */
-    public function __construct(ClientInterface $httpClient, IdParser $idParser, string $downloadUri)
+    public function __construct(Requester $idRequester, IdParser $idParser)
     {
-        $this->httpClient  = $httpClient;
+        $this->idRequester = $idRequester;
         $this->idParser    = $idParser;
-        $this->downloadUri = $downloadUri;
     }
 
     /**
@@ -73,12 +62,11 @@ class IdRequester
      *
      * @return PromiseInterface<iterable>
      */
-    public function requestIdentifiers(): PromiseInterface
+    public function getIdentifiers(): PromiseInterface
     {
         $extractingDeferred = new Deferred();
 
-        $requestHeaders  = ChromiumHeaders::makeFrom([]);
-        $responsePromise = $this->httpClient->request('GET', $this->downloadUri, $requestHeaders);
+        $responsePromise = $this->idRequester->requestIdentifiers();
 
         $responsePromise->then(
             function (ResponseInterface $response) use ($extractingDeferred) {

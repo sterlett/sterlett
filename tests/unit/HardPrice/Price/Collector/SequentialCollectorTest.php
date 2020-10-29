@@ -17,8 +17,8 @@ namespace Sterlett\Tests\HardPrice\Price\Collector;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
-use Sterlett\HardPrice\Parser\PriceParser;
 use Sterlett\HardPrice\Price\Collector\SequentialCollector;
+use Sterlett\HardPrice\Price\Parser as PriceParser;
 use Sterlett\Hardware\PriceInterface;
 
 /**

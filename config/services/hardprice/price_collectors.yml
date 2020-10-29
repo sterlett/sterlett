@@ -8,4 +8,4 @@ services:
     app.hardprice.price.collector.sequential_collector:
         class: Sterlett\HardPrice\Price\Collector\SequentialCollector
         arguments:
-            - '@app.hardprice.parser.price_parser'
+            - '@app.hardprice.price.parser'

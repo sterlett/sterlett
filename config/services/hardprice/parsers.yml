@@ -5,6 +5,3 @@ services:
 
     app.hardprice.parser.csrf_token_parser:
         class: Sterlett\HardPrice\Parser\CsrfTokenParser
-
-    app.hardprice.parser.price_parser:
-        class: Sterlett\HardPrice\Parser\PriceParser

@@ -13,40 +13,40 @@
 
 declare(strict_types=1);
 
-namespace Sterlett\Tests\HardPrice\Parser;
+namespace Sterlett\Tests\HardPrice\Price\Parser;
 
 use PHPUnit\Framework\TestCase;
-use Sterlett\HardPrice\Parser\PriceParser;
+use Sterlett\HardPrice\Price\Parser\Tokenizer as PropertyTokenizer;
 use Traversable;
 
 /**
- * Tests price data parsing from HardPrice website
+ * Tests price data recognizing from the HardPrice website
  */
-final class PriceParserTest extends TestCase
+final class TokenizerTest extends TestCase
 {
     /**
-     * Transforms price data from the raw format to the list of application-level DTOs
+     * Recognizes data parts to make properties for the price DTOs from the response message body
      *
-     * @var PriceParser
+     * @var PropertyTokenizer
      */
-    private PriceParser $priceParser;
+    private PropertyTokenizer $propertyTokenizer;
 
     /**
      * {@inheritDoc}
      */
     protected function setUp(): void
     {
-        $this->priceParser = new PriceParser();
+        $this->propertyTokenizer = new PropertyTokenizer();
     }
 
     /**
-     * Ensures seller identifiers and their hardware prices are properly parsed
+     * Ensures seller identifiers and their hardware prices are properly tokenized
      *
      * @return void
      */
-    public function testSellerIdentifiersAndHardwarePricesAreParsed(): void
+    public function testSellerIdentifiersAndHardwarePricesAreTokenized(): void
     {
-        $responseBodyContents = file_get_contents(__DIR__ . '/../../../_data/product_prices.raw');
+        $responseBodyContents = file_get_contents(__DIR__ . '/../../../../_data/product_prices.raw');
 
         $sellerIdWithPriceArrayExpected = [
             [1, 19850],
@@ -59,7 +59,7 @@ final class PriceParserTest extends TestCase
             [63, 7040],
         ];
 
-        $priceListActual = $this->priceParser->parse($responseBodyContents);
+        $priceListActual = $this->propertyTokenizer->tokenize($responseBodyContents);
 
         if ($priceListActual instanceof Traversable) {
             $sellerIdWithPriceArrayActual = iterator_to_array($priceListActual);
@@ -70,7 +70,7 @@ final class PriceParserTest extends TestCase
         $this->assertEqualsCanonicalizing(
             $sellerIdWithPriceArrayExpected,
             $sellerIdWithPriceArrayActual,
-            'Seller identifiers and their hardware prices are not properly parsed.'
+            'Seller identifiers and their hardware prices are not properly tokenized.'
         );
     }
 }
