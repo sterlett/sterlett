@@ -49,18 +49,18 @@ class Tokenizer
         while (1 === preg_match(self::RECORD_PATTERN, $data, $matches, PREG_OFFSET_CAPTURE, $offsetEstimated)) {
             $offsetEstimated = $matches[2][1];
 
-            $sellerExternalId = (int) $matches[1][0];
+            $storeExternalId = (int) $matches[1][0];
 
             $priceAmount           = $matches[2][0];
             $priceAmountNormalized = (int) str_replace([' ', '.', ','], '', $priceAmount);
 
-            if ($idOccurrenceSet->contains($sellerExternalId)) {
+            if ($idOccurrenceSet->contains($storeExternalId)) {
                 continue 1;
             }
 
-            yield [$sellerExternalId, $priceAmountNormalized];
+            yield [$storeExternalId, $priceAmountNormalized];
 
-            $idOccurrenceSet->add($sellerExternalId);
+            $idOccurrenceSet->add($storeExternalId);
         }
     }
 }

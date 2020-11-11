@@ -1,0 +1,9 @@
+
+services:
+    app.hardprice.store.mapper:
+        alias: 'app.hardprice.store.mapper.array_mapper'
+
+    app.hardprice.store.mapper.array_mapper:
+        class: Sterlett\HardPrice\Store\Mapper\ArrayMapper
+        arguments:
+            - '%hardprice.stores%'

@@ -21,7 +21,7 @@ parameters:
     # Estimated download size of the PassMark benchmark list (in bytes)
     passmark.cpu.download_size_bytes_estimated: 750000
 
-    # Prices
+    # Prices (RU)
     hardprice.authentication_uri: 'https://hardprice.ru/privacy'
     hardprice.cpu.download_uri: 'https://hardprice.ru/media/data/c/cpu.json'
     hardprice.price_list_uri: 'https://hardprice.ru/api/product_prices'
@@ -36,3 +36,42 @@ parameters:
     hardprice.requests_per_second: 8
     # Count of requests, which can be registered in the event loop at the same time (concurrent requests minimum: 1)
     hardprice.concurrent_requests: 8
+    # Store mappings
+    # https://hardprice.ru/api/stores
+    hardprice.stores:
+        1: 'regard'
+        3: 'citilink'
+        4: 'pleer'
+        5: 'computeruniverse'
+        6: 'dns'
+        8: 'oldi'
+        9: 'fcenter'
+        11: 'one123'
+        12: 'ogo'
+        13: 'just'
+        15: 'notik'
+        16: 'samsung'
+        18: 'mvideo'
+        20: 'ozon'
+        26: 'beeline'
+        27: 'mts'
+        28: 'megafon'
+        29: 'xiaomi'
+        32: 'kotofoto'
+        36: 'svyaznoy'
+        38: 'icover'
+        42: 'cstore'
+        43: 'huawei'
+        45: 'becompact'
+        46: 'kcentr'
+        47: 'somebox'
+        48: 'technopark'
+        49: 'eldorado'
+        55: 'biggeek'
+        57: 'beru'
+        59: 'mta_ua'
+        60: 'f_ua'
+        61: 'ktc_ua'
+        62: 'moyo_ua'
+        63: 'rozetka_ua'
+        68: 'xcomshop'

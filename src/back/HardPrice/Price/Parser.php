@@ -15,8 +15,11 @@ declare(strict_types=1);
 
 namespace Sterlett\HardPrice\Price;
 
+use RuntimeException;
+use Sterlett\Dto\Hardware\Price;
 use Sterlett\HardPrice\Price\Parser\Tokenizer as PropertyTokenizer;
 use Sterlett\Hardware\PriceInterface;
+use Sterlett\HardPrice\Store\MapperInterface as StoreMapperInterface;
 use Traversable;
 
 /**
@@ -32,13 +35,22 @@ class Parser
     private PropertyTokenizer $propertyTokenizer;
 
     /**
+     * Maps an external store identifier to the related store (seller)
+     *
+     * @var StoreMapperInterface
+     */
+    private StoreMapperInterface $storeMapper;
+
+    /**
      * Parser constructor.
      *
-     * @param PropertyTokenizer $propertyTokenizer Recognizes data primitives to make properties for the price DTOs
+     * @param PropertyTokenizer    $propertyTokenizer Recognizes data primitives to make properties for the price DTOs
+     * @param StoreMapperInterface $storeMapper       Maps an external store identifier to the related store (seller)
      */
-    public function __construct(PropertyTokenizer $propertyTokenizer)
+    public function __construct(PropertyTokenizer $propertyTokenizer, StoreMapperInterface $storeMapper)
     {
         $this->propertyTokenizer = $propertyTokenizer;
+        $this->storeMapper       = $storeMapper;
     }
 
     /**
@@ -50,8 +62,30 @@ class Parser
      */
     public function parse(string $data): iterable
     {
-        // todo: make DTOs
+        $propertyDataArray = $this->propertyTokenizer->tokenize($data);
 
-        return $this->propertyTokenizer->tokenize($data);
+        foreach ($propertyDataArray as $propertyData) {
+            /** @var int $sellerExternalId */
+            [$storeExternalId, $priceAmount] = $propertyData;
+
+            try {
+                $sellerIdentifier = $this->storeMapper->requireSlug($storeExternalId);
+            } catch (RuntimeException $exception) {
+                $undefinedStoreExceptionMessage = sprintf(
+                    'Unable to parse a price record: undefined store (%s).',
+                    $storeExternalId
+                );
+
+                throw new RuntimeException($undefinedStoreExceptionMessage);
+            }
+
+            $price = new Price();
+            $price->setSellerIdentifier($sellerIdentifier);
+            $price->setAmount($priceAmount);
+            $price->setPrecision(0);
+            $price->setCurrency('RUR');
+
+            yield $price;
+        }
     }
 }
