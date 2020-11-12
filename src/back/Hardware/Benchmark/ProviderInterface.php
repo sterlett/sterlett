@@ -27,7 +27,7 @@ interface ProviderInterface
     /**
      * Returns a promise that resolves to a list with benchmarks for the configured hardware category
      *
-     * @return PromiseInterface<Traversable<BenchmarkInterface>|BenchmarkInterface[]>
+     * @return PromiseInterface<Traversable<BenchmarkInterface>>|BenchmarkInterface[]>
      */
     public function getBenchmarks(): PromiseInterface;
 }

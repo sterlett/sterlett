@@ -26,7 +26,7 @@ use Sterlett\HardPrice\Store\MapperInterface;
 class ArrayMapper implements MapperInterface
 {
     /**
-     * Predefined {Slug => external id} mappings
+     * Predefined {external id => slug} mappings
      *
      * @var array
      */
@@ -35,7 +35,7 @@ class ArrayMapper implements MapperInterface
     /**
      * ArrayMapper constructor.
      *
-     * @param array $slugByIdMap Predefined {Slug => external id} mappings
+     * @param array $slugByIdMap Predefined {external id => slug} mappings
      */
     public function __construct(array $slugByIdMap)
     {

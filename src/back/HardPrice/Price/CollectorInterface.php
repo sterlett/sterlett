@@ -24,8 +24,8 @@ use Iterator;
 interface CollectorInterface
 {
     /**
-     * Returns a traversable list with pairs {hardware identifier => price DTOs}. Input contains raw data with hardware
-     * prices from website.
+     * Returns a traversable list with pairs {hardware identifier => price DTOs}. Expects an input structure that
+     * contains raw data with hardware prices from the website.
      *
      * Input format example:
      * [

@@ -104,6 +104,8 @@ class SequentialCollector implements CollectorInterface
             $hardwarePricesBySellers = $this->extractPrices($response);
 
             foreach ($hardwarePricesBySellers as $hardwarePrice) {
+                // todo: assign an appropriate hardware name using hardware data storage
+
                 yield $hardwareIdentifier => $hardwarePrice;
             }
         }

@@ -27,7 +27,7 @@ interface ProviderInterface
     /**
      * Returns a promise that resolves to a list with price records for the configured hardware category
      *
-     * @return PromiseInterface<Traversable<PriceInterface>|PriceInterface[]>
+     * @return PromiseInterface<Traversable<PriceInterface>>|PriceInterface[]>
      */
     public function getPrices(): PromiseInterface;
 }
