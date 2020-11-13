@@ -22,7 +22,7 @@ use RuntimeException;
 use Sterlett\ClientInterface;
 use Sterlett\HardPrice\Authentication;
 use Sterlett\HardPrice\ChromiumHeaders;
-use Sterlett\HardPrice\Parser\CsrfTokenParser;
+use Sterlett\HardPrice\Csrf\TokenParser as CsrfTokenParser;
 use Throwable;
 
 /**

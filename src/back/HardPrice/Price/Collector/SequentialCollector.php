@@ -20,9 +20,10 @@ use Iterator;
 use IteratorIterator;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
+use Sterlett\Dto\Hardware\Price;
+use Sterlett\HardPrice\Item\ReadableStorageInterface as ItemStorageInterface;
 use Sterlett\HardPrice\Price\CollectorInterface;
 use Sterlett\HardPrice\Price\Parser as PriceParser;
-use Sterlett\Hardware\PriceInterface;
 use Throwable;
 use Traversable;
 
@@ -47,13 +48,24 @@ class SequentialCollector implements CollectorInterface
     private PriceParser $priceParser;
 
     /**
+     * Holds hardware items data (read only access); used to bind price context with related hardware item
+     *
+     * @var ItemStorageInterface
+     */
+    private ItemStorageInterface $itemStorage;
+
+    /**
      * SequentialCollector constructor.
      *
-     * @param PriceParser $priceParser Transforms price data from the raw format to the list of application-level DTOs
+     * @param PriceParser          $priceParser Transforms price data from the raw format to the list of
+     *                                          application-level DTOs
+     * @param ItemStorageInterface $itemStorage Holds hardware items data (read only access); used to bind price
+     *                                          context with related hardware item
      */
-    public function __construct(PriceParser $priceParser)
+    public function __construct(PriceParser $priceParser, ItemStorageInterface $itemStorage)
     {
         $this->priceParser = $priceParser;
+        $this->itemStorage = $itemStorage;
     }
 
     /**
@@ -95,16 +107,19 @@ class SequentialCollector implements CollectorInterface
      * @param int      $hardwareIdentifier Hardware identifier
      * @param iterable $responses          A list with responses which contains price data
      *
-     * @return Traversable<int, PriceInterface>|PriceInterface[]
+     * @return Traversable<int, Price>|Price[]
      */
     private function parseResponses(int $hardwareIdentifier, iterable $responses): iterable
     {
+        $hardwareItem = $this->itemStorage->require($hardwareIdentifier);
+        $itemName     = $hardwareItem->getName();
+
         /** @var ResponseInterface $response */
         foreach ($responses as $response) {
             $hardwarePricesBySellers = $this->extractPrices($response);
 
             foreach ($hardwarePricesBySellers as $hardwarePrice) {
-                // todo: assign an appropriate hardware name using hardware data storage
+                $hardwarePrice->setHardwareName($itemName);
 
                 yield $hardwareIdentifier => $hardwarePrice;
             }
@@ -116,7 +131,7 @@ class SequentialCollector implements CollectorInterface
      *
      * @param ResponseInterface $response PSR-7 response message with price data
      *
-     * @return Traversable<PriceInterface>|PriceInterface[]
+     * @return Traversable<Price>|Price[]
      */
     private function extractPrices(ResponseInterface $response): iterable
     {

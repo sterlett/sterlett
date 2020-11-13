@@ -13,22 +13,23 @@
 
 declare(strict_types=1);
 
-namespace Sterlett\HardPrice\Parser;
+namespace Sterlett\HardPrice\Item;
 
 use RuntimeException;
+use Sterlett\Dto\Hardware\Item;
 use Traversable;
 
 /**
- * Transforms external identifiers from the raw format to the iterable list of normalized values
+ * Transforms hardware items data from the raw format to the iterable list of normalized values (DTOs)
  */
-class IdParser
+class Parser
 {
     /**
-     * Returns an iterable collection of external identifiers
+     * Returns an iterable collection of hardware item DTOs
      *
-     * @param string $data A list of hardware items with properties in a raw format
+     * @param string $data A list of hardware item records in a raw format
      *
-     * @return Traversable<int>|int[]
+     * @return Traversable<Item>|Item[]
      */
     public function parse(string $data): iterable
     {
@@ -57,7 +58,18 @@ class IdParser
                 throw new RuntimeException('Unable to parse a hardware identifier. Unexpected data format.');
             }
 
-            yield $externalIdNormalized;
+            $hardwareItem = new Item();
+            $hardwareItem->setIdentifier($externalIdNormalized);
+
+            $nameNormalized = isset($dataRecord['title']) ? (string) $dataRecord['title'] : null;
+
+            if (null === $nameNormalized) {
+                throw new RuntimeException('Unable to parse hardware name. Unexpected data format.');
+            }
+
+            $hardwareItem->setName($nameNormalized);
+
+            yield $hardwareItem;
         }
     }
 }

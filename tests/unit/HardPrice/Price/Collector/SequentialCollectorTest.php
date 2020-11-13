@@ -17,6 +17,9 @@ namespace Sterlett\Tests\HardPrice\Price\Collector;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
+use Sterlett\Dto\Hardware\Item;
+use Sterlett\Dto\Hardware\Price;
+use Sterlett\HardPrice\Item\ReadableStorageInterface as ItemStorageInterface;
 use Sterlett\HardPrice\Price\Collector\SequentialCollector;
 use Sterlett\HardPrice\Price\Parser as PriceParser;
 use Sterlett\Hardware\PriceInterface;
@@ -38,29 +41,31 @@ final class SequentialCollectorTest extends TestCase
      */
     protected function setUp(): void
     {
-        $priceMock = $this->createMock(PriceInterface::class);
-        $priceMock
-            ->method('getAmount')
-            ->willReturn(15554)
-        ;
-        $priceMock
-            ->method('getPrecision')
-            ->willReturn(2)
-        ;
-        $priceMock
-            ->method('getCurrency')
-            ->willReturn('USD')
-        ;
+        $hardwarePrice = new Price();
+        $hardwarePrice->setAmount(15554);
+        $hardwarePrice->setPrecision(2);
+        $hardwarePrice->setCurrency('USD');
 
         $priceParserMock = $this->createMock(PriceParser::class);
         $priceParserMock
             ->expects($this->atLeastOnce())
             ->method('parse')
             ->withAnyParameters()
-            ->willReturn([$priceMock])
+            ->willReturn([$hardwarePrice])
         ;
 
-        $this->sequentialCollector = new SequentialCollector($priceParserMock);
+        $hardwareItem = new Item();
+        $hardwareItem->setName('hardware item 1');
+
+        $itemStorageMock = $this->createMock(ItemStorageInterface::class);
+        $itemStorageMock
+            ->expects($this->atLeastOnce())
+            ->method('require')
+            ->withAnyParameters()
+            ->willReturn($hardwareItem)
+        ;
+
+        $this->sequentialCollector = new SequentialCollector($priceParserMock, $itemStorageMock);
     }
 
     /**
@@ -85,23 +90,29 @@ final class SequentialCollectorTest extends TestCase
 
         $hardwarePriceArrayExpected = [
             2533 => [
-                '155,54 USD',
-                '155,54 USD',
-                '155,54 USD',
+                'hardware item 1: 155,54 USD',
+                'hardware item 1: 155,54 USD',
+                'hardware item 1: 155,54 USD',
             ],
             2900 => [
-                '155,54 USD',
+                'hardware item 1: 155,54 USD',
             ],
         ];
 
         $hardwarePricesActual = $this->sequentialCollector->makeIterator($responseListById);
 
         $priceFormatter = function (PriceInterface $price) {
-            $priceAmount    = $price->getAmount();
-            $pricePrecision = $price->getPrecision();
-            $priceCurrency  = $price->getCurrency();
+            $priceHardwareName = $price->getHardwareName();
+            $priceAmount       = $price->getAmount();
+            $pricePrecision    = $price->getPrecision();
+            $priceCurrency     = $price->getCurrency();
 
-            $priceFormatted = substr_replace($priceAmount, ',', -$pricePrecision, 0) . ' ' . $priceCurrency;
+            $priceFormatted =
+                $priceHardwareName
+                . ': '
+                . substr_replace($priceAmount, ',', -$pricePrecision, 0)
+                . ' '
+                . $priceCurrency;
 
             return $priceFormatted;
         };

@@ -13,12 +13,12 @@
 
 declare(strict_types=1);
 
-namespace Sterlett\Hardware\Item;
+namespace Sterlett\HardPrice\Item;
 
 use Sterlett\Dto\Hardware\Item;
 
 /**
- * Holds hardware item data, acquired from the external sources, and provides both read and write access (for data
+ * Holds hardware items data, acquired from the external sources, and provides both read and write access (for data
  * co-owners context)
  */
 interface StorageInterface extends ReadableStorageInterface

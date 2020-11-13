@@ -13,14 +13,14 @@
 
 declare(strict_types=1);
 
-namespace Sterlett\HardPrice\Parser;
+namespace Sterlett\HardPrice\Csrf;
 
 use RuntimeException;
 
 /**
  * Extracts a CSRF token from the website page content
  */
-class CsrfTokenParser
+class TokenParser
 {
     /**
      * RegExp pattern for CSRF token extracting

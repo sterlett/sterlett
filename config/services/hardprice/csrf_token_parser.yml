@@ -1,0 +1,4 @@
+
+services:
+    app.hardprice.csrf.token_parser:
+        class: Sterlett\HardPrice\Csrf\TokenParser

@@ -18,7 +18,6 @@ namespace Sterlett\HardPrice\Price;
 use RuntimeException;
 use Sterlett\Dto\Hardware\Price;
 use Sterlett\HardPrice\Price\Parser\Tokenizer as PropertyTokenizer;
-use Sterlett\Hardware\PriceInterface;
 use Sterlett\HardPrice\Store\MapperInterface as StoreMapperInterface;
 use Traversable;
 
@@ -58,7 +57,7 @@ class Parser
      *
      * @param string $data Price data in raw format
      *
-     * @return Traversable<PriceInterface>|PriceInterface[]
+     * @return Traversable<Price>|Price[]
      */
     public function parse(string $data): iterable
     {
@@ -79,13 +78,13 @@ class Parser
                 throw new RuntimeException($undefinedStoreExceptionMessage);
             }
 
-            $price = new Price();
-            $price->setSellerIdentifier($sellerIdentifier);
-            $price->setAmount($priceAmount);
-            $price->setPrecision(0);
-            $price->setCurrency('RUR');
+            $hardwarePrice = new Price();
+            $hardwarePrice->setSellerIdentifier($sellerIdentifier);
+            $hardwarePrice->setAmount($priceAmount);
+            $hardwarePrice->setPrecision(0);
+            $hardwarePrice->setCurrency('RUR');
 
-            yield $price;
+            yield $hardwarePrice;
         }
     }
 }

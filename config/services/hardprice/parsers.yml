@@ -1,7 +1,0 @@
-
-services:
-    app.hardprice.parser.id_parser:
-        class: Sterlett\HardPrice\Parser\IdParser
-
-    app.hardprice.parser.csrf_token_parser:
-        class: Sterlett\HardPrice\Parser\CsrfTokenParser

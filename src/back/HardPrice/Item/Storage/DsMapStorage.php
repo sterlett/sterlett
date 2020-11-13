@@ -13,11 +13,12 @@
 
 declare(strict_types=1);
 
-namespace Sterlett\Hardware\Item\Storage;
+namespace Sterlett\HardPrice\Item\Storage;
 
 use Ds\Map;
+use RuntimeException;
 use Sterlett\Dto\Hardware\Item;
-use Sterlett\Hardware\Item\StorageInterface;
+use Sterlett\HardPrice\Item\StorageInterface;
 
 /**
  * Holds hardware item data, acquired from the external sources, in the memory, using Ds\Map structure
@@ -52,13 +53,18 @@ class DsMapStorage implements StorageInterface
     /**
      * {@inheritDoc}
      */
-    public function get(int $identifier): ?Item
+    public function require(int $itemIdentifier): Item
     {
-        if (!$this->_map->hasKey($identifier)) {
-            return null;
+        if (!$this->_map->hasKey($itemIdentifier)) {
+            $notFoundExceptionMessage = sprintf(
+                "Hardware item with external identifier '%s' is not found.",
+                $itemIdentifier
+            );
+
+            throw new RuntimeException($notFoundExceptionMessage);
         }
 
-        $hardwareItem = $this->_map->get($identifier);
+        $hardwareItem = $this->_map->get($itemIdentifier);
 
         return $hardwareItem;
     }
@@ -68,9 +74,9 @@ class DsMapStorage implements StorageInterface
      */
     public function add(Item $item): void
     {
-        $identifier = $item->getIdentifier();
+        $itemIdentifier = $item->getIdentifier();
 
-        $this->_map->put($identifier, $item);
+        $this->_map->put($itemIdentifier, $item);
     }
 
     /**

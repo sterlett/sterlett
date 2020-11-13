@@ -1,0 +1,4 @@
+
+services:
+    app.hardprice.item.parser:
+        class: Sterlett\HardPrice\Item\Parser

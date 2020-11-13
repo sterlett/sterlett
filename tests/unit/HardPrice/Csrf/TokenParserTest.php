@@ -13,15 +13,15 @@
 
 declare(strict_types=1);
 
-namespace Sterlett\Tests\HardPrice\Parser;
+namespace Sterlett\Tests\HardPrice\Csrf;
 
 use PHPUnit\Framework\TestCase;
-use Sterlett\HardPrice\Parser\CsrfTokenParser;
+use Sterlett\HardPrice\Csrf\TokenParser as CsrfTokenParser;
 
 /**
  * Tests CSRF token parsing for HardPrice website
  */
-final class CsrfTokenParserTest extends TestCase
+final class TokenParserTest extends TestCase
 {
     /**
      * Extracts a CSRF token from the website page content

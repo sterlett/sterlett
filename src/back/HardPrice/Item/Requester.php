@@ -13,14 +13,14 @@
 
 declare(strict_types=1);
 
-namespace Sterlett\HardPrice\Id;
+namespace Sterlett\HardPrice\Item;
 
 use React\Promise\PromiseInterface;
 use Sterlett\ClientInterface;
 use Sterlett\HardPrice\ChromiumHeaders;
 
 /**
- * Sends a request to get available hardware identifiers from the HardPrice website
+ * Sends a request to get available hardware items from the HardPrice website
  */
 class Requester
 {
@@ -51,13 +51,13 @@ class Requester
     }
 
     /**
-     * Returns a promise that resolves to the instance of PSR-7 response message for hardware identifiers extracting
+     * Returns a promise that resolves to the instance of PSR-7 response message for hardware items extracting
      *
-     * Resolves to an instance of Traversable<int> or int[].
+     * Resolves to an instance of Traversable<Item> or Item[].
      *
      * @return PromiseInterface<iterable>
      */
-    public function requestIdentifiers(): PromiseInterface
+    public function requestItems(): PromiseInterface
     {
         $requestHeaders = ChromiumHeaders::makeFrom([]);
 

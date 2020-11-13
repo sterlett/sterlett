@@ -29,7 +29,7 @@ interface MapperInterface
      *
      * @return string
      *
-     * @throws RuntimeException whenever a store for the given identifier is not defined
+     * @throws RuntimeException Whenever a store for the given identifier is not defined
      */
     public function requireSlug(int $externalIdentifier): string;
 }

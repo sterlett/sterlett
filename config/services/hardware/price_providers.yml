@@ -15,7 +15,7 @@ services:
     app.hardware.price.provider.hardprice_provider.cpu.console:
         class: Sterlett\Hardware\Price\Provider\HardPriceProvider
         arguments:
-            - '@app.hardprice.id.extractor.cpu'
+            - '@app.hardprice.item.loader.cpu'
             - '@app.hardprice.authenticator.guest_authenticator'
             - '@app.hardprice.price.requester'
             - '@app.hardprice.response.reducer.trackable.console'
@@ -25,7 +25,7 @@ services:
     app.hardware.price.provider.hardprice_provider.cpu:
         class: Sterlett\Hardware\Price\Provider\HardPriceProvider
         arguments:
-            - '@app.hardprice.id.extractor.cpu'
+            - '@app.hardprice.item.loader.cpu'
             - '@app.hardprice.authenticator.guest_authenticator'
             - '@app.hardprice.price.requester'
             - '@app.hardprice.response.reducer'

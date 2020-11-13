@@ -22,7 +22,8 @@ use React\Promise\PromiseInterface;
 use RuntimeException;
 use Sterlett\HardPrice\Authentication;
 use Sterlett\HardPrice\Authenticator\GuestAuthenticator;
-use Sterlett\HardPrice\Id\Extractor as IdExtractor;
+use Sterlett\HardPrice\Item\Loader as ItemLoader;
+use Sterlett\HardPrice\Item\ReadableStorageInterface as ItemStorageInterface;
 use Sterlett\HardPrice\Price\CollectorInterface as PriceCollectorInterface;
 use Sterlett\HardPrice\Price\Requester as PriceRequester;
 use Sterlett\HardPrice\Response\Reducer as ResponseReducer;
@@ -39,11 +40,11 @@ use function React\Promise\all;
 class HardPriceProvider implements ProviderInterface
 {
     /**
-     * Extracts a list with available hardware identifiers for data queries to the HardPrice website
+     * Extracts a list with available hardware items for data queries to the HardPrice website
      *
-     * @var IdExtractor
+     * @var ItemLoader
      */
-    private IdExtractor $idExtractor;
+    private ItemLoader $itemLoader;
 
     /**
      * Performs authentication for the subsequent requests to mimic guest activity
@@ -76,20 +77,20 @@ class HardPriceProvider implements ProviderInterface
     /**
      * HardPriceProvider constructor.
      *
-     * @param IdExtractor             $idExtractor          Extracts a list with available hardware identifiers
+     * @param ItemLoader              $itemLoader           Extracts a list with available hardware items
      * @param GuestAuthenticator      $requestAuthenticator Performs authentication for the subsequent requests
      * @param PriceRequester          $priceRequester       Sends price data fetching requests
      * @param ResponseReducer         $responseReducer      Applies a reduce function to the list of response promises
      * @param PriceCollectorInterface $priceCollector       Collects price responses and builds price data iterator
      */
     public function __construct(
-        IdExtractor $idExtractor,
+        ItemLoader $itemLoader,
         GuestAuthenticator $requestAuthenticator,
         PriceRequester $priceRequester,
         ResponseReducer $responseReducer,
         PriceCollectorInterface $priceCollector
     ) {
-        $this->idExtractor          = $idExtractor;
+        $this->itemLoader           = $itemLoader;
         $this->requestAuthenticator = $requestAuthenticator;
         $this->priceRequester       = $priceRequester;
         $this->responseReducer      = $responseReducer;
@@ -103,7 +104,23 @@ class HardPriceProvider implements ProviderInterface
     {
         $retrievingDeferred = new Deferred();
 
-        $idListPromise = $this->idExtractor->getIdentifiers();
+        $itemStoragePromise = $this->itemLoader->loadItems();
+
+        // extracting a list with available hardware identifiers for price fetching requests.
+        $idListPromise = $itemStoragePromise->then(
+            function (ItemStorageInterface $itemStorage) {
+                return (function () use ($itemStorage) {
+                    $hardwareItems = $itemStorage->all();
+
+                    foreach ($hardwareItems as $hardwareItem) {
+                        $itemIdentifier = $hardwareItem->getIdentifier();
+
+                        yield $itemIdentifier;
+                    }
+                })();
+            },
+            // rejections will be propagated from the item loader
+        );
 
         // sending authorization request (for subsequent data queries) while we still waiting for the list of available
         // hardware identifiers.

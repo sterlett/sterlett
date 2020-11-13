@@ -9,3 +9,4 @@ services:
         class: Sterlett\HardPrice\Price\Collector\SequentialCollector
         arguments:
             - '@app.hardprice.price.parser'
+            - '@app.hardprice.item.storage.cpu'

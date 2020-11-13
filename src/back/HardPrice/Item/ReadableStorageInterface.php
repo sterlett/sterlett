@@ -13,13 +13,14 @@
 
 declare(strict_types=1);
 
-namespace Sterlett\Hardware\Item;
+namespace Sterlett\HardPrice\Item;
 
+use RuntimeException;
 use Sterlett\Dto\Hardware\Item;
 use Traversable;
 
 /**
- * Holds hardware item data, acquired from the external sources, and provides read only access (an interface for data
+ * Holds hardware items data, acquired from the external sources, and provides read only access (an interface for data
  * consumers side)
  */
 interface ReadableStorageInterface
@@ -34,9 +35,11 @@ interface ReadableStorageInterface
     /**
      * Returns hardware item data by the given external identifier
      *
-     * @param int $identifier Hardware item identifier
+     * @param int $itemIdentifier Hardware item identifier
      *
-     * @return Item|null
+     * @return Item
+     *
+     * @throws RuntimeException Whenever hardware item with the given identifier is not found
      */
-    public function get(int $identifier): ?Item;
+    public function require(int $itemIdentifier): Item;
 }
