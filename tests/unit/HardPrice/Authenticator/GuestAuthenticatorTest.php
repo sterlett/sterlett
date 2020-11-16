@@ -23,6 +23,7 @@ use Sterlett\ClientInterface;
 use Sterlett\HardPrice\Authentication;
 use Sterlett\HardPrice\Authenticator\GuestAuthenticator;
 use Sterlett\HardPrice\Csrf\TokenParser as CsrfTokenParser;
+use Sterlett\HardPrice\SessionMemento;
 use Throwable;
 use function Clue\React\Block\await;
 use function React\Promise\resolve;
@@ -77,6 +78,8 @@ final class GuestAuthenticatorTest extends TestCase
             ->willReturn($responsePromiseResolved)
         ;
 
+        $sessionMemento = new SessionMemento();
+
         $csrfTokenParserMock = $this->createMock(CsrfTokenParser::class);
         $csrfTokenParserMock
             ->expects($this->once())
@@ -87,7 +90,12 @@ final class GuestAuthenticatorTest extends TestCase
 
         $authenticationUri = 'uri';
 
-        $this->guestAuthenticator = new GuestAuthenticator($httpClientMock, $csrfTokenParserMock, $authenticationUri);
+        $this->guestAuthenticator = new GuestAuthenticator(
+            $httpClientMock,
+            $sessionMemento,
+            $csrfTokenParserMock,
+            $authenticationUri
+        );
     }
 
     /**
@@ -97,7 +105,7 @@ final class GuestAuthenticatorTest extends TestCase
      */
     public function testAuthenticateCallMakesValidContext(): void
     {
-        $authenticationPromise = $this->guestAuthenticator->authenticate();
+        $authenticationPromise = $this->guestAuthenticator->authenticate('authentication.uri_path');
         $authentication        = null;
 
         try {
@@ -131,4 +139,6 @@ final class GuestAuthenticatorTest extends TestCase
             'CSRF Token is not properly extracted.'
         );
     }
+
+    // todo: test for session memento
 }

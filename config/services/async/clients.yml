@@ -27,6 +27,8 @@ services:
             - '@app.event_loop'
             -   requests_per_second: '%hardprice.requests_per_second%'
                 concurrent_requests: '%hardprice.concurrent_requests%'
+                requests_random_delay: '%hardprice.requests_random_delay%'
+                is_stack: true
 
     app.bridge.react.http.throughput_client.hardprice:
         class: Sterlett\Bridge\React\Http\ThroughputClient
@@ -35,6 +37,8 @@ services:
             - '@app.event_loop'
             -   requests_per_second: '%hardprice.requests_per_second%'
                 concurrent_requests: '%hardprice.concurrent_requests%'
+                requests_random_delay: '%hardprice.requests_random_delay%'
+                is_stack: true
     # ---
 
     app.bridge.react.http.buffering_client.proxy_protected:

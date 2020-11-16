@@ -16,7 +16,9 @@ declare(strict_types=1);
 namespace Sterlett\Bridge\React\Http;
 
 use Ds\Queue;
+use Ds\Stack;
 use React\EventLoop\LoopInterface;
+use React\EventLoop\TimerInterface;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use RuntimeException;
@@ -24,6 +26,7 @@ use Sterlett\ClientInterface;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Throwable;
+use UnexpectedValueException;
 
 /**
  * Delays all outgoing requests to maintain the configured RPS (requests per second) count for the client instance
@@ -52,11 +55,11 @@ class ThroughputClient implements ClientInterface
     private array $options;
 
     /**
-     * Internal queue with delayed requests
+     * Internal queue/stack with delayed requests
      *
-     * @var Queue
+     * @var Queue|Stack
      */
-    private Queue $_requestsPending;
+    private $_requestsPending;
 
     /**
      * An internal counter, that is used to maintain configured throughput
@@ -107,9 +110,40 @@ class ThroughputClient implements ClientInterface
             )
         ;
 
+        $optionsResolver
+            ->define('requests_random_delay')
+            ->info('If set, each subsequent request will be delayed by additional 0.001..N seconds (N - value)')
+            ->allowedTypes('bool', 'float')
+            ->default(false) // 10.0
+            ->normalize(
+                function (Options $options, $randomDelay) {
+                    if (false === $randomDelay) {
+                        return $randomDelay;
+                    }
+
+                    if (!is_float($randomDelay)) {
+                        throw new UnexpectedValueException(
+                            "ThroughputClient: 'requests_random_delay' must be a float number."
+                        );
+                    }
+
+                    $randomDelayNormalized = max(0.001, $randomDelay);
+
+                    return $randomDelayNormalized;
+                }
+            )
+        ;
+
+        $optionsResolver
+            ->define('is_stack')
+            ->info('Determines order for pending requests, FIFO/LIFO (default queue, FIFO)')
+            ->allowedTypes('bool')
+            ->default(false)
+        ;
+
         $this->options = $optionsResolver->resolve($options);
 
-        $this->_requestsPending    = new Queue();
+        $this->_requestsPending = $this->options['is_stack'] ? new Stack() : new Queue();
         $this->_concurrentRequests = 0;
 
         $this->registerPeriodicTimer();
@@ -137,12 +171,11 @@ class ThroughputClient implements ClientInterface
      */
     private function registerPeriodicTimer(): void
     {
-        // calculated delay for all outgoing requests (based on the given RPS count).
-        $sendingDelayInSeconds = round(1.0 / $this->options['requests_per_second'], 3);
+        $sendingDelayInSeconds = $this->calculateSendingInterval();
 
         $this->loop->addPeriodicTimer(
             $sendingDelayInSeconds,
-            function () {
+            function (TimerInterface $timerItself) {
                 if ($this->_requestsPending->isEmpty()) {
                     return;
                 }
@@ -175,8 +208,37 @@ class ThroughputClient implements ClientInterface
                     $reason = new RuntimeException('Unable to send a delayed request.', 0, $exception);
 
                     $requestingDeferred->reject($reason);
+                } finally {
+                    // registering a timer with new interval if a random delay for requests is specified.
+                    if (is_float($this->options['requests_random_delay'])) {
+                        $this->loop->cancelTimer($timerItself);
+
+                        $this->registerPeriodicTimer();
+                    }
                 }
             }
         );
+    }
+
+    /**
+     * Returns a sending interval for the timer, based on configured RPS and random delay (optional)
+     *
+     * @return float
+     */
+    private function calculateSendingInterval(): float
+    {
+        // calculated interval for sending all outgoing requests (based on the given RPS count).
+        $intervalCalculated = 1.0 / $this->options['requests_per_second'];
+
+        // applying random delay, if specified.
+        if (is_float($this->options['requests_random_delay'])) {
+            $delayRandom = 0.001 + ($this->options['requests_random_delay'] - 0.001) * (mt_rand() / mt_getrandmax());
+
+            $intervalCalculated += $delayRandom;
+        }
+
+        $intervalNormalized = round($intervalCalculated, 3);
+
+        return $intervalNormalized;
     }
 }

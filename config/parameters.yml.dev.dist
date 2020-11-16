@@ -26,7 +26,7 @@ parameters:
     hardprice.cpu.download_uri: 'https://hardprice.ru/media/data/c/cpu.json'
     hardprice.price_list_uri: 'https://hardprice.ru/api/product_prices'
     # You can speed up price collecting routine, but it may lead to IP ban due to aggressive rate limiting
-    # Estimated timings for price retrieving (cpu category, proxy enabled; w/o authentication actions):
+    # Estimated timings for price retrieving (cpu category, proxy enabled; w/o authentication actions & delays):
     # 1-1: 7 min            2-1: 6 min 39 sec
     # 8-1: 6 min 16 sec     8-2: 3 min 7 sec
     # 8-4: 1 min 39 sec     8-6: 1 min 10 sec
@@ -36,6 +36,8 @@ parameters:
     hardprice.requests_per_second: 8
     # Count of requests, which can be registered in the event loop at the same time (concurrent requests minimum: 1)
     hardprice.concurrent_requests: 8
+    # Adds up to 0.001..N additional time between requests
+    hardprice.requests_random_delay: 10.0
     # Store mappings
     # https://hardprice.ru/api/stores
     hardprice.stores:

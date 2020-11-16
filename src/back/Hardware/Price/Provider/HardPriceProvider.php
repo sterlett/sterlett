@@ -44,6 +44,8 @@ class HardPriceProvider implements ProviderInterface
     private ItemLoader $itemLoader;
 
     /**
+     * Performs price fetching for the hardware items, using configured authenticator and request builder
+     *
      * @var PriceExtractor
      */
     private PriceExtractor $priceExtractor;
@@ -66,7 +68,7 @@ class HardPriceProvider implements ProviderInterface
      * HardPriceProvider constructor.
      *
      * @param ItemLoader              $itemLoader      Extracts a list with available hardware items
-     * @param PriceExtractor          $priceExtractor
+     * @param PriceExtractor          $priceExtractor  Performs price fetching for the hardware items
      * @param ResponseReducer         $responseReducer Applies a reduce function to the list of response promises
      * @param PriceCollectorInterface $priceCollector  Collects price responses and builds price data iterator
      */

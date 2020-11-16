@@ -23,6 +23,7 @@ use Sterlett\ClientInterface;
 use Sterlett\HardPrice\Authentication;
 use Sterlett\HardPrice\ChromiumHeaders;
 use Sterlett\HardPrice\Csrf\TokenParser as CsrfTokenParser;
+use Sterlett\HardPrice\SessionMemento;
 use Throwable;
 
 /**
@@ -36,6 +37,13 @@ class GuestAuthenticator
      * @var ClientInterface
      */
     private ClientInterface $httpClient;
+
+    /**
+     * Holds a shared context with authentication data (cookies, tokens, etc.) to maintain a single browsing session
+     *
+     * @var SessionMemento
+     */
+    private SessionMemento $sessionMemento;
 
     /**
      * Extracts a CSRF token from the website page content
@@ -55,15 +63,18 @@ class GuestAuthenticator
      * GuestAuthenticator constructor.
      *
      * @param ClientInterface $httpClient            Requests data from the external source
+     * @param SessionMemento  $sessionMemento        Holds authentication data to maintain a single browsing session
      * @param CsrfTokenParser $csrfTokenParser       Extracts a CSRF token from the website page content
      * @param string          $authenticationUriBase Base URI for authentication context building
      */
     public function __construct(
         ClientInterface $httpClient,
+        SessionMemento $sessionMemento,
         CsrfTokenParser $csrfTokenParser,
         string $authenticationUriBase
     ) {
         $this->httpClient            = $httpClient;
+        $this->sessionMemento        = $sessionMemento;
         $this->csrfTokenParser       = $csrfTokenParser;
         $this->authenticationUriBase = $authenticationUriBase;
     }
@@ -80,7 +91,20 @@ class GuestAuthenticator
         $authenticationDeferred = new Deferred();
 
         $authenticationUri = $this->authenticationUriBase . $authenticationUriPath;
-        $requestHeaders    = ChromiumHeaders::makeFrom([]);
+
+        $browsingSession = $this->sessionMemento->getSession();
+        $sessionHeaders  = [];
+
+        if ($browsingSession instanceof Authentication) {
+            $sessionCookies           = $browsingSession->getCookies();
+            $sessionCookieAggregated  = implode(';', $sessionCookies);
+            $sessionHeaders['Cookie'] = $sessionCookieAggregated;
+
+            $csrfToken                      = $browsingSession->getCsrfToken();
+            $sessionHeaders['X-CSRF-TOKEN'] = $csrfToken;
+        }
+
+        $requestHeaders = ChromiumHeaders::makeFrom($sessionHeaders);
 
         $responsePromise = $this->httpClient->request('GET', $authenticationUri, $requestHeaders);
 
@@ -138,6 +162,13 @@ class GuestAuthenticator
         $csrfToken    = $this->csrfTokenParser->parse($bodyAsString);
 
         $authentication->setCsrfToken($csrfToken);
+
+        // todo: test for token changes
+        $browsingSession = $this->sessionMemento->getSession();
+
+        if (!$browsingSession instanceof Authentication) {
+            $this->sessionMemento->setSession($authentication);
+        }
 
         return $authentication;
     }

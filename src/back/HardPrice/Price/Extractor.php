@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Sterlett\HardPrice\Price;
 
+use Psr\Http\Message\ResponseInterface;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use RuntimeException;
@@ -24,9 +25,14 @@ use Sterlett\HardPrice\Item\ReadableStorageInterface as ItemStorageInterface;
 use Sterlett\HardPrice\Price\Requester as PriceRequester;
 use Throwable;
 
+/**
+ * Performs price fetching for the hardware items, using configured authenticator and request builder
+ */
 class Extractor
 {
     /**
+     * Holds hardware items data, available for price fetching
+     *
      * @var ItemStorageInterface
      */
     private ItemStorageInterface $itemStorage;
@@ -48,7 +54,7 @@ class Extractor
     /**
      * Extractor constructor.
      *
-     * @param ItemStorageInterface $itemStorage
+     * @param ItemStorageInterface $itemStorage          Holds hardware items data, for authentication context building
      * @param GuestAuthenticator   $requestAuthenticator Performs authentication for the subsequent requests
      * @param PriceRequester       $priceRequester       Sends price data fetching requests
      */
@@ -62,6 +68,13 @@ class Extractor
         $this->priceRequester       = $priceRequester;
     }
 
+    /**
+     * Returns a promise that resolves to the PSR-7 message, representing a response with hardware price data
+     *
+     * @param int $hardwareIdentifier Hardware item identifier for price fetching request
+     *
+     * @return PromiseInterface<ResponseInterface>
+     */
     public function extractPrice(int $hardwareIdentifier): PromiseInterface
     {
         $extractingDeferred = new Deferred();
