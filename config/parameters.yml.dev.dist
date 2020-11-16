@@ -22,11 +22,11 @@ parameters:
     passmark.cpu.download_size_bytes_estimated: 750000
 
     # Prices (RU)
-    hardprice.authentication_uri: 'https://hardprice.ru/privacy'
+    hardprice.authentication.base_uri: 'https://hardprice.ru'
     hardprice.cpu.download_uri: 'https://hardprice.ru/media/data/c/cpu.json'
     hardprice.price_list_uri: 'https://hardprice.ru/api/product_prices'
     # You can speed up price collecting routine, but it may lead to IP ban due to aggressive rate limiting
-    # Estimated timings for price retrieving (cpu category, proxy enabled):
+    # Estimated timings for price retrieving (cpu category, proxy enabled; w/o authentication actions):
     # 1-1: 7 min            2-1: 6 min 39 sec
     # 8-1: 6 min 16 sec     8-2: 3 min 7 sec
     # 8-4: 1 min 39 sec     8-6: 1 min 10 sec

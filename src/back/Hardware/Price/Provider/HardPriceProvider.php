@@ -20,17 +20,14 @@ use Psr\Http\Message\ResponseInterface;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use RuntimeException;
-use Sterlett\HardPrice\Authentication;
-use Sterlett\HardPrice\Authenticator\GuestAuthenticator;
 use Sterlett\HardPrice\Item\Loader as ItemLoader;
 use Sterlett\HardPrice\Item\ReadableStorageInterface as ItemStorageInterface;
 use Sterlett\HardPrice\Price\CollectorInterface as PriceCollectorInterface;
-use Sterlett\HardPrice\Price\Requester as PriceRequester;
+use Sterlett\HardPrice\Price\Extractor as PriceExtractor;
 use Sterlett\HardPrice\Response\Reducer as ResponseReducer;
 use Sterlett\Hardware\Price\ProviderInterface;
 use Throwable;
 use Traversable;
-use function React\Promise\all;
 
 /**
  * Obtains a list with hardware prices from the HardPrice website
@@ -47,18 +44,9 @@ class HardPriceProvider implements ProviderInterface
     private ItemLoader $itemLoader;
 
     /**
-     * Performs authentication for the subsequent requests to mimic guest activity
-     *
-     * @var GuestAuthenticator
+     * @var PriceExtractor
      */
-    private GuestAuthenticator $requestAuthenticator;
-
-    /**
-     * Sends price data fetching requests to the HardPrice endpoint
-     *
-     * @var PriceRequester
-     */
-    private PriceRequester $priceRequester;
+    private PriceExtractor $priceExtractor;
 
     /**
      * Applies a reduce function to the list of response promises for collecting stage
@@ -77,24 +65,21 @@ class HardPriceProvider implements ProviderInterface
     /**
      * HardPriceProvider constructor.
      *
-     * @param ItemLoader              $itemLoader           Extracts a list with available hardware items
-     * @param GuestAuthenticator      $requestAuthenticator Performs authentication for the subsequent requests
-     * @param PriceRequester          $priceRequester       Sends price data fetching requests
-     * @param ResponseReducer         $responseReducer      Applies a reduce function to the list of response promises
-     * @param PriceCollectorInterface $priceCollector       Collects price responses and builds price data iterator
+     * @param ItemLoader              $itemLoader      Extracts a list with available hardware items
+     * @param PriceExtractor          $priceExtractor
+     * @param ResponseReducer         $responseReducer Applies a reduce function to the list of response promises
+     * @param PriceCollectorInterface $priceCollector  Collects price responses and builds price data iterator
      */
     public function __construct(
         ItemLoader $itemLoader,
-        GuestAuthenticator $requestAuthenticator,
-        PriceRequester $priceRequester,
+        PriceExtractor $priceExtractor,
         ResponseReducer $responseReducer,
         PriceCollectorInterface $priceCollector
     ) {
-        $this->itemLoader           = $itemLoader;
-        $this->requestAuthenticator = $requestAuthenticator;
-        $this->priceRequester       = $priceRequester;
-        $this->responseReducer      = $responseReducer;
-        $this->priceCollector       = $priceCollector;
+        $this->itemLoader      = $itemLoader;
+        $this->priceExtractor  = $priceExtractor;
+        $this->responseReducer = $responseReducer;
+        $this->priceCollector  = $priceCollector;
     }
 
     /**
@@ -122,25 +107,15 @@ class HardPriceProvider implements ProviderInterface
             // rejections will be propagated from the item loader
         );
 
-        // sending authorization request (for subsequent data queries) while we still waiting for the list of available
-        // hardware identifiers.
-        $authenticationPromise = $this->requestAuthenticator->authenticate();
-
-        $idListAndAuthentication = all([$idListPromise, $authenticationPromise]);
-
-        $idListAndAuthentication->then(
-            function (array $idListAndAuthenticationResolved) use ($retrievingDeferred) {
+        $idListPromise->then(
+            function (iterable $hardwareIdentifiers) use ($retrievingDeferred) {
                 try {
-                    /** @var Traversable<int>|int[] $hardwareIdentifiers */
-                    /** @var Authentication $authentication */
-                    [$hardwareIdentifiers, $authentication] = $idListAndAuthenticationResolved;
-
-                    // querying data when the both authentication and identifiers are ready.
-                    $priceListRequestedPromise = $this->onReady($hardwareIdentifiers, $authentication);
+                    // querying data when the hardware identifiers are ready.
+                    $priceListPromise = $this->onHardwareIdentifiers($hardwareIdentifiers);
 
                     // transferring responsibility (resolver) from the retrieving process to the requesting process.
                     // we are closing the promise resolving chain at this point.
-                    $retrievingDeferred->resolve($priceListRequestedPromise);
+                    $retrievingDeferred->resolve($priceListPromise);
                 } catch (Throwable $exception) {
                     $reason = new RuntimeException('Unable to retrieve prices (requests).', 0, $exception);
 
@@ -164,23 +139,21 @@ class HardPriceProvider implements ProviderInterface
      * will be resolved to the iterable list of hardware prices (Traversable<PriceInterface> or PriceInterface[]),
      * keyed by their identifiers.
      *
-     * @param Traversable<int>|int[] $hardwareIdentifiers A list with hardware identifiers
-     * @param Authentication         $authentication      Holds data payload for request authentication
+     * @param Traversable<int>|int[] $hardwareIdentifiers A list with hardware identifiers for price fetching
      *
      * @return PromiseInterface<iterable>
      */
-    private function onReady(iterable $hardwareIdentifiers, Authentication $authentication): PromiseInterface
+    private function onHardwareIdentifiers(iterable $hardwareIdentifiers): PromiseInterface
     {
         $requestingDeferred = new Deferred();
-
-        $this->priceRequester->setAuthentication($authentication);
 
         // map stage: acquiring a request promise for each hardware identifier and applying map function, to collect all
         // related data for the given identifiers at the reduce stage.
         $promisesMapped = [];
 
         foreach ($hardwareIdentifiers as $hardwareIdentifier) {
-            $responsePromise = $this->priceRequester->requestPrice($hardwareIdentifier);
+            // todo: encapsulate reduce logic within extractor
+            $responsePromise = $this->priceExtractor->extractPrice($hardwareIdentifier);
 
             // map function: list(promise, id) -> list(response, id).
             $promiseMapped = $responsePromise->then(

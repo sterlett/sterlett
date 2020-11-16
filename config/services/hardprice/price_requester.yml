@@ -2,10 +2,6 @@
 services:
     app.hardprice.price.requester:
         class: Sterlett\HardPrice\Price\Requester
-        # non-shared, because of available authentication options at instance-level; so, a part of behavior can be
-        # changed at runtime, by the user-side (which breaks default, "singleton" contract from DI container) and must
-        # not be shared by default
-        shared: false
         arguments:
             - '@app.client.hardprice'
             - '%hardprice.price_list_uri%'

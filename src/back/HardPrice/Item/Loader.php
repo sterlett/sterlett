@@ -80,21 +80,13 @@ class Loader
                     // client code will receive a reference to the data structure with hardware items.
                     $loadingDeferred->resolve($this->itemStorage);
                 } catch (Throwable $exception) {
-                    $reason = new RuntimeException(
-                        'Unable to load hardware items (deserialization).',
-                        0,
-                        $exception
-                    );
+                    $reason = new RuntimeException('Unable to load hardware items (deserialization).', 0, $exception);
 
                     $loadingDeferred->reject($reason);
                 }
             },
             function (Throwable $rejectionReason) use ($loadingDeferred) {
-                $reason = new RuntimeException(
-                    'Unable to load hardware items (request).',
-                    0,
-                    $rejectionReason
-                );
+                $reason = new RuntimeException('Unable to load hardware items (request).', 0, $rejectionReason);
 
                 $loadingDeferred->reject($reason);
             }

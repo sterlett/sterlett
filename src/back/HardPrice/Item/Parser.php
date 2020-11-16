@@ -69,6 +69,14 @@ class Parser
 
             $hardwareItem->setName($nameNormalized);
 
+            $pageUriNormalized = isset($dataRecord['url']) ? (string) $dataRecord['url'] : null;
+
+            if (null === $pageUriNormalized) {
+                throw new RuntimeException('Unable to parse hardware page URI. Unexpected data format.');
+            }
+
+            $hardwareItem->setPageUri($pageUriNormalized);
+
             yield $hardwareItem;
         }
     }

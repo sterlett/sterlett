@@ -82,7 +82,7 @@ class Parser
             $hardwarePrice->setSellerIdentifier($sellerIdentifier);
             $hardwarePrice->setAmount($priceAmount);
             $hardwarePrice->setPrecision(0);
-            $hardwarePrice->setCurrency('RUR');
+            $hardwarePrice->setCurrency('RUB');
 
             yield $hardwarePrice;
         }

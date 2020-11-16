@@ -61,7 +61,12 @@ final class SequentialCollectorTest extends TestCase
         $itemStorageMock
             ->expects($this->atLeastOnce())
             ->method('require')
-            ->withAnyParameters()
+            ->with(
+                $this->logicalOr(
+                    $this->equalTo(2533),
+                    $this->equalTo(2900)
+                )
+            )
             ->willReturn($hardwareItem)
         ;
 
@@ -102,13 +107,13 @@ final class SequentialCollectorTest extends TestCase
         $hardwarePricesActual = $this->sequentialCollector->makeIterator($responseListById);
 
         $priceFormatter = function (PriceInterface $price) {
-            $priceHardwareName = $price->getHardwareName();
-            $priceAmount       = $price->getAmount();
-            $pricePrecision    = $price->getPrecision();
-            $priceCurrency     = $price->getCurrency();
+            $hardwareName   = $price->getHardwareName();
+            $priceAmount    = $price->getAmount();
+            $pricePrecision = $price->getPrecision();
+            $priceCurrency  = $price->getCurrency();
 
             $priceFormatted =
-                $priceHardwareName
+                $hardwareName
                 . ': '
                 . substr_replace($priceAmount, ',', -$pricePrecision, 0)
                 . ' '

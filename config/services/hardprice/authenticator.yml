@@ -7,4 +7,4 @@ services:
         arguments:
             - '@app.client.hardprice'
             - '@app.hardprice.csrf.token_parser'
-            - '%hardprice.authentication_uri%'
+            - '%hardprice.authentication.base_uri%'

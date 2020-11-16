@@ -52,7 +52,7 @@ interface PriceInterface
     public function getPrecision(): int;
 
     /**
-     * Returns a currency symbol for the price (e.g. 'USD' or 'RUR')
+     * Returns a currency symbol for the price (e.g. 'USD' or 'RUB')
      *
      * @return string
      */

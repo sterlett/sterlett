@@ -37,12 +37,20 @@ final class Item
     private ?string $name;
 
     /**
+     * URI with item information on the website
+     *
+     * @var string|null
+     */
+    private ?string $pageUri;
+
+    /**
      * Item constructor.
      */
     public function __construct()
     {
         $this->identifier = null;
         $this->name       = null;
+        $this->pageUri    = null;
     }
 
     /**
@@ -95,5 +103,29 @@ final class Item
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    /**
+     * Returns URI with item information on the website
+     *
+     * @return string
+     */
+    public function getPageUri(): string
+    {
+        if (!is_string($this->pageUri)) {
+            throw new LogicException('Page URI for the hardware item DTO must be set explicitly.');
+        }
+
+        return $this->pageUri;
+    }
+
+    /**
+     * Sets URI with item information on the website
+     *
+     * @param string $pageUri Page URI with item information
+     */
+    public function setPageUri(string $pageUri): void
+    {
+        $this->pageUri = $pageUri;
     }
 }

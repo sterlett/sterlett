@@ -138,7 +138,7 @@ class ThroughputClient implements ClientInterface
     private function registerPeriodicTimer(): void
     {
         // calculated delay for all outgoing requests (based on the given RPS count).
-        $sendingDelayInSeconds = round(1 / $this->options['requests_per_second'], 3);
+        $sendingDelayInSeconds = round(1.0 / $this->options['requests_per_second'], 3);
 
         $this->loop->addPeriodicTimer(
             $sendingDelayInSeconds,

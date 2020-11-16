@@ -45,40 +45,44 @@ class GuestAuthenticator
     private CsrfTokenParser $csrfTokenParser;
 
     /**
-     * URI for authentication context building
+     * Base URI for authentication context building
      *
      * @var string
      */
-    private string $authenticationUri;
+    private string $authenticationUriBase;
 
     /**
      * GuestAuthenticator constructor.
      *
-     * @param ClientInterface $httpClient        Requests data from the external source
-     * @param CsrfTokenParser $csrfTokenParser   Extracts a CSRF token from the website page content
-     * @param string          $authenticationUri URI for authentication context building
+     * @param ClientInterface $httpClient            Requests data from the external source
+     * @param CsrfTokenParser $csrfTokenParser       Extracts a CSRF token from the website page content
+     * @param string          $authenticationUriBase Base URI for authentication context building
      */
     public function __construct(
         ClientInterface $httpClient,
         CsrfTokenParser $csrfTokenParser,
-        string $authenticationUri
+        string $authenticationUriBase
     ) {
-        $this->httpClient        = $httpClient;
-        $this->csrfTokenParser   = $csrfTokenParser;
-        $this->authenticationUri = $authenticationUri;
+        $this->httpClient            = $httpClient;
+        $this->csrfTokenParser       = $csrfTokenParser;
+        $this->authenticationUriBase = $authenticationUriBase;
     }
 
     /**
      * Returns a promise that resolves to an object, representing context of interactive session on the website
      *
+     * @param string $authenticationUriPath Relative path on the website for authentication URI building
+     *
      * @return PromiseInterface<Authentication>
      */
-    public function authenticate(): PromiseInterface
+    public function authenticate(string $authenticationUriPath): PromiseInterface
     {
         $authenticationDeferred = new Deferred();
 
-        $requestHeaders  = ChromiumHeaders::makeFrom([]);
-        $responsePromise = $this->httpClient->request('GET', $this->authenticationUri, $requestHeaders);
+        $authenticationUri = $this->authenticationUriBase . $authenticationUriPath;
+        $requestHeaders    = ChromiumHeaders::makeFrom([]);
+
+        $responsePromise = $this->httpClient->request('GET', $authenticationUri, $requestHeaders);
 
         $responsePromise->then(
             function (ResponseInterface $response) use ($authenticationDeferred) {

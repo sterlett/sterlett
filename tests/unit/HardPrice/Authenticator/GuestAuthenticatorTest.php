@@ -81,7 +81,7 @@ final class GuestAuthenticatorTest extends TestCase
         $csrfTokenParserMock
             ->expects($this->once())
             ->method('parse')
-            ->with('body contents stub')
+            ->with($this->equalTo('body contents stub'))
             ->willReturn('ec35943e8108de53264c982b6a9450c82f6d71b9')
         ;
 

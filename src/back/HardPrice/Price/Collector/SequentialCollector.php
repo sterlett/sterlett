@@ -73,8 +73,6 @@ class SequentialCollector implements CollectorInterface
      */
     public function makeIterator(iterable $responseListById): Iterator
     {
-        // todo: apply sorting behavior (from the most expensive to the cheapest ones)
-
         if ($responseListById instanceof Traversable) {
             $responseListIterator = new IteratorIterator($responseListById);
         } else {

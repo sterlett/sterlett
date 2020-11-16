@@ -34,13 +34,6 @@ class Requester
     private ClientInterface $httpClient;
 
     /**
-     * Holds authentication data payload to mimic ajax request that has been sent from the browser
-     *
-     * @var Authentication|null
-     */
-    private ?Authentication $authentication;
-
-    /**
      * Endpoint for price fetching requests
      *
      * @var string
@@ -57,29 +50,28 @@ class Requester
     {
         $this->httpClient   = $httpClient;
         $this->priceListUri = $priceListUri;
-
-        $this->authentication = null;
     }
 
     /**
      * Returns a promise that will be resolved to the PSR-7 response message with price data for the given hardware
      * identifier
      *
-     * @param int $hardwareIdentifier Identifier of the item for which the request is being sent
+     * @param int            $hardwareIdentifier Identifier of the item for which the request is being sent
+     * @param Authentication $authentication     Holds authentication data payload for the request
      *
      * @return PromiseInterface<ResponseInterface>
      */
-    public function requestPrice(int $hardwareIdentifier): PromiseInterface
+    public function requestPrice(int $hardwareIdentifier, Authentication $authentication): PromiseInterface
     {
         $requestHeaders = [
             'Content-Type' => 'application/x-www-form-urlencoded; charset=UTF-8',
         ];
 
-        $sessionCookies           = $this->authentication->getCookies();
+        $sessionCookies           = $authentication->getCookies();
         $sessionCookieAggregated  = implode(';', $sessionCookies);
         $requestHeaders['Cookie'] = $sessionCookieAggregated;
 
-        $csrfToken                      = $this->authentication->getCsrfToken();
+        $csrfToken                      = $authentication->getCsrfToken();
         $requestHeaders['X-CSRF-TOKEN'] = $csrfToken;
 
         $requestPayload = ['id' => $hardwareIdentifier];
@@ -92,17 +84,5 @@ class Requester
         $responsePromise = $this->httpClient->request('POST', $this->priceListUri, $requestHeaders, $requestBody);
 
         return $responsePromise;
-    }
-
-    /**
-     * Sets authentication context for price data requests
-     *
-     * @param Authentication $authentication Holds authentication data payload
-     *
-     * @return void
-     */
-    public function setAuthentication(Authentication $authentication): void
-    {
-        $this->authentication = $authentication;
     }
 }
