@@ -3,6 +3,7 @@ services:
     app.hardprice.price.extractor:
         class: Sterlett\HardPrice\Price\Extractor
         arguments:
+            - '@app.hardprice.scraping_thread'
             - '@app.hardprice.item.storage.cpu'
             - '@app.hardprice.authenticator.guest_authenticator'
             - '@app.hardprice.price.requester'

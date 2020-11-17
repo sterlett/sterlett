@@ -19,6 +19,7 @@ use Psr\Http\Message\ResponseInterface;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use RuntimeException;
+use Sterlett\Bridge\React\EventLoop\TimeIssuerInterface;
 use Sterlett\ClientInterface;
 use Sterlett\HardPrice\Authentication;
 use Sterlett\HardPrice\ChromiumHeaders;
@@ -32,11 +33,11 @@ use Throwable;
 class GuestAuthenticator
 {
     /**
-     * Requests data from the external source
+     * Allocates a time frame in the shared scraping routine (i.e. "virtual" thread)
      *
-     * @var ClientInterface
+     * @var TimeIssuerInterface
      */
-    private ClientInterface $httpClient;
+    private TimeIssuerInterface $scrapingThread;
 
     /**
      * Holds a shared context with authentication data (cookies, tokens, etc.) to maintain a single browsing session
@@ -44,6 +45,13 @@ class GuestAuthenticator
      * @var SessionMemento
      */
     private SessionMemento $sessionMemento;
+
+    /**
+     * Requests data from the external source
+     *
+     * @var ClientInterface
+     */
+    private ClientInterface $httpClient;
 
     /**
      * Extracts a CSRF token from the website page content
@@ -62,19 +70,22 @@ class GuestAuthenticator
     /**
      * GuestAuthenticator constructor.
      *
-     * @param ClientInterface $httpClient            Requests data from the external source
-     * @param SessionMemento  $sessionMemento        Holds authentication data to maintain a single browsing session
-     * @param CsrfTokenParser $csrfTokenParser       Extracts a CSRF token from the website page content
-     * @param string          $authenticationUriBase Base URI for authentication context building
+     * @param TimeIssuerInterface $scrapingThread        Allocates a time frame in the shared scraping routine
+     * @param SessionMemento      $sessionMemento        Holds authentication data to maintain a single browsing session
+     * @param ClientInterface     $httpClient            Requests data from the external source
+     * @param CsrfTokenParser     $csrfTokenParser       Extracts a CSRF token from the website page content
+     * @param string              $authenticationUriBase Base URI for authentication context building
      */
     public function __construct(
-        ClientInterface $httpClient,
+        TimeIssuerInterface $scrapingThread,
         SessionMemento $sessionMemento,
+        ClientInterface $httpClient,
         CsrfTokenParser $csrfTokenParser,
         string $authenticationUriBase
     ) {
-        $this->httpClient            = $httpClient;
+        $this->scrapingThread        = $scrapingThread;
         $this->sessionMemento        = $sessionMemento;
+        $this->httpClient            = $httpClient;
         $this->csrfTokenParser       = $csrfTokenParser;
         $this->authenticationUriBase = $authenticationUriBase;
     }
@@ -87,6 +98,52 @@ class GuestAuthenticator
      * @return PromiseInterface<Authentication>
      */
     public function authenticate(string $authenticationUriPath): PromiseInterface
+    {
+        $actionDeferred = new Deferred();
+
+        $timePromise = $this->scrapingThread->getTime();
+
+        $timePromise->then(
+            function () use ($actionDeferred, $authenticationUriPath) {
+                try {
+                    $authenticationPromise = $this->onTimeAllocated($authenticationUriPath);
+
+                    $actionDeferred->resolve($authenticationPromise);
+                } catch (Throwable $exception) {
+                    $this->scrapingThread->release();
+
+                    $reason = new RuntimeException(
+                        'Unable to use a time frame in the scraping routine.',
+                        0,
+                        $exception
+                    );
+                    $actionDeferred->reject($reason);
+                }
+            },
+            function (Throwable $rejectionReason) use ($actionDeferred) {
+                $reason = new RuntimeException(
+                    'Unable to allocate a time frame in the scraping routine (time issuer).',
+                    0,
+                    $rejectionReason
+                );
+
+                $actionDeferred->reject($reason);
+            }
+        );
+
+        $actionPromise = $actionDeferred->promise();
+
+        return $actionPromise;
+    }
+
+    /**
+     * Runs authentication logic when the time frame in the shared scraping routine is acquired
+     *
+     * @param string $authenticationUriPath Relative path on the website for authentication URI building
+     *
+     * @return PromiseInterface<Authentication>
+     */
+    private function onTimeAllocated(string $authenticationUriPath): PromiseInterface
     {
         $authenticationDeferred = new Deferred();
 
@@ -111,8 +168,9 @@ class GuestAuthenticator
         $responsePromise->then(
             function (ResponseInterface $response) use ($authenticationDeferred) {
                 try {
-                    $authentication = $this->onResponseSuccess($response);
+                    $this->scrapingThread->release();
 
+                    $authentication = $this->onResponseSuccess($response);
                     $authenticationDeferred->resolve($authentication);
                 } catch (Throwable $exception) {
                     $reason = new RuntimeException('Unable to authenticate (deserialization).', 0, $exception);
@@ -121,8 +179,9 @@ class GuestAuthenticator
                 }
             },
             function (Throwable $rejectionReason) use ($authenticationDeferred) {
-                $reason = new RuntimeException('Unable to authenticate (request).', 0, $rejectionReason);
+                $this->scrapingThread->release();
 
+                $reason = new RuntimeException('Unable to authenticate (request).', 0, $rejectionReason);
                 $authenticationDeferred->reject($reason);
             }
         );
@@ -146,16 +205,14 @@ class GuestAuthenticator
         // contains all cookies as a string with delimiter symbols; extracting session token.
         $cookieAggregatedString = $response->getHeaderLine('set-cookie');
 
-        if (!is_string($cookieAggregatedString) || empty($cookieAggregatedString)) {
-            // todo: response logging
+        if (is_string($cookieAggregatedString) && !empty($cookieAggregatedString)) {
+            // todo: info log record
 
-            throw new RuntimeException('No cookies for authentication present.');
+            $cookieAggregatedParts = explode(';', $cookieAggregatedString);
+            $sessionToken          = $cookieAggregatedParts[0];
+
+            $authentication->addCookie($sessionToken);
         }
-
-        $cookieAggregatedParts = explode(';', $cookieAggregatedString);
-        $sessionToken          = $cookieAggregatedParts[0];
-
-        $authentication->addCookie($sessionToken);
 
         // resolving csrf token.
         $bodyAsString = (string) $response->getBody();
@@ -163,13 +220,35 @@ class GuestAuthenticator
 
         $authentication->setCsrfToken($csrfToken);
 
-        // todo: test for token changes
+        $this->updateBrowsingSession($authentication);
+
+        return $authentication;
+    }
+
+    /**
+     * Updates shared browsing session (if has been changed) after authentication request
+     *
+     * @param Authentication $authentication A fresh authentication context from the recent request
+     *
+     * @return void
+     */
+    private function updateBrowsingSession(Authentication $authentication): void
+    {
         $browsingSession = $this->sessionMemento->getSession();
 
         if (!$browsingSession instanceof Authentication) {
             $this->sessionMemento->setSession($authentication);
+
+            return;
         }
 
-        return $authentication;
+        $csrfToken        = $authentication->getCsrfToken();
+        $csrfTokenCurrent = $browsingSession->getCsrfToken();
+
+        if (!empty($csrfToken) && $csrfToken !== $csrfTokenCurrent) {
+            $browsingSession->setCsrfToken($csrfToken);
+
+            $this->sessionMemento->setSession($browsingSession);
+        }
     }
 }

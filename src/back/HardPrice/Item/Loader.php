@@ -19,6 +19,7 @@ use Psr\Http\Message\ResponseInterface;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use RuntimeException;
+use Sterlett\Bridge\React\EventLoop\TimeIssuerInterface;
 use Throwable;
 
 /**
@@ -26,6 +27,11 @@ use Throwable;
  */
 class Loader
 {
+    /**
+     * @var TimeIssuerInterface
+     */
+    private TimeIssuerInterface $scrapingThread;
+
     /**
      * Sends a request to get available hardware items from the website
      *
@@ -50,15 +56,21 @@ class Loader
     /**
      * Loader constructor.
      *
-     * @param Requester        $itemRequester Sends a request to get available hardware items from the website
-     * @param Parser           $itemParser    Transforms hardware items data from the raw format to the list of DTOs
-     * @param StorageInterface $itemStorage   The destination to which hardware items will be saved
+     * @param TimeIssuerInterface $scrapingThread
+     * @param Requester           $itemRequester Sends a request to get available hardware items from the website
+     * @param Parser              $itemParser    Transforms hardware items data from the raw format to the list of DTOs
+     * @param StorageInterface    $itemStorage   The destination to which hardware items will be saved
      */
-    public function __construct(Requester $itemRequester, Parser $itemParser, StorageInterface $itemStorage)
-    {
-        $this->itemRequester = $itemRequester;
-        $this->itemParser    = $itemParser;
-        $this->itemStorage   = $itemStorage;
+    public function __construct(
+        TimeIssuerInterface $scrapingThread,
+        Requester $itemRequester,
+        Parser $itemParser,
+        StorageInterface $itemStorage
+    ) {
+        $this->scrapingThread = $scrapingThread;
+        $this->itemRequester  = $itemRequester;
+        $this->itemParser     = $itemParser;
+        $this->itemStorage    = $itemStorage;
     }
 
     /**
@@ -68,6 +80,50 @@ class Loader
      */
     public function loadItems(): PromiseInterface
     {
+        $actionDeferred = new Deferred();
+
+        $timePromise = $this->scrapingThread->getTime();
+
+        $timePromise->then(
+            function () use ($actionDeferred) {
+                try {
+                    $itemStoragePromise = $this->onTimeAllocated();
+
+                    $actionDeferred->resolve($itemStoragePromise);
+                } catch (Throwable $exception) {
+                    $this->scrapingThread->release();
+
+                    $reason = new RuntimeException(
+                        'Unable to use a time frame in the scraping routine.',
+                        0,
+                        $exception
+                    );
+                    $actionDeferred->reject($reason);
+                }
+            },
+            function (Throwable $rejectionReason) use ($actionDeferred) {
+                $reason = new RuntimeException(
+                    'Unable to allocate a time frame in the scraping routine (time issuer).',
+                    0,
+                    $rejectionReason
+                );
+
+                $actionDeferred->reject($reason);
+            }
+        );
+
+        $actionPromise = $actionDeferred->promise();
+
+        return $actionPromise;
+    }
+
+    /**
+     * Runs items loading logic when the time frame in the shared scraping routine is acquired
+     *
+     * @return PromiseInterface<ReadableStorageInterface>
+     */
+    private function onTimeAllocated(): PromiseInterface
+    {
         $loadingDeferred = new Deferred();
 
         $responsePromise = $this->itemRequester->requestItems();
@@ -75,8 +131,9 @@ class Loader
         $responsePromise->then(
             function (ResponseInterface $response) use ($loadingDeferred) {
                 try {
-                    $this->onResponseSuccess($response);
+                    $this->scrapingThread->release();
 
+                    $this->onResponseSuccess($response);
                     // client code will receive a reference to the data structure with hardware items.
                     $loadingDeferred->resolve($this->itemStorage);
                 } catch (Throwable $exception) {
@@ -86,8 +143,9 @@ class Loader
                 }
             },
             function (Throwable $rejectionReason) use ($loadingDeferred) {
-                $reason = new RuntimeException('Unable to load hardware items (request).', 0, $rejectionReason);
+                $this->scrapingThread->release();
 
+                $reason = new RuntimeException('Unable to load hardware items (request).', 0, $rejectionReason);
                 $loadingDeferred->reject($reason);
             }
         );

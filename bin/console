@@ -39,6 +39,7 @@ $containerConfigurator->setDefinitionFilePaths(
         // PassMark
         __DIR__ . '/../config/services/passmark/parsers.yml',
         // HardPrice
+        __DIR__ . '/../config/services/hardprice/scraping_thread.yml',
         __DIR__ . '/../config/services/hardprice/csrf_token_parser.yml',
         __DIR__ . '/../config/services/hardprice/authenticator.yml',
         __DIR__ . '/../config/services/hardprice/item_requesters.yml',

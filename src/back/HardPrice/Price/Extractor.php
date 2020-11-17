@@ -19,6 +19,7 @@ use Psr\Http\Message\ResponseInterface;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use RuntimeException;
+use Sterlett\Bridge\React\EventLoop\TimeIssuerInterface;
 use Sterlett\HardPrice\Authentication;
 use Sterlett\HardPrice\Authenticator\GuestAuthenticator;
 use Sterlett\HardPrice\Item\ReadableStorageInterface as ItemStorageInterface;
@@ -30,6 +31,11 @@ use Throwable;
  */
 class Extractor
 {
+    /**
+     * @var TimeIssuerInterface
+     */
+    private TimeIssuerInterface $scrapingThread;
+
     /**
      * Holds hardware items data, available for price fetching
      *
@@ -54,15 +60,18 @@ class Extractor
     /**
      * Extractor constructor.
      *
+     * @param TimeIssuerInterface  $scrapingThread
      * @param ItemStorageInterface $itemStorage          Holds hardware items data, for authentication context building
      * @param GuestAuthenticator   $requestAuthenticator Performs authentication for the subsequent requests
      * @param PriceRequester       $priceRequester       Sends price data fetching requests
      */
     public function __construct(
+        TimeIssuerInterface $scrapingThread,
         ItemStorageInterface $itemStorage,
         GuestAuthenticator $requestAuthenticator,
         Requester $priceRequester
     ) {
+        $this->scrapingThread       = $scrapingThread;
         $this->itemStorage          = $itemStorage;
         $this->requestAuthenticator = $requestAuthenticator;
         $this->priceRequester       = $priceRequester;
@@ -87,7 +96,7 @@ class Extractor
         $authenticationPromise->then(
             function (Authentication $authentication) use ($extractingDeferred, $hardwareIdentifier) {
                 try {
-                    $responsePromise = $this->priceRequester->requestPrice($hardwareIdentifier, $authentication);
+                    $responsePromise = $this->onAuthentication($hardwareIdentifier, $authentication);
 
                     $extractingDeferred->resolve($responsePromise);
                 } catch (Throwable $exception) {
@@ -98,12 +107,97 @@ class Extractor
             },
             function (Throwable $rejectionReason) use ($extractingDeferred) {
                 $reason = new RuntimeException('Unable to authenticate price fetching request.', 0, $rejectionReason);
-
                 $extractingDeferred->reject($reason);
             }
         );
 
         $responsePromise = $extractingDeferred->promise();
+
+        return $responsePromise;
+    }
+
+    /**
+     * Runs price fetching logic when the time frame in the shared scraping routine is acquired
+     *
+     * @param int            $hardwareIdentifier Hardware item identifier for price fetching request
+     * @param Authentication $authentication     Holds authentication data payload
+     *
+     * @return PromiseInterface<ResponseInterface>
+     */
+    private function onAuthentication(int $hardwareIdentifier, Authentication $authentication): PromiseInterface
+    {
+        $actionDeferred = new Deferred();
+
+        $timePromise = $this->scrapingThread->getTime();
+
+        $timePromise->then(
+            function () use ($actionDeferred, $hardwareIdentifier, $authentication) {
+                try {
+                    $responsePromise = $this->onTimeAllocated($hardwareIdentifier, $authentication);
+
+                    $actionDeferred->resolve($responsePromise);
+                } catch (Throwable $exception) {
+                    $this->scrapingThread->release();
+
+                    $reason = new RuntimeException(
+                        'Unable to use a time frame in the scraping routine.',
+                        0,
+                        $exception
+                    );
+                    $actionDeferred->reject($reason);
+                }
+            },
+            function (Throwable $rejectionReason) use ($actionDeferred) {
+                $reason = new RuntimeException(
+                    'Unable to allocate a time frame in the scraping routine (time issuer).',
+                    0,
+                    $rejectionReason
+                );
+
+                $actionDeferred->reject($reason);
+            }
+        );
+
+        $actionPromise = $actionDeferred->promise();
+
+        return $actionPromise;
+    }
+
+    /**
+     * Performs a request using provided hardware identifier and authentication payload
+     *
+     * @param int            $hardwareIdentifier Hardware item identifier for price fetching request
+     * @param Authentication $authentication     Holds authentication data payload
+     *
+     * @return PromiseInterface<ResponseInterface>
+     */
+    private function onTimeAllocated(int $hardwareIdentifier, Authentication $authentication): PromiseInterface
+    {
+        $fetchingDeferred = new Deferred();
+
+        $responsePromise = $this->priceRequester->requestPrice($hardwareIdentifier, $authentication);
+
+        $responsePromise->then(
+            function (ResponseInterface $response) use ($fetchingDeferred) {
+                try {
+                    $this->scrapingThread->release();
+
+                    $fetchingDeferred->resolve($response);
+                } catch (Throwable $exception) {
+                    $reason = new RuntimeException('Unable to request hardware prices.', 0, $exception);
+
+                    $fetchingDeferred->reject($reason);
+                }
+            },
+            function (Throwable $rejectionReason) use ($fetchingDeferred) {
+                $this->scrapingThread->release();
+
+                $reason = new RuntimeException('Unable to send price fetching request.', 0, $rejectionReason);
+                $fetchingDeferred->reject($reason);
+            }
+        );
+
+        $responsePromise = $fetchingDeferred->promise();
 
         return $responsePromise;
     }

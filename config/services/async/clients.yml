@@ -7,8 +7,8 @@ services:
         alias: 'app.bridge.react.http.buffering_client.passmark_cpu.console'
 
     app.client.hardprice:
-        # alias: 'app.bridge.react.http.throughput_client.hardprice.proxy_protected'
-        alias: 'app.bridge.react.http.throughput_client.hardprice'
+        # alias: 'app.bridge.react.http.buffering_client.proxy_protected'
+        alias: 'app.bridge.react.http.buffering_client.take_five'
 
     # client mixins
     app.bridge.react.http.buffering_client.passmark_cpu.console:
@@ -18,28 +18,6 @@ services:
             - !iterator
                 - '@app.bridge.react.http.response.middleware.tracker_middleware.passmark_cpu.console'
                 - '@app.bridge.react.http.response.middleware.bufferer_middleware'
-
-    # --- hardprice
-    app.bridge.react.http.throughput_client.hardprice.proxy_protected:
-        class: Sterlett\Bridge\React\Http\ThroughputClient
-        arguments:
-            - '@app.bridge.react.http.buffering_client.proxy_protected'
-            - '@app.event_loop'
-            -   requests_per_second: '%hardprice.requests_per_second%'
-                concurrent_requests: '%hardprice.concurrent_requests%'
-                requests_random_delay: '%hardprice.requests_random_delay%'
-                is_stack: true
-
-    app.bridge.react.http.throughput_client.hardprice:
-        class: Sterlett\Bridge\React\Http\ThroughputClient
-        arguments:
-            - '@app.bridge.react.http.buffering_client.take_five'
-            - '@app.event_loop'
-            -   requests_per_second: '%hardprice.requests_per_second%'
-                concurrent_requests: '%hardprice.concurrent_requests%'
-                requests_random_delay: '%hardprice.requests_random_delay%'
-                is_stack: true
-    # ---
 
     app.bridge.react.http.buffering_client.proxy_protected:
         class: Sterlett\Bridge\React\Http\Client
