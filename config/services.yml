@@ -69,3 +69,7 @@ services:
             - !tagged_iterator 'evenement.event_dispatcher'
         tags:
             - 'service_warmer.warmable'
+
+    property_accessor:
+        class: Symfony\Component\PropertyAccess\PropertyAccessor
+        factory: ['Symfony\Component\PropertyAccess\PropertyAccess', createPropertyAccessor]

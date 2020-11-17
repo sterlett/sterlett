@@ -85,9 +85,9 @@ class ListCommand extends BaseCommand
         $questionHelper  = $this->getHelper('question');
         $questionSection = $output->section();
 
-        // rendering the first 3 positions.
+        // rendering the first 5 positions.
         $sectionNumber = 1;
-        $this->renderTableSection($outputTable, $priceIterator, 3, $sectionNumber);
+        $this->renderTableSection($outputTable, $priceIterator, 5, $sectionNumber);
 
         // render more rows if needed.
         for (; $priceIterator->valid();) {
@@ -103,7 +103,7 @@ class ListCommand extends BaseCommand
             $tableSection->clear();
 
             ++$sectionNumber;
-            $this->renderTableSection($outputTable, $priceIterator, 3, $sectionNumber);
+            $this->renderTableSection($outputTable, $priceIterator, 5, $sectionNumber);
         }
 
         return parent::SUCCESS;

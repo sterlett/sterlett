@@ -19,6 +19,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use React\EventLoop\StreamSelectLoop;
+use Sterlett\Bridge\React\EventLoop\TimeIssuerInterface;
 use Sterlett\ClientInterface;
 use Sterlett\HardPrice\Authentication;
 use Sterlett\HardPrice\Authenticator\GuestAuthenticator;
@@ -45,6 +46,14 @@ final class GuestAuthenticatorTest extends TestCase
      */
     protected function setUp(): void
     {
+        $timeIssuerMock = $this->createMock(TimeIssuerInterface::class);
+        $timeIssuerMock
+            ->expects($this->atLeastOnce())
+            ->method('getTime')
+            ->willReturn(resolve(null))
+        ;
+
+        // building http client context.
         $responseMock = $this->createMock(ResponseInterface::class);
         $responseMock
             ->expects($this->once())
@@ -91,8 +100,9 @@ final class GuestAuthenticatorTest extends TestCase
         $authenticationUri = 'uri';
 
         $this->guestAuthenticator = new GuestAuthenticator(
-            $httpClientMock,
+            $timeIssuerMock,
             $sessionMemento,
+            $httpClientMock,
             $csrfTokenParserMock,
             $authenticationUri
         );

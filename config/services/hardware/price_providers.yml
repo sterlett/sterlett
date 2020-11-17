@@ -10,19 +10,16 @@ services:
             -   name: 'price_provider.synchronous'
                 providerId: 'HardPrice'
 
-    # 'cpu' modifier is assigned by id_requester, which is configured to acquire identifiers for the CPU category
-    # 'console' modifier is assigned by the reducer mixin, which is configured with a progress tracker for console env
     app.hardware.price.provider.hardprice_provider.cpu.console:
-        class: Sterlett\Hardware\Price\Provider\HardPriceProvider
+        class: Sterlett\Hardware\Price\Provider\HardPrice\FallbackProvider
         arguments:
-            - '@app.hardprice.item.loader.cpu'
-            - '@app.hardprice.price.extractor'
-            - '@app.hardprice.response.reducer.trackable.console'
-            - '@app.hardprice.price.collector.merging_collector'
+            - '@app.client.hardprice'
+            - '@app.hardprice.price.fallback_parser'
+            - '%hardprice.cpu.download_uri%'
 
     # for the microservice scope; used within an async execution flow, without progress tracking
     app.hardware.price.provider.hardprice_provider.cpu:
-        class: Sterlett\Hardware\Price\Provider\HardPriceProvider
+        class: Sterlett\Hardware\Price\Provider\HardPrice\ScrapingProvider
         arguments:
             - '@app.hardprice.item.loader.cpu'
             - '@app.hardprice.price.extractor'

@@ -28,6 +28,8 @@ use Throwable;
 class Loader
 {
     /**
+     * Allocates a time frame in the shared scraping routine
+     *
      * @var TimeIssuerInterface
      */
     private TimeIssuerInterface $scrapingThread;
@@ -56,10 +58,10 @@ class Loader
     /**
      * Loader constructor.
      *
-     * @param TimeIssuerInterface $scrapingThread
-     * @param Requester           $itemRequester Sends a request to get available hardware items from the website
-     * @param Parser              $itemParser    Transforms hardware items data from the raw format to the list of DTOs
-     * @param StorageInterface    $itemStorage   The destination to which hardware items will be saved
+     * @param TimeIssuerInterface $scrapingThread Allocates a time frame in the shared scraping routine
+     * @param Requester           $itemRequester  Sends a request to get available hardware items from the website
+     * @param Parser              $itemParser     Transforms hardware items data from the raw format to the list of DTOs
+     * @param StorageInterface    $itemStorage    The destination to which hardware items will be saved
      */
     public function __construct(
         TimeIssuerInterface $scrapingThread,

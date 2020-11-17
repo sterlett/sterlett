@@ -117,7 +117,7 @@ class SequentialTimeIssuer implements TimeIssuerInterface
 
                     if (!is_float($actionsDelayRandom)) {
                         throw new UnexpectedValueException(
-                            "SequentialTimeIssuer: 'actions_delay_random' must be a float number."
+                            "SequentialTimeIssuer: 'actions_delay_random' must be a float number or false."
                         );
                     }
 

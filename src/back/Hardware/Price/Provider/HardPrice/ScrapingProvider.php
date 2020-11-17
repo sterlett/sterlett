@@ -13,9 +13,8 @@
 
 declare(strict_types=1);
 
-namespace Sterlett\Hardware\Price\Provider;
+namespace Sterlett\Hardware\Price\Provider\HardPrice;
 
-use Exception;
 use Psr\Http\Message\ResponseInterface;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
@@ -30,11 +29,17 @@ use Throwable;
 use Traversable;
 
 /**
- * Obtains a list with hardware prices from the HardPrice website
+ * Obtains a list with hardware prices from the HardPrice website.
+ *
+ * This service uses more advanced algorithm to provide a wider collection of hardware prices and relies on some tweaks
+ * and techniques to bypass rate limiting and bot filters (e.g. proxies, random delays, fingerprint mixups, etc.).
+ *
+ * The drawback is, this provider is very slow, in general, and full scraping routine may take a decent time,
+ * from 10-15 minutes to a few hours, which is not suitable for some environments (e.g. console interface).
  *
  * @see https://hardprice.ru
  */
-class HardPriceProvider implements ProviderInterface
+class ScrapingProvider implements ProviderInterface
 {
     /**
      * Extracts a list with available hardware items for data queries to the HardPrice website
@@ -186,7 +191,7 @@ class HardPriceProvider implements ProviderInterface
                     $requestingDeferred->reject($reason);
                 }
             },
-            function (Exception $rejectionReason) use ($requestingDeferred) {
+            function (Throwable $rejectionReason) use ($requestingDeferred) {
                 $reason = new RuntimeException('Unable to reduce price responses.', 0, $rejectionReason);
 
                 $requestingDeferred->reject($reason);

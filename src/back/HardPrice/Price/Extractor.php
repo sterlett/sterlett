@@ -32,6 +32,8 @@ use Throwable;
 class Extractor
 {
     /**
+     * Allocates a time frame in the shared scraping routine
+     *
      * @var TimeIssuerInterface
      */
     private TimeIssuerInterface $scrapingThread;
@@ -60,7 +62,7 @@ class Extractor
     /**
      * Extractor constructor.
      *
-     * @param TimeIssuerInterface  $scrapingThread
+     * @param TimeIssuerInterface  $scrapingThread       Allocates a time frame in the shared scraping routine
      * @param ItemStorageInterface $itemStorage          Holds hardware items data, for authentication context building
      * @param GuestAuthenticator   $requestAuthenticator Performs authentication for the subsequent requests
      * @param PriceRequester       $priceRequester       Sends price data fetching requests

@@ -8,3 +8,9 @@ services:
 
     app.hardprice.price.parser.tokenizer:
         class: Sterlett\HardPrice\Price\Parser\Tokenizer
+
+    # fallback
+    app.hardprice.price.fallback_parser:
+        class: Sterlett\HardPrice\Price\FallbackParser
+        arguments:
+            - '@property_accessor'
