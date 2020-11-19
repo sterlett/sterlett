@@ -17,6 +17,7 @@ namespace Sterlett\HardPrice\Price;
 
 use Psr\Http\Message\ResponseInterface;
 use React\Promise\PromiseInterface;
+use RuntimeException;
 use Sterlett\ClientInterface;
 use Sterlett\HardPrice\Authentication;
 use Sterlett\HardPrice\ChromiumHeaders;
@@ -69,9 +70,19 @@ class Requester
 
         $sessionCookies           = $authentication->getCookies();
         $sessionCookieAggregated  = implode(';', $sessionCookies);
+
+        if (empty($sessionCookieAggregated)) {
+            throw new RuntimeException('Cookie must be specified for price fetching request.');
+        }
+
         $requestHeaders['Cookie'] = $sessionCookieAggregated;
 
-        $csrfToken                      = $authentication->getCsrfToken();
+        $csrfToken = $authentication->getCsrfToken();
+
+        if (empty($csrfToken)) {
+            throw new RuntimeException('CSRF token must be specified for price fetching request.');
+        }
+
         $requestHeaders['X-CSRF-TOKEN'] = $csrfToken;
 
         $requestPayload = ['id' => $hardwareIdentifier];

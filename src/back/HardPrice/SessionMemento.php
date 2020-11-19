@@ -22,18 +22,49 @@ namespace Sterlett\HardPrice;
 final class SessionMemento
 {
     /**
+     * Path to the project directory for local files managing
+     *
+     * @var string
+     */
+    private string $cacheDirPath;
+
+    /**
      * Represents a shared browsing session
      *
      * @var Authentication|null
      */
-    private ?Authentication $session;
+    private ?Authentication $_session;
 
     /**
      * SessionMemento constructor.
+     *
+     * @param string $projectDirPath Path to the project directory for local files managing
      */
-    public function __construct()
+    public function __construct(string $projectDirPath)
     {
-        $this->session = null;
+        // todo: refactoring required; extract to a separate event listener
+
+        $this->cacheDirPath = $projectDirPath;
+
+        $cacheFile = $this->cacheDirPath . '/hardprice.scraping.session-token';
+
+        if (file_exists($cacheFile)) {
+            $cookieAggregated = file_get_contents($cacheFile);
+        } else {
+            $cookieAggregated = false;
+        }
+
+        if (false !== $cookieAggregated) {
+            $this->_session = new Authentication();
+
+            $sessionCookies = explode(';', $cookieAggregated);
+
+            foreach ($sessionCookies as $sessionCookie) {
+                $this->_session->addCookie($sessionCookie);
+            }
+        } else {
+            $this->_session = null;
+        }
     }
 
     /**
@@ -43,11 +74,11 @@ final class SessionMemento
      */
     public function getSession(): ?Authentication
     {
-        return $this->session;
+        return $this->_session;
     }
 
     /**
-     * Sets a data for the browsing session
+     * Sets data for the browsing session
      *
      * @param Authentication $session Session data
      *
@@ -55,6 +86,18 @@ final class SessionMemento
      */
     public function setSession(Authentication $session): void
     {
-        $this->session = $session;
+        // todo: extract
+
+        $sessionCookies   = $session->getCookies();
+        $cookieAggregated = implode(';', $sessionCookies);
+
+        $sessionCookiesCurrent   = $this->_session instanceof Authentication ? $this->_session->getCookies() : [];
+        $cookieAggregatedCurrent = implode(';', $sessionCookiesCurrent);
+
+        if ($cookieAggregated !== $cookieAggregatedCurrent) {
+            file_put_contents($this->cacheDirPath . '/hardprice.scraping.session-token', $cookieAggregated);
+        }
+
+        $this->_session = $session;
     }
 }

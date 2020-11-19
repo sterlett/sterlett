@@ -28,6 +28,8 @@ services:
                 DEPLOYMENT_PATH: ${DEPLOYMENT_PATH}
                 PHP_VERSION: ${PHP_VERSION}
                 NODEJS_VERSION: ${NODEJS_VERSION}
+        depends_on:
+            - selenium-hub
         networks:
             - back_bridge
         ports:
@@ -63,9 +65,39 @@ services:
         volumes:
             - ./docker/${APP_ENV}/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
 
+    selenium-hub:
+        image: selenium/hub:${SELENIUM_VERSION}
+        networks:
+            - back_bridge
+        environment:
+            GRID_MAX_SESSION: 1
+            # do not release inactive browser nodes (focusing on session persistence)
+            GRID_TIMEOUT: 0
+            # do not wait for the new sessions, we have to use a persistent one (maintaining a white fingerprint)
+            GRID_NEW_SESSION_WAIT_TIMEOUT: 5
+
+    selenium-node-chrome:
+        build:
+            context: ./docker/${APP_ENV}/selenium-node-chrome
+            args:
+                SELENIUM_VERSION: ${SELENIUM_VERSION}
+                CHROME_ARG_PROXY_SERVER: "${SELENIUM_PROXY_HOST}:${SELENIUM_PROXY_PORT}"
+        depends_on:
+            - selenium-hub
+        networks:
+            - back_bridge
+        environment:
+            HUB_HOST: selenium-hub
+            NODE_MAX_INSTANCES: 1
+            NODE_MAX_SESSION: 1
+        volumes:
+            - /dev/shm:/dev/shm
+
 networks:
-    # Debugging example:
+    # Debugging example (Xdebug < 3.0.0):
     # docker-compose run -p 6636:6636 --rm app -d xdebug.remote_autostart=1 -d xdebug.remote_host=172.120.0.1 bin/app
+    # Debugging example (Xdebug >= 3.0.0):
+    # docker-compose run -p 6636:6636 --rm app -d xdebug.start_with_request=1 -d xdebug.client_host=172.120.0.1 bin/app
     # you can also try more convenient "host.docker.internal" for some systems.
     back_bridge:
         driver: bridge

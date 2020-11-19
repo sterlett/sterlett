@@ -4,13 +4,21 @@ services:
     app.hardware.price.provider.hardprice_provider.cpu.synchronous:
         class: Sterlett\Hardware\Price\Provider\BlockingProvider
         arguments:
-            - '@app.hardware.price.provider.hardprice_provider.cpu.console'
+            # gen 1
+            #- '@app.hardware.price.provider.hardprice.fallback_provider.cpu'
+
+            # gen 2
+            #- '@app.hardware.price.provider.hardprice.scraping_provider.cpu.console'
+
+            - '@app.hardware.price.provider.hardprice.browsing_provider.cpu'
+
             - '@app.event_loop'
         tags:
             -   name: 'price_provider.synchronous'
                 providerId: 'HardPrice'
 
-    app.hardware.price.provider.hardprice_provider.cpu.console:
+    # generation 1 crawling algorithm: api requests
+    app.hardware.price.provider.hardprice.fallback_provider.cpu:
         class: Sterlett\Hardware\Price\Provider\HardPrice\FallbackProvider
         arguments:
             - '@app.client.hardprice'
@@ -18,7 +26,19 @@ services:
             - '%hardprice.cpu.download_uri%'
 
     # for the microservice scope; used within an async execution flow, without progress tracking
-    app.hardware.price.provider.hardprice_provider.cpu:
+    # (generation 2 crawling algorithm: enhanced requests with basic state/session control)
+    app.hardware.price.provider.hardprice.scraping_provider.cpu.console:
+        class: Sterlett\Hardware\Price\Provider\HardPrice\ScrapingProvider
+        arguments:
+            - '@app.hardprice.item.loader.cpu'
+            - '@app.hardprice.price.extractor'
+            - '@app.hardprice.response.reducer.trackable.console'
+            - '@app.hardprice.price.collector.merging_collector'
+        tags:
+            -   name: 'price_provider'
+                providerId: 'HardPrice'
+
+    app.hardware.price.provider.hardprice.scraping_provider.cpu:
         class: Sterlett\Hardware\Price\Provider\HardPrice\ScrapingProvider
         arguments:
             - '@app.hardprice.item.loader.cpu'
@@ -28,4 +48,8 @@ services:
         tags:
             -   name: 'price_provider'
                 providerId: 'HardPrice'
+
+    # todo: generation 3 crawling algorithm: browser emulator
+    app.hardware.price.provider.hardprice.browsing_provider.cpu:
+        class: Sterlett\Hardware\Price\Provider\HardPrice\BrowsingProvider
     # ---

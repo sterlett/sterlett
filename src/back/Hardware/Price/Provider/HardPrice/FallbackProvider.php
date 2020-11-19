@@ -33,7 +33,7 @@ use Throwable;
  * Gives a lesser price list (only the most popular/easy to parse stores), but works much faster than the main one.
  *
  * Designed for the console interface. Algorithms that are based on this provider will yield, as a consequence, less
- * accurate data, but returns a result almost immediately (prices are still relevant).
+ * accurate data, but will return a result almost immediately (prices are still relevant).
  *
  * @see ScrapingProvider
  */

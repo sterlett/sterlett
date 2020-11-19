@@ -156,9 +156,6 @@ class GuestAuthenticator
             $sessionCookies           = $browsingSession->getCookies();
             $sessionCookieAggregated  = implode(';', $sessionCookies);
             $sessionHeaders['Cookie'] = $sessionCookieAggregated;
-
-            $csrfToken                      = $browsingSession->getCsrfToken();
-            $sessionHeaders['X-CSRF-TOKEN'] = $csrfToken;
         }
 
         $requestHeaders = ChromiumHeaders::makeFrom($sessionHeaders);
@@ -206,12 +203,17 @@ class GuestAuthenticator
         $cookieAggregatedString = $response->getHeaderLine('set-cookie');
 
         if (is_string($cookieAggregatedString) && !empty($cookieAggregatedString)) {
-            // todo: info log record
-
             $cookieAggregatedParts = explode(';', $cookieAggregatedString);
             $sessionToken          = $cookieAggregatedParts[0];
 
             $authentication->addCookie($sessionToken);
+        } else {
+            $session        = $this->sessionMemento->getSession();
+            $sessionCookies = $session->getCookies();
+
+            foreach ($sessionCookies as $sessionCookie) {
+                $authentication->addCookie($sessionCookie);
+            }
         }
 
         // resolving csrf token.
@@ -234,6 +236,8 @@ class GuestAuthenticator
      */
     private function updateBrowsingSession(Authentication $authentication): void
     {
+        // todo: clean sync, both cookies & csrf token
+
         $browsingSession = $this->sessionMemento->getSession();
 
         if (!$browsingSession instanceof Authentication) {

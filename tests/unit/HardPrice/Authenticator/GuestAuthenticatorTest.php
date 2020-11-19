@@ -53,6 +53,9 @@ final class GuestAuthenticatorTest extends TestCase
             ->willReturn(resolve(null))
         ;
 
+        $projectDirMocked = realpath(__DIR__ . '/../../../_output');
+        $sessionMemento   = new SessionMemento($projectDirMocked);
+
         // building http client context.
         $responseMock = $this->createMock(ResponseInterface::class);
         $responseMock
@@ -86,8 +89,6 @@ final class GuestAuthenticatorTest extends TestCase
             ->method('request')
             ->willReturn($responsePromiseResolved)
         ;
-
-        $sessionMemento = new SessionMemento();
 
         $csrfTokenParserMock = $this->createMock(CsrfTokenParser::class);
         $csrfTokenParserMock
@@ -149,6 +150,5 @@ final class GuestAuthenticatorTest extends TestCase
             'CSRF Token is not properly extracted.'
         );
     }
-
     // todo: test for session memento
 }

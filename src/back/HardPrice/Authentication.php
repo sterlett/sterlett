@@ -72,14 +72,10 @@ class Authentication
     /**
      * Returns a CSRF token
      *
-     * @return string
+     * @return string|null
      */
-    public function getCsrfToken(): string
+    public function getCsrfToken(): ?string
     {
-        if (!is_string($this->csrfToken)) {
-            throw new LogicException('CSRF token for the authentication DTO must be set explicitly.');
-        }
-
         return $this->csrfToken;
     }
 

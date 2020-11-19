@@ -20,6 +20,9 @@ use Sterlett\Bridge\Symfony\Component\DependencyInjection\Configurator\YamlConfi
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+define('PROJECT_DIR', realpath(__DIR__ . '/../'));
+define('PROJECT_CACHE_DIR', PROJECT_DIR . '/var/cache');
+
 $parameterFilePath = __DIR__ . '/../config/parameters.yml';
 
 if (!file_exists($parameterFilePath)) {

@@ -66,6 +66,7 @@ services:
                     # mismatch) by default
                     verify_peer: false
                     verify_peer_name: false
+                dns: false
                 timeout: !!float 5
 
     app.bridge.clue.react.http_proxy.proxy_connector.static_uri:

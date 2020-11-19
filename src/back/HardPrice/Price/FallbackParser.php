@@ -91,7 +91,6 @@ class FallbackParser
                 'eldorado',
                 'mvideo',
                 'pleer',
-                'svyaznoy',
                 'notik',
                 'computeruniverse',
             ];

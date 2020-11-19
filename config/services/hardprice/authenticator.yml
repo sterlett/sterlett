@@ -13,3 +13,5 @@ services:
 
     app.hardprice.browsing_session:
         class: Sterlett\HardPrice\SessionMemento
+        arguments:
+            - !php/const PROJECT_CACHE_DIR

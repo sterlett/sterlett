@@ -10,8 +10,8 @@ parameters:
 
     app.request.uri.path_prefix: '%env(string:APP_REQUEST_URI_PATH_PREFIX)%'
     # Proxy for some requests, which will be sent by the application (for both console API and microservice scopes),
-    # example: '123.123.123.123:1234'
-    app.request.proxy_uri: ~
+    # example: '123.123.123.123:1234' (by default, similar to the ones used by generation 3 price provider)
+    app.request.proxy_uri: '%env(string:SELENIUM_PROXY_HOST)%:%env(int:SELENIUM_PROXY_PORT)%'
 
     app.console.name: 'Sterlett'
     app.console.version: '0.x'
@@ -33,11 +33,11 @@ parameters:
     # 8-8: 54 sec           16-8: 53 sec
     # 16-12: 39 sec         16-16: 31 sec
     # Defines how fast requests will be registered in the event loop (RPS minimum: 0.1)
-    hardprice.requests_per_second: 8
+    hardprice.requests_per_second: 0.1
     # Count of requests, which can be registered in the event loop at the same time (concurrent requests minimum: 1)
-    hardprice.concurrent_requests: 8
+    hardprice.concurrent_requests: 1
     # Adds up to 0.001..N additional time between requests
-    hardprice.requests_random_delay: 10.0
+    hardprice.requests_random_delay: 20.0
     # Store mappings
     # https://hardprice.ru/api/stores
     hardprice.stores:
