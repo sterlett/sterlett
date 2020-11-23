@@ -241,12 +241,12 @@ class ListCommand extends BaseCommand
         $priceCurrency    = $hardwarePrice->getCurrency();
 
         if ($pricePrecision > 0) {
-            $priceAmountDenormalized = substr_replace($priceAmount, ',', -$pricePrecision, 0);
+            $amountDenormalized = substr_replace($priceAmount, ',', -$pricePrecision, 0);
         } else {
-            $priceAmountDenormalized = $priceAmount;
+            $amountDenormalized = $priceAmount;
         }
 
-        $priceFormatted = sprintf('%s: %s %s', $sellerIdentifier, $priceAmountDenormalized, $priceCurrency);
+        $priceFormatted = sprintf('%s: %s %s', $sellerIdentifier, $amountDenormalized, $priceCurrency);
 
         return $priceFormatted;
     }

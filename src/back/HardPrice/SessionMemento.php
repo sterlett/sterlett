@@ -22,7 +22,7 @@ namespace Sterlett\HardPrice;
 final class SessionMemento
 {
     /**
-     * Path to the project directory for local files managing
+     * Path to the local cache directory to manage scraping session persistence
      *
      * @var string
      */
@@ -38,7 +38,7 @@ final class SessionMemento
     /**
      * SessionMemento constructor.
      *
-     * @param string $projectDirPath Path to the project directory for local files managing
+     * @param string $projectDirPath Path to the local cache directory to manage scraping session persistence
      */
     public function __construct(string $projectDirPath)
     {

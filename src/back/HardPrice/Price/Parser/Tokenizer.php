@@ -26,9 +26,12 @@ class Tokenizer
     /**
      * Price record pattern to recognize an external store (seller) identifier and price amount
      *
+     * Requirements:
+     * - no multiline
+     *
      * @var string
      */
-    private const RECORD_PATTERN = '/data-store.*(\d+?)(?=\\\\|"|\').*>(?=\d|\s)([\d\s.,]+)[^\d\s]*</Ui';
+    private const RECORD_PATTERN = '/data-store=\\\\?"(\d+?)(?=\\\\|"|\').*>(?=\d|\s)([\d\s.,]+)[^\d\s]*<\//Ui';
 
     /**
      * Returns a list with data primitives to build properties for a price DTO

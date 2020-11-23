@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 
+# based on the selenium-3 executable file wrapper for chrome node (https://github.com/SeleniumHQ/docker-selenium)
+# source: https://github.com/SeleniumHQ/docker-selenium/blob/selenium-3/NodeChrome/wrap_chrome_binary
+
 WRAPPER_PATH=$(readlink -f /usr/bin/google-chrome)
 BASE_PATH="${WRAPPER_PATH}-arg-overrides"
 
 mv "${WRAPPER_PATH}" "${BASE_PATH}"
 
 cat > "${WRAPPER_PATH}" <<_EOF
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Note: exec -a below is a bashism.
 exec -a "\$0" "${BASE_PATH}" \
@@ -14,5 +17,10 @@ exec -a "\$0" "${BASE_PATH}" \
     --start-maximized \
     "\$@"
 _EOF
+
+# headless mode args:
+# --disable-gpu
+# --headless
+# --window-size=1366,768
 
 chmod +x "${WRAPPER_PATH}"

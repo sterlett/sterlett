@@ -52,6 +52,12 @@ class Parser
         }
 
         foreach ($dataArray as $dataRecord) {
+            $isActive = isset($dataRecord['active']) ? (int) $dataRecord['active'] : 0;
+
+            if (1 !== $isActive) {
+                continue;
+            }
+
             $externalIdNormalized = isset($dataRecord['id']) ? (int) $dataRecord['id'] : null;
 
             if (null === $externalIdNormalized) {

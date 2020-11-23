@@ -200,7 +200,8 @@ class SequentialTimeIssuer implements TimeIssuerInterface
 
                     $timeDeferred->resolve($this);
                 } catch (Throwable $exception) {
-                    throw new RuntimeException('Unable to execute a delayed callback.', 0, $exception);
+                    // todo: error log record.
+                    // 'Unable to execute a delayed callback.'
                 }
             }
         );

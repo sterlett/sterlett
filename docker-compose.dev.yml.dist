@@ -73,7 +73,7 @@ services:
             GRID_MAX_SESSION: 1
             # do not release inactive browser nodes (focusing on session persistence)
             GRID_TIMEOUT: 0
-            # do not wait for the new sessions, we have to use a persistent one (maintaining a white fingerprint)
+            # do not wait for new sessions, we have to use a persistent one (maintaining a white fingerprint)
             GRID_NEW_SESSION_WAIT_TIMEOUT: 5
 
     selenium-node-chrome:
@@ -90,6 +90,11 @@ services:
             HUB_HOST: selenium-hub
             NODE_MAX_INSTANCES: 1
             NODE_MAX_SESSION: 1
+            # virtual display resolution (non-headless mode only)
+            SCREEN_WIDTH: 1366
+            SCREEN_HEIGHT: 768
+            # disable display server (headless mode; additional args are required, see wrap_chrome_binary)
+            # START_XVFB: 0
         volumes:
             - /dev/shm:/dev/shm
 
