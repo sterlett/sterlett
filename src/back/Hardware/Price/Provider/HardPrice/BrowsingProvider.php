@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Sterlett\Hardware\Price\Provider\HardPrice;
 
+use Facebook\WebDriver\Chrome\ChromeOptions;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
@@ -28,6 +29,7 @@ use Sterlett\HardPrice\Item\Parser as ItemParser;
 use Sterlett\HardPrice\Price\Parser as PriceParser;
 use Sterlett\HardPrice\Store\Mapper\ArrayMapper;
 use Sterlett\Hardware\Price\ProviderInterface;
+use Throwable;
 
 /**
  * Gen 3 algorithm for price data retrieving from the HardPrice website.
@@ -55,8 +57,15 @@ class BrowsingProvider implements ProviderInterface
      */
     public function getPrices(): PromiseInterface
     {
+        $chromeOptions = new ChromeOptions();
+        $chromeOptions->setExperimentalOption('prefs', ['intl.accept_languages' => 'RU-ru,ru,en-US,en']);
+        $chromeOptions->addArguments(
+            [
+                '--user-data-dir=/opt/google/chrome/profiles',
+            ]
+        );
         $driverCapabilities = DesiredCapabilities::chrome();
-
+        $driverCapabilities->setCapability(ChromeOptions::CAPABILITY_W3C, $chromeOptions);
         $driver = RemoteWebDriver::create('http://selenium-hub:4444/wd/hub', $driverCapabilities);
 
         $browserTabs = $driver->getWindowHandles();
@@ -73,8 +82,27 @@ class BrowsingProvider implements ProviderInterface
 
                         $driver->takeScreenshot(PROJECT_DIR . '/tests/_output/stage1a-search-site.png');
 
+                        // moving mouse at random point
+                        [$divergenceOffsetX, $divergenceOffsetY] = [random_int(1, 1000), random_int(1, 500)];
+                        $driver
+                            ->getMouse()
+                            ->mouseMove(null, $divergenceOffsetX, $divergenceOffsetY)
+                        ;
+                        // wait call (async driver port)
+
                         $pageLink = $driver->findElement(WebDriverBy::xpath('//span[contains(., "category › cpu")]'));
-                        $pageLink->click();
+
+                        [$divergenceOffsetX, $divergenceOffsetY] = [random_int(0, 20), random_int(0, 5)];
+                        $pageLinkCoordinates = $pageLink->getCoordinates();
+                        $driver
+                            ->getMouse()
+                            ->mouseMove($pageLinkCoordinates, $divergenceOffsetX, $divergenceOffsetY)
+                        ;
+                        $driver
+                            ->getMouse()
+                            ->click()
+                        ;
+                        $driver->takeScreenshot(PROJECT_DIR . '/tests/_output/stage1a-search-site-clicked.png');
 
                         $browserTabs = $driver->getWindowHandles();
                     }
@@ -96,7 +124,10 @@ class BrowsingProvider implements ProviderInterface
 
                     $currentTab = $driver->getWindowHandle();
                     if ($currentTab !== $browserTabs[0]) {
-                        $driver->switchTo()->window($browserTabs[0]);
+                        $driver
+                            ->switchTo()
+                            ->window($browserTabs[0])
+                        ;
                     }
 
                     if ($driver->getCurrentURL() !== 'https://hardprice.ru/media/data/c/cpu.json') {
@@ -136,119 +167,164 @@ class BrowsingProvider implements ProviderInterface
             ->getTime()
             ->then(
                 function () use ($deferred, $driver, &$browserTabs, &$hardwareItems, &$hardwarePrices) {
-                    $this->timeIssuer->release();
+                    try {
+                        $this->timeIssuer->release();
 
-                    $currentTab = $driver->getWindowHandle();
-                    if ($currentTab !== $browserTabs[1]) {
-                        $driver
-                            ->switchTo()
-                            ->window($browserTabs[1])
+                        $currentTab = $driver->getWindowHandle();
+                        if ($currentTab !== $browserTabs[1]) {
+                            $driver
+                                ->switchTo()
+                                ->window($browserTabs[1])
+                            ;
+                        }
+                        $driver->takeScreenshot(PROJECT_DIR . '/tests/_output/stage3a-browsing-site.png');
+
+                        // moving mouse at random point
+                        $startingPointCoordinates = $driver
+                            ->findElement(
+                                WebDriverBy::xpath('//div[contains(@class, "navbar-header")]//a[@href="/"]')
+                            )
+                            ->getCoordinates()
                         ;
-                    }
+                        [$divergenceOffsetX, $divergenceOffsetY] = [random_int(1, 1000), random_int(1, 500)];
+                        $driver
+                            ->getMouse()
+                            ->mouseMove($startingPointCoordinates, $divergenceOffsetX, $divergenceOffsetY)
+                        ;
+                        // wait call (async driver port)
 
-                    $driver->takeScreenshot(PROJECT_DIR . '/tests/_output/stage3a-browsing-site.png');
+                        $storeMap    = [
+                            1  => 'regard',
+                            3  => 'citilink',
+                            4  => 'pleer',
+                            5  => 'computeruniverse',
+                            6  => 'dns',
+                            8  => 'oldi',
+                            9  => 'fcenter',
+                            11 => 'one123',
+                            12 => 'ogo',
+                            13 => 'just',
+                            15 => 'notik',
+                            16 => 'samsung',
+                            18 => 'mvideo',
+                            20 => 'ozon',
+                            26 => 'beeline',
+                            27 => 'mts',
+                            28 => 'megafon',
+                            29 => 'xiaomi',
+                            32 => 'kotofoto',
+                            36 => 'svyaznoy',
+                            38 => 'icover',
+                            42 => 'cstore',
+                            43 => 'huawei',
+                            45 => 'becompact',
+                            46 => 'kcentr',
+                            47 => 'somebox',
+                            48 => 'technopark',
+                            49 => 'eldorado',
+                            55 => 'biggeek',
+                            57 => 'beru',
+                            59 => 'mta_ua',
+                            60 => 'f_ua',
+                            61 => 'ktc_ua',
+                            62 => 'moyo_ua',
+                            63 => 'rozetka_ua',
+                            64 => 'wite',
+                            68 => 'xcomshop',
+                        ];
+                        $priceParser = new PriceParser(new PriceParser\Tokenizer(), new ArrayMapper($storeMap));
 
-                    $storeMap = [
-                        1  => 'regard',
-                        3  => 'citilink',
-                        4  => 'pleer',
-                        5  => 'computeruniverse',
-                        6  => 'dns',
-                        8  => 'oldi',
-                        9  => 'fcenter',
-                        11 => 'one123',
-                        12 => 'ogo',
-                        13 => 'just',
-                        15 => 'notik',
-                        16 => 'samsung',
-                        18 => 'mvideo',
-                        20 => 'ozon',
-                        26 => 'beeline',
-                        27 => 'mts',
-                        28 => 'megafon',
-                        29 => 'xiaomi',
-                        32 => 'kotofoto',
-                        36 => 'svyaznoy',
-                        38 => 'icover',
-                        42 => 'cstore',
-                        43 => 'huawei',
-                        45 => 'becompact',
-                        46 => 'kcentr',
-                        47 => 'somebox',
-                        48 => 'technopark',
-                        49 => 'eldorado',
-                        55 => 'biggeek',
-                        57 => 'beru',
-                        59 => 'mta_ua',
-                        60 => 'f_ua',
-                        61 => 'ktc_ua',
-                        62 => 'moyo_ua',
-                        63 => 'rozetka_ua',
-                        64 => 'wite',
-                        68 => 'xcomshop',
-                    ];
+                        /** @var Item $item */
+                        $item        = $hardwareItems->current();
+                        $itemName    = $item->getName();
+                        $itemPageUri = $item->getPageUri();
 
-                    $priceParser = new PriceParser(new PriceParser\Tokenizer(), new ArrayMapper($storeMap));
+                        // searching an item using the search form.
+                        $searchBar = $driver->findElement(
+                            WebDriverBy::xpath('//form[@name="search"]//input[@type="text"]')
+                        );
 
-                    /** @var Item $item */
-                    $item        = $hardwareItems->current();
-                    $itemName    = $item->getName();
-                    $itemPageUri = $item->getPageUri();
+                        // moving mouse to the search bar and clicking
+                        [$divergenceOffsetX, $divergenceOffsetY] = [random_int(0, 20), random_int(0, 5)];
+                        $searchBarCoordinates = $searchBar->getCoordinates();
+                        $driver
+                            ->getMouse()
+                            ->mouseMove($searchBarCoordinates, $divergenceOffsetX, $divergenceOffsetY)
+                        ;
+                        $driver
+                            ->getMouse()
+                            ->click()
+                        ;
 
-                    // searching an item using the search form.
-                    $searchBar        = $driver->findElement(
-                        WebDriverBy::xpath('//form[@name="search"]//input[@type="text"]')
-                    );
-                    $searchTextToType = mb_strtolower($itemName);
-                    $searchBar->sendKeys($searchTextToType);
+                        $searchTextToType = mb_strtolower($itemName);
+                        $driver
+                            ->getKeyboard()
+                            ->sendKeys($searchTextToType)
+                        ;
+                        // wait call (async driver port)
 
-                    // waiting for ajax request with price data.
-                    $linkXPath = sprintf('//a[@href="%s"]', $itemPageUri);
-                    $pageLink  = $driver
-                        ->wait()
-                        ->until(
-                            WebDriverExpectedCondition::elementToBeClickable(
-                                WebDriverBy::xpath($linkXPath)
+                        // waiting for ajax request with search results.
+                        $linkXPath = sprintf('//a[@href="%s"]', $itemPageUri);
+                        $pageLink  = $driver
+                            ->wait()
+                            ->until(
+                                WebDriverExpectedCondition::visibilityOfElementLocated(
+                                    WebDriverBy::xpath($linkXPath)
+                                )
                             )
-                        )
-                    ;
+                        ;
 
-                    $screenshotName = sprintf('/tests/_output/stage3b-item-search-%s.png', $itemName);
-                    $driver->takeScreenshot(PROJECT_DIR . $screenshotName);
+                        $screenshotName = sprintf('/tests/_output/stage3b-item-search-%s.png', $itemName);
+                        $driver->takeScreenshot(PROJECT_DIR . $screenshotName);
 
-                    // clicking link in search results.
-                    $pageLink->click();
+                        // clicking a link in the search results
+                        [$divergenceOffsetX, $divergenceOffsetY] = [random_int(0, 20), random_int(0, 5)];
+                        $pageLinkCoordinates = $pageLink->getCoordinates();
+                        $driver
+                            ->getMouse()
+                            ->mouseMove($pageLinkCoordinates, $divergenceOffsetX, $divergenceOffsetY)
+                        ;
+                        $driver
+                            ->getMouse()
+                            ->click()
+                        ;
+                        // wait call (async driver port)
 
-                    // ensure page with item is completely loaded.
-                    $presenceCheckElementXPath = '//table[contains(@class, "price-all")]//*[@data-store]';
-                    $driver
-                        ->wait()
-                        ->until(
-                            WebDriverExpectedCondition::presenceOfElementLocated(
-                                WebDriverBy::xpath($presenceCheckElementXPath)
+                        // ensure page with item is completely loaded.
+                        $presenceCheckElementXPath = '//table[contains(@class, "price-all")]//*[@data-store]';
+                        $driver
+                            ->wait()
+                            ->until(
+                                WebDriverExpectedCondition::presenceOfElementLocated(
+                                    WebDriverBy::xpath($presenceCheckElementXPath)
+                                )
                             )
-                        )
-                    ;
+                        ;
 
-                    $screenshotName = sprintf('/tests/_output/stage3n-browsing-site-%s.png', $itemName);
-                    $driver->takeScreenshot(PROJECT_DIR . $screenshotName);
+                        $screenshotName = sprintf('/tests/_output/stage3n-browsing-site-%s.png', $itemName);
+                        $driver->takeScreenshot(PROJECT_DIR . $screenshotName);
 
-                    $responseBody           = $driver->getPageSource();
-                    $responseBodyNormalized = preg_replace('/\s+/', '', $responseBody);
-                    $priceIterator          = $priceParser->parse($responseBodyNormalized);
-                    $prices                 = iterator_to_array($priceIterator);
-                    foreach ($prices as $price) {
-                        $price->setHardwareName($itemName);
-                    }
+                        // parsing page source
+                        $responseBody           = $driver->getPageSource();
+                        $responseBodyNormalized = preg_replace('/\s+/', '', $responseBody);
+                        $priceIterator          = $priceParser->parse($responseBodyNormalized);
+                        $prices                 = iterator_to_array($priceIterator);
+                        foreach ($prices as $price) {
+                            $price->setHardwareName($itemName);
+                        }
 
-                    $itemIdentifier                  = $item->getIdentifier();
-                    $hardwarePrices[$itemIdentifier] = $prices;
+                        $itemIdentifier                  = $item->getIdentifier();
+                        $hardwarePrices[$itemIdentifier] = $prices;
 
-                    $hardwareItems->next();
-                    if ($hardwareItems->valid()) {
-                        $this->browseRecursive($deferred, $driver, $browserTabs, $hardwareItems, $hardwarePrices);
-                    } else {
-                        $deferred->resolve($hardwarePrices);
+                        $hardwareItems->next();
+                        if ($hardwareItems->valid()) {
+                            $this->browseRecursive($deferred, $driver, $browserTabs, $hardwareItems, $hardwarePrices);
+                        } else {
+                            $driver->quit();
+                            $deferred->resolve($hardwarePrices);
+                        }
+                    } catch (Throwable $exception) {
+                        $deferred->reject($exception);
                     }
                 }
             )

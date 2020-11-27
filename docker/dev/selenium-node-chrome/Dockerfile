@@ -14,17 +14,27 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses>.
 
-ARG SELENIUM_VERSION
+ARG SELENIUM_NODE_CHROME_IMAGE_DIGEST
 
-FROM selenium/node-chrome:${SELENIUM_VERSION}
+FROM selenium/node-chrome@${SELENIUM_NODE_CHROME_IMAGE_DIGEST}
 
+ARG HOST_UID
 ARG CHROME_ARG_PROXY_SERVER
 
 USER root
+
+# reverse-engineered chrome driver (some obvious footprints for webdriver detection are removed)
+COPY --chown=seluser:seluser chromedriver-87.0.4280.20-re /opt/selenium/chromedriver-87.0.4280.20-re
+RUN mv /opt/selenium/chromedriver-87.0.4280.20 /opt/selenium/chromedriver-87.0.4280.20-base && \
+    ln -s /opt/selenium/chromedriver-87.0.4280.20-re /opt/selenium/chromedriver-87.0.4280.20
 
 # overriding launch arguments for chrome executable
 COPY wrap_chrome_binary /opt/bin/wrap_chrome_binary-overrides
 RUN chmod +x /opt/bin/wrap_chrome_binary-overrides && \
     /opt/bin/wrap_chrome_binary-overrides
 
-USER 1200
+RUN usermod -u ${HOST_UID} seluser
+
+# maintaining compatibility with the original image:
+# https://github.com/SeleniumHQ/docker-selenium/blob/selenium-3/Base/Dockerfile#L46
+USER seluser:1201

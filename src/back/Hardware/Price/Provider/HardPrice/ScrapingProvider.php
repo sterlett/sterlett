@@ -37,6 +37,8 @@ use Traversable;
  * The drawback is, this provider is very slow, in general, and full scraping routine may take a decent time,
  * from 10-15 minutes to a few hours, which is not suitable for some environments (e.g. console interface).
  *
+ * todo: progress tracking for item loader
+ *
  * @see https://hardprice.ru
  */
 class ScrapingProvider implements ProviderInterface

@@ -10,6 +10,11 @@ tests/_output/*
 
 var/cache/*
 !var/cache/.gitkeep
+!var/cache/selenium-node-chrome
+var/cache/selenium-node-chrome/*
+!var/cache/selenium-node-chrome/profiles
+var/cache/selenium-node-chrome/profiles/*
+!var/cache/selenium-node-chrome/profiles/.gitkeep
 
 public/build/*
 !public/build/.gitkeep

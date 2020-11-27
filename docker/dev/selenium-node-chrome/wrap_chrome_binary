@@ -13,14 +13,20 @@ cat > "${WRAPPER_PATH}" <<_EOF
 
 # Note: exec -a below is a bashism.
 exec -a "\$0" "${BASE_PATH}" \
+    --disable-dev-shm-usage \
+    --disable-blink-features \
+    --disable-blink-features=AutomationControlled \
     --proxy-server="${CHROME_ARG_PROXY_SERVER}" \
-    --start-maximized \
+    --window-size=1327,784 \
     "\$@"
 _EOF
+
+# anti-detection args:
+# --disable-blink-features
+# --disable-blink-features=AutomationControlled (removes navigator.webdriver flag)
 
 # headless mode args:
 # --disable-gpu
 # --headless
-# --window-size=1366,768
 
 chmod +x "${WRAPPER_PATH}"

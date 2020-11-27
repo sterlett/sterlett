@@ -52,6 +52,7 @@ class Parser
         }
 
         foreach ($dataArray as $dataRecord) {
+            // todo: extract domain-based data filtering into the separate service
             $isActive = isset($dataRecord['active']) ? (int) $dataRecord['active'] : 0;
 
             if (1 !== $isActive) {

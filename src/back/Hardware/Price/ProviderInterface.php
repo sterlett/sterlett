@@ -16,7 +16,6 @@ declare(strict_types=1);
 namespace Sterlett\Hardware\Price;
 
 use React\Promise\PromiseInterface;
-use Sterlett\Hardware\PriceInterface;
 use Traversable;
 
 /**
@@ -25,9 +24,14 @@ use Traversable;
 interface ProviderInterface
 {
     /**
-     * Returns a promise that resolves to a list with price records for the configured hardware category
+     * Returns a promise that resolves to a collection with price records for the configured hardware category.
      *
-     * @return PromiseInterface<Traversable<PriceInterface>>|PriceInterface[]>
+     * An iterable element of resulting collection is a nested Traversable<PriceInterface> or PriceInterface[],
+     * with hardware identifier as a key.
+     *
+     * todo: retval decomposition
+     *
+     * @return PromiseInterface<Traversable<iterable>>|iterable[]>
      */
     public function getPrices(): PromiseInterface;
 }

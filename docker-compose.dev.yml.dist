@@ -66,7 +66,7 @@ services:
             - ./docker/${APP_ENV}/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
 
     selenium-hub:
-        image: selenium/hub:${SELENIUM_VERSION}
+        image: selenium/hub@${SELENIUM_HUB_IMAGE_DIGEST}
         networks:
             - back_bridge
         environment:
@@ -80,7 +80,8 @@ services:
         build:
             context: ./docker/${APP_ENV}/selenium-node-chrome
             args:
-                SELENIUM_VERSION: ${SELENIUM_VERSION}
+                HOST_UID: ${HOST_UID}
+                SELENIUM_NODE_CHROME_IMAGE_DIGEST: ${SELENIUM_NODE_CHROME_IMAGE_DIGEST}
                 CHROME_ARG_PROXY_SERVER: "${SELENIUM_PROXY_HOST}:${SELENIUM_PROXY_PORT}"
         depends_on:
             - selenium-hub
@@ -90,13 +91,15 @@ services:
             HUB_HOST: selenium-hub
             NODE_MAX_INSTANCES: 1
             NODE_MAX_SESSION: 1
-            # virtual display resolution (non-headless mode only)
-            SCREEN_WIDTH: 1366
-            SCREEN_HEIGHT: 768
+            # virtual display resolution (framebuffer mode only)
+            SCREEN_WIDTH: 1706
+            SCREEN_HEIGHT: 960
             # disable display server (headless mode; additional args are required, see wrap_chrome_binary)
             # START_XVFB: 0
+            JAVA_OPTS: "-Dwebdriver.chrome.verboseLogging=true"
         volumes:
-            - /dev/shm:/dev/shm
+            # profile directory (to persist cookies and other session-related assets)
+            - ${SOURCE_PATH}/var/cache/selenium-node-chrome/profiles:${SELENIUM_NODE_CHROME_PROFILE_DIR}
 
 networks:
     # Debugging example (Xdebug < 3.0.0):
