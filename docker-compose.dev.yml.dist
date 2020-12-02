@@ -70,6 +70,7 @@ services:
         networks:
             - back_bridge
         environment:
+            GRID_HUB_PORT: ${SELENIUM_HUB_PORT}
             GRID_MAX_SESSION: 1
             # do not release inactive browser nodes (focusing on session persistence)
             GRID_TIMEOUT: 0

@@ -26,14 +26,14 @@
             ]
         }
     },
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "require": {
         "php": ">=7.4",
         "ext-ds": "^1.2",
         "ext-pcntl": ">=7.4",
         "clue/block-react": "^1.4",
         "clue/http-proxy-react": "^1.5",
-        "php-webdriver/webdriver": "^1.8",
+        "itnelo/reactphp-webdriver": "0.x-dev",
         "psr/container": "^1.0",
         "psr/event-dispatcher": "^1.0",
         "psr/http-message": "^1.0",

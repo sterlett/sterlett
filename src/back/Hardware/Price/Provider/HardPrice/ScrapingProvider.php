@@ -29,7 +29,7 @@ use Throwable;
 use Traversable;
 
 /**
- * Obtains a list with hardware prices from the HardPrice website.
+ * Obtains a list with hardware prices from the HardPrice website (gen 2).
  *
  * This service uses more advanced algorithm to provide a wider collection of hardware prices and relies on some tweaks
  * and techniques to bypass rate limiting and bot filters (e.g. proxies, random delays, fingerprint mixups, etc.).

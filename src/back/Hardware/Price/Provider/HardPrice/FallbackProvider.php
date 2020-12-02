@@ -28,7 +28,7 @@ use Sterlett\Hardware\Price\ProviderInterface;
 use Throwable;
 
 /**
- * A reserve provider for fetching prices from the HardPrice website.
+ * A reserve provider for fetching prices from the HardPrice website (gen 1).
  *
  * Gives a lesser price list (only the most popular/easy to parse stores), but works much faster than the main one.
  *

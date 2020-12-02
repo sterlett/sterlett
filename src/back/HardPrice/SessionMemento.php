@@ -38,13 +38,13 @@ final class SessionMemento
     /**
      * SessionMemento constructor.
      *
-     * @param string $projectDirPath Path to the local cache directory to manage scraping session persistence
+     * @param string $cacheDirPath Path to the local cache directory to manage scraping session persistence
      */
-    public function __construct(string $projectDirPath)
+    public function __construct(string $cacheDirPath)
     {
         // todo: refactoring required; extract to a separate event listener
 
-        $this->cacheDirPath = $projectDirPath;
+        $this->cacheDirPath = $cacheDirPath;
 
         $cacheFile = $this->cacheDirPath . '/hardprice.scraping.session-token';
 

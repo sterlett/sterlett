@@ -40,6 +40,8 @@ $containerConfigurator->setDefinitionFilePaths(
         __DIR__ . '/../config/services/progress_trackers.yml',
         __DIR__ . '/../config/services/async/event_loop.yml',
         __DIR__ . '/../config/services/async/clients.yml',
+        __DIR__ . '/../config/services/selenium_webdriver.yml',
+        __DIR__ . '/../config/services/browser.yml',
         // PassMark
         __DIR__ . '/../config/services/passmark/parsers.yml',
         // HardPrice
@@ -56,6 +58,9 @@ $containerConfigurator->setDefinitionFilePaths(
         __DIR__ . '/../config/services/hardprice/store_mapper.yml',
         __DIR__ . '/../config/services/hardprice/price_parsers.yml',
         __DIR__ . '/../config/services/hardprice/price_collectors.yml',
+        // HardPrice (gen 3)
+        __DIR__ . '/../config/services/hardprice/browser/item_searcher.yml',
+        __DIR__ . '/../config/services/hardprice/browser/price_accumulator.yml',
         // providers
         __DIR__ . '/../config/services/hardware/benchmark_providers.yml',
         __DIR__ . '/../config/services/hardware/price_providers.yml',

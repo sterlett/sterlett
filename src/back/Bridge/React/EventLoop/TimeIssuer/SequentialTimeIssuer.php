@@ -173,6 +173,7 @@ class SequentialTimeIssuer implements TimeIssuerInterface
     {
         $intervalInSeconds = $this->calculateInterval();
 
+        // todo: should probably use resolve() from promise-timer instead
         $this->loop->addPeriodicTimer(
             $intervalInSeconds,
             function (TimerInterface $timerItself) {

@@ -1,0 +1,10 @@
+
+services:
+    app.browser.opener:
+        class: Sterlett\Browser\Opener
+
+    app.browser.cleaner:
+        class: Sterlett\Browser\Cleaner
+
+    app.browser.session.starter:
+        class: Sterlett\Browser\Session\Starter
