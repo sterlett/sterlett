@@ -1,9 +1,9 @@
 
 services:
-    app.hardprice.scraping_thread:
+    app.thread.hardprice_scraping:
         alias: 'app.bridge.react.event_loop.time_issuer.sequential_time_issuer.hardprice_scraping'
 
-    app.hardprice.browsing_thread:
+    app.thread.hardprice_browsing:
         alias: 'app.bridge.react.event_loop.time_issuer.sequential_time_issuer.hardprice_browsing'
 
     app.bridge.react.event_loop.time_issuer.sequential_time_issuer.hardprice_scraping:

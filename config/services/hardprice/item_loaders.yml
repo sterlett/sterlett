@@ -3,7 +3,7 @@ services:
     app.hardprice.item.loader.cpu:
         class: Sterlett\HardPrice\Item\Loader
         arguments:
-            - '@app.hardprice.scraping_thread'
+            - '@app.thread.hardprice_scraping'
             - '@app.hardprice.item.requester.cpu'
             - '@app.hardprice.item.parser'
             - '@app.hardprice.item.storage.cpu'

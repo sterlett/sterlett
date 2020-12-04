@@ -53,7 +53,7 @@ services:
     app.hardware.price.provider.hardprice.browsing_provider.cpu:
         class: Sterlett\Hardware\Price\Provider\HardPrice\BrowsingProvider
         arguments:
-            - '@app.browser.opener'
+            - '@app.browser.opener.hardprice'
             - '@app.browser.cleaner'
             - '@app.hardprice.browser.item_searcher'
             - '@app.hardprice.browser.price_accumulator'

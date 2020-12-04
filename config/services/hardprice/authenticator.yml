@@ -5,7 +5,7 @@ services:
     app.hardprice.authenticator.guest_authenticator:
         class: Sterlett\HardPrice\Authenticator\GuestAuthenticator
         arguments:
-            - '@app.hardprice.scraping_thread'
+            - '@app.thread.hardprice_scraping'
             - '@app.hardprice.browsing_session'
             - '@app.client.hardprice'
             - '@app.hardprice.csrf.token_parser'
