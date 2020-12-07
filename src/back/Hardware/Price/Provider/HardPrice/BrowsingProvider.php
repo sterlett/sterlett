@@ -23,6 +23,7 @@ use Sterlett\Browser\Context as BrowserContext;
 use Sterlett\Browser\Opener as BrowserOpener;
 use Sterlett\HardPrice\Browser\ItemSearcher;
 use Sterlett\HardPrice\Browser\PriceAccumulator;
+use Sterlett\HardPrice\Browser\SiteNavigator;
 use Sterlett\Hardware\Price\ProviderInterface;
 use Throwable;
 
@@ -31,8 +32,7 @@ use Throwable;
  *
  * Emulates user behavior while traversing site pages using browser API (XVFB mode).
  *
- * todo: gen 3 algo refactoring (solid/grasp decomposition, code style)
- * todo: move from blocking php-webdriver/webdriver to native async driver (at ReactPHP bridge layer)
+ * todo: complete gen 3 algo implementation
  */
 class BrowsingProvider implements ProviderInterface
 {
@@ -47,6 +47,13 @@ class BrowsingProvider implements ProviderInterface
     private BrowserCleaner $browserCleaner;
 
     /**
+     * Opens the HardPrice website in the remote browser tab
+     *
+     * @var SiteNavigator
+     */
+    private SiteNavigator $siteNavigator;
+
+    /**
      * @var ItemSearcher
      */
     private ItemSearcher $itemSearcher;
@@ -56,14 +63,25 @@ class BrowsingProvider implements ProviderInterface
      */
     private PriceAccumulator $priceAccumulator;
 
+    /**
+     * BrowsingProvider constructor.
+     *
+     * @param BrowserOpener    $browserOpener
+     * @param BrowserCleaner   $browserCleaner
+     * @param SiteNavigator    $siteNavigator Opens the HardPrice website in the remote browser tab
+     * @param ItemSearcher     $itemSearcher
+     * @param PriceAccumulator $priceAccumulator
+     */
     public function __construct(
         BrowserOpener $browserOpener,
         BrowserCleaner $browserCleaner,
+        SiteNavigator $siteNavigator,
         ItemSearcher $itemSearcher,
         PriceAccumulator $priceAccumulator
     ) {
         $this->browserOpener    = $browserOpener;
         $this->browserCleaner   = $browserCleaner;
+        $this->siteNavigator    = $siteNavigator;
         $this->itemSearcher     = $itemSearcher;
         $this->priceAccumulator = $priceAccumulator;
     }
@@ -75,7 +93,7 @@ class BrowsingProvider implements ProviderInterface
     {
         $retrievingDeferred = new Deferred();
 
-        // stage 1: opening browser session.
+        // stage 1: opening a browser session.
         $browserReadyPromise = $this->browserOpener->openBrowser();
 
         $browserReadyPromise->then(
@@ -84,7 +102,7 @@ class BrowsingProvider implements ProviderInterface
                     $this->onBrowserReady($retrievingDeferred, $browserContext);
                 } catch (Throwable $exception) {
                     $reason = new RuntimeException(
-                        'Unable to retrieve prices (item search is not started).',
+                        'Unable to retrieve prices (site navigation is not started).',
                         0,
                         $exception
                     );
@@ -105,14 +123,59 @@ class BrowsingProvider implements ProviderInterface
     }
 
     /**
+     * Runs when the remote browser is successfully setted up and ready to execute navigation commands
+     *
      * @param Deferred       $retrievingDeferred Represents the price retrieving process itself
-     * @param BrowserContext $browserContext
+     * @param BrowserContext $browserContext     Holds browser state and a driver reference to perform actions
      *
      * @return void
      */
     public function onBrowserReady(Deferred $retrievingDeferred, BrowserContext $browserContext): void
     {
-        // stage 2: searching hardware items.
+        // stage 2: navigating to the website.
+        $tabIdentifiers = $browserContext->getTabIdentifiers();
+
+        // looks like it has already been made (reusing an existing session), skipping.
+        if (count($tabIdentifiers) > 1) {
+            $this->onSiteNavigation($retrievingDeferred, $browserContext);
+
+            return;
+        }
+
+        // will run a navigation query otherwise.
+        $navigationPromise = $this->siteNavigator->navigate($browserContext);
+
+        $navigationPromise->then(
+            function () use ($retrievingDeferred, $browserContext) {
+                try {
+                    $this->onSiteNavigation($retrievingDeferred, $browserContext);
+                } catch (Throwable $exception) {
+                    $reason = new RuntimeException(
+                        'Unable to retrieve prices (item search is not started).',
+                        0,
+                        $exception
+                    );
+
+                    $retrievingDeferred->reject($reason);
+                }
+            },
+            function (Throwable $rejectionReason) use ($retrievingDeferred) {
+                $reason = new RuntimeException('Unable to retrieve prices (site navigation).', 0, $rejectionReason);
+
+                $retrievingDeferred->reject($reason);
+            }
+        );
+    }
+
+    /**
+     * @param Deferred       $retrievingDeferred Represents the price retrieving process itself
+     * @param BrowserContext $browserContext
+     *
+     * @return void
+     */
+    public function onSiteNavigation(Deferred $retrievingDeferred, BrowserContext $browserContext): void
+    {
+        // stage 3: searching hardware items.
         $itemsPromise = $this->itemSearcher->searchItems($browserContext);
 
         $itemsPromise->then(
@@ -142,7 +205,7 @@ class BrowsingProvider implements ProviderInterface
         BrowserContext $browserContext,
         iterable $hardwareItems
     ): void {
-        // stage 3: browsing item pages.
+        // stage 4: browsing item pages.
         $priceListPromise = $this->priceAccumulator->accumulatePrices($browserContext, $hardwareItems);
 
         $priceListPromise->then(
@@ -168,7 +231,7 @@ class BrowsingProvider implements ProviderInterface
         BrowserContext $browserContext,
         iterable $hardwarePrices
     ): void {
-        // stage 4: closing browser session.
+        // stage 5: closing browser session.
         // we only close browsing session and cleaning up the browser at this stage.
         // it is OK to not clean after each reject, because we can still reuse the same session (browser tabs, etc.)
         // again with no consequences (except excessive mem peaks, which may be affordable).
