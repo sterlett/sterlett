@@ -117,7 +117,7 @@ class SiteNavigator
             )
             // moving mouse (an internal pointer) to the link.
             ->then(
-                function (array $siteLinkIdentifier) use ($webDriver, $sessionIdentifier) {
+                function (array $linkIdentifier) use ($webDriver, $sessionIdentifier) {
                     $divergenceOffsetX = random_int(0, 20);
                     $divergenceOffsetY = random_int(0, 5);
 
@@ -126,7 +126,7 @@ class SiteNavigator
                         $divergenceOffsetX,
                         $divergenceOffsetY,
                         100,
-                        $siteLinkIdentifier
+                        $linkIdentifier
                     );
                 }
             )

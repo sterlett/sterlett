@@ -36,12 +36,7 @@ class ItemSearcher
         $this->searchBarLocator = $searchBarLocator;
     }
 
-    /**
-     * @param BrowserContext $browserContext
-     *
-     * @return PromiseInterface<iterable>
-     */
-    public function searchItems(BrowserContext $browserContext): PromiseInterface
+    public function searchItem(BrowserContext $browserContext): PromiseInterface
     {
         // todo (gen 3)
 

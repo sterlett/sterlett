@@ -21,7 +21,7 @@ use RuntimeException;
 use Sterlett\Browser\Cleaner as BrowserCleaner;
 use Sterlett\Browser\Context as BrowserContext;
 use Sterlett\Browser\Opener as BrowserOpener;
-use Sterlett\HardPrice\Browser\ItemSearcher;
+use Sterlett\HardPrice\Browser\ItemReader;
 use Sterlett\HardPrice\Browser\PriceAccumulator;
 use Sterlett\HardPrice\Browser\SiteNavigator;
 use Sterlett\Hardware\Price\ProviderInterface;
@@ -47,16 +47,18 @@ class BrowsingProvider implements ProviderInterface
     private BrowserCleaner $browserCleaner;
 
     /**
-     * Opens the HardPrice website in the remote browser tab
+     * Opens HardPrice website in the remote browser tab
      *
      * @var SiteNavigator
      */
     private SiteNavigator $siteNavigator;
 
     /**
-     * @var ItemSearcher
+     * Opens a page with hardware items in the remove browser and saves them for browsing context
+     *
+     * @var ItemReader
      */
-    private ItemSearcher $itemSearcher;
+    private ItemReader $itemReader;
 
     /**
      * @var PriceAccumulator
@@ -68,21 +70,21 @@ class BrowsingProvider implements ProviderInterface
      *
      * @param BrowserOpener    $browserOpener
      * @param BrowserCleaner   $browserCleaner
-     * @param SiteNavigator    $siteNavigator Opens the HardPrice website in the remote browser tab
-     * @param ItemSearcher     $itemSearcher
+     * @param SiteNavigator    $siteNavigator Opens HardPrice website in the remote browser tab
+     * @param ItemReader       $itemReader    Opens a page with hardware items in the remove browser tab
      * @param PriceAccumulator $priceAccumulator
      */
     public function __construct(
         BrowserOpener $browserOpener,
         BrowserCleaner $browserCleaner,
         SiteNavigator $siteNavigator,
-        ItemSearcher $itemSearcher,
+        ItemReader $itemReader,
         PriceAccumulator $priceAccumulator
     ) {
         $this->browserOpener    = $browserOpener;
         $this->browserCleaner   = $browserCleaner;
         $this->siteNavigator    = $siteNavigator;
-        $this->itemSearcher     = $itemSearcher;
+        $this->itemReader       = $itemReader;
         $this->priceAccumulator = $priceAccumulator;
     }
 
@@ -168,17 +170,19 @@ class BrowsingProvider implements ProviderInterface
     }
 
     /**
+     * Runs when the website becomes open in the remote browser, to find a list with hardware items for price lookup
+     *
      * @param Deferred       $retrievingDeferred Represents the price retrieving process itself
-     * @param BrowserContext $browserContext
+     * @param BrowserContext $browserContext     Holds browser state and a driver reference to perform actions
      *
      * @return void
      */
     public function onSiteNavigation(Deferred $retrievingDeferred, BrowserContext $browserContext): void
     {
         // stage 3: searching hardware items.
-        $itemsPromise = $this->itemSearcher->searchItems($browserContext);
+        $itemListPromise = $this->itemReader->readItems($browserContext);
 
-        $itemsPromise->then(
+        $itemListPromise->then(
             function (iterable $hardwareItems) use ($retrievingDeferred, $browserContext) {
                 try {
                     $this->onItemsFound($retrievingDeferred, $browserContext, $hardwareItems);
