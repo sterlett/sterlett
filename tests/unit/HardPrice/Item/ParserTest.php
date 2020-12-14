@@ -51,11 +51,7 @@ final class ParserTest extends TestCase
 
         $itemListActual = $this->itemParser->parse($responseBodyContents);
 
-        if ($itemListActual instanceof Traversable) {
-            $itemArrayActual = iterator_to_array($itemListActual);
-        } else {
-            $itemArrayActual = (array) $itemListActual;
-        }
+        $itemArrayActual = [...$itemListActual];
 
         /** @var Item[] $itemArrayActual */
 

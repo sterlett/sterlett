@@ -111,7 +111,7 @@ final class MergingCollectorTest extends TestCase
         $hardwarePriceArrayActual = [];
 
         foreach ($hardwarePricesActual as $hardwareIdentifier => $hardwarePrices) {
-            $pricesFormatted = iterator_to_array($priceFormatter($hardwarePrices), false);
+            $pricesFormatted = [...$priceFormatter($hardwarePrices)];
 
             $hardwarePriceArrayActual[$hardwareIdentifier] = $pricesFormatted;
         }

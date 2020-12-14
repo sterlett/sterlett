@@ -78,15 +78,11 @@ HTML_CHUNK;
 
         $benchmarkTraversableOrArray = $this->parser->parse($data);
 
-        if ($benchmarkTraversableOrArray instanceof Traversable) {
-            $benchmarks = iterator_to_array($benchmarkTraversableOrArray);
-        } else {
-            $benchmarks = (array) $benchmarkTraversableOrArray;
-        }
+        $benchmarkArray = [...$benchmarkTraversableOrArray];
 
-        /** @var BenchmarkInterface[] $benchmarks */
+        /** @var BenchmarkInterface[] $benchmarkArray */
 
-        foreach ($benchmarks as $benchmark) {
+        foreach ($benchmarkArray as $benchmark) {
             $this->assertInstanceOf(
                 BenchmarkInterface::class,
                 $benchmark,
@@ -100,13 +96,13 @@ HTML_CHUNK;
             ['AMD EPYC 7702', '71,362'],
         ];
 
-        $this->assertEquals($dataExpected[0][0], $benchmarks[0]->getHardwareName(), 'Incorrect parsing.');
-        $this->assertEquals($dataExpected[0][1], $benchmarks[0]->getValue(), 'Incorrect parsing.');
+        $this->assertEquals($dataExpected[0][0], $benchmarkArray[0]->getHardwareName(), 'Incorrect parsing.');
+        $this->assertEquals($dataExpected[0][1], $benchmarkArray[0]->getValue(), 'Incorrect parsing.');
 
-        $this->assertEquals($dataExpected[1][0], $benchmarks[1]->getHardwareName(), 'Incorrect parsing.');
-        $this->assertEquals($dataExpected[1][1], $benchmarks[1]->getValue(), 'Incorrect parsing.');
+        $this->assertEquals($dataExpected[1][0], $benchmarkArray[1]->getHardwareName(), 'Incorrect parsing.');
+        $this->assertEquals($dataExpected[1][1], $benchmarkArray[1]->getValue(), 'Incorrect parsing.');
 
-        $this->assertEquals($dataExpected[2][0], $benchmarks[2]->getHardwareName(), 'Incorrect parsing.');
-        $this->assertEquals($dataExpected[2][1], $benchmarks[2]->getValue(), 'Incorrect parsing.');
+        $this->assertEquals($dataExpected[2][0], $benchmarkArray[2]->getHardwareName(), 'Incorrect parsing.');
+        $this->assertEquals($dataExpected[2][1], $benchmarkArray[2]->getValue(), 'Incorrect parsing.');
     }
 }

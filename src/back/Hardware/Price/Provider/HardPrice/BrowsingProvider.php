@@ -37,6 +37,8 @@ use Throwable;
 class BrowsingProvider implements ProviderInterface
 {
     /**
+     * Opens a remote browser and starts a new browsing session to find hardware prices on the website
+     *
      * @var BrowserOpener
      */
     private BrowserOpener $browserOpener;
@@ -61,6 +63,8 @@ class BrowsingProvider implements ProviderInterface
     private ItemReader $itemReader;
 
     /**
+     * Starts price accumulating routine for hardware items from the HardPrice website using a remote browser instance
+     *
      * @var PriceAccumulator
      */
     private PriceAccumulator $priceAccumulator;
@@ -68,11 +72,11 @@ class BrowsingProvider implements ProviderInterface
     /**
      * BrowsingProvider constructor.
      *
-     * @param BrowserOpener    $browserOpener
+     * @param BrowserOpener    $browserOpener    Opens a remote browser and starts a new browsing session
      * @param BrowserCleaner   $browserCleaner
-     * @param SiteNavigator    $siteNavigator Opens HardPrice website in the remote browser tab
-     * @param ItemReader       $itemReader    Opens a page with hardware items in the remove browser tab
-     * @param PriceAccumulator $priceAccumulator
+     * @param SiteNavigator    $siteNavigator    Opens HardPrice website in the remote browser tab
+     * @param ItemReader       $itemReader       Opens a page with hardware items in the remove browser tab
+     * @param PriceAccumulator $priceAccumulator Starts price accumulating routine for hardware items
      */
     public function __construct(
         BrowserOpener $browserOpener,
@@ -204,6 +208,15 @@ class BrowsingProvider implements ProviderInterface
         );
     }
 
+    /**
+     * Runs when the collection of hardware items is acquired, to start price accumulating routine
+     *
+     * @param Deferred       $retrievingDeferred Represents the price retrieving process itself
+     * @param BrowserContext $browserContext     Holds browser state and a driver reference to perform actions
+     * @param iterable       $hardwareItems      A collection of hardware items for which prices will be accumulated
+     *
+     * @return void
+     */
     public function onItemsFound(
         Deferred $retrievingDeferred,
         BrowserContext $browserContext,
@@ -238,7 +251,7 @@ class BrowsingProvider implements ProviderInterface
         // stage 5: closing browser session.
         // we only close browsing session and cleaning up the browser at this stage.
         // it is OK to not clean after each reject, because we can still reuse the same session (browser tabs, etc.)
-        // again with no consequences (except excessive mem peaks, which may be affordable).
+        // again with no consequences (except excessive mem peaks at some point, which may be affordable).
         $cleanupPromise = $this->browserCleaner->cleanBrowser($browserContext);
 
         $cleanupPromise->then(

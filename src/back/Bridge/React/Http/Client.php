@@ -66,11 +66,7 @@ class Client implements ClientInterface
      */
     public function request($method, $url, iterable $headers = [], $body = ''): PromiseInterface
     {
-        if ($headers instanceof Traversable) {
-            $headerArray = iterator_to_array($headers);
-        } else {
-            $headerArray = (array) $headers;
-        }
+        $headerArray = [...$headers];
 
         $responsePromise = $this->browser->requestStreaming($method, $url, $headerArray, $body);
 

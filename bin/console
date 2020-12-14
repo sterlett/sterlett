@@ -59,6 +59,7 @@ $containerConfigurator->setDefinitionFilePaths(
         __DIR__ . '/../config/services/hardprice/price_parsers.yml',
         __DIR__ . '/../config/services/hardprice/price_collectors.yml',
         // HardPrice (gen 3)
+        __DIR__ . '/../config/services/hardprice/browser/divergent.yml',
         __DIR__ . '/../config/services/hardprice/browser/site_navigator.yml',
         __DIR__ . '/../config/services/hardprice/browser/item_reader.yml',
         __DIR__ . '/../config/services/hardprice/browser/item_searcher.yml',

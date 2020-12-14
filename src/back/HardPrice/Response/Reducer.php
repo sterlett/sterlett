@@ -18,7 +18,6 @@ namespace Sterlett\HardPrice\Response;
 use Psr\Http\Message\ResponseInterface;
 use React\Promise\PromiseInterface;
 use Sterlett\Progress\TrackerInterface;
-use Traversable;
 use function React\Promise\reduce;
 
 /**
@@ -55,12 +54,7 @@ class Reducer
      */
     public function reduce(iterable $responsePromises): PromiseInterface
     {
-        if ($responsePromises instanceof Traversable) {
-            // this is a potentially blocking call, so there should not be any heavy logic (e.g. from the generators).
-            $promiseArray = iterator_to_array($responsePromises);
-        } else {
-            $promiseArray = (array) $responsePromises;
-        }
+        $promiseArray = [...$responsePromises];
 
         // todo: move tracking logic to the separate unit (at onReady level) instead (or make a TrackableReducer)
         if ($this->progressTracker instanceof TrackerInterface) {

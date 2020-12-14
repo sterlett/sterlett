@@ -19,8 +19,10 @@ use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use RuntimeException;
 use Sterlett\Browser\Context as BrowserContext;
+use Sterlett\Dto\Hardware\Item;
 use Sterlett\HardPrice\Item\Parser as ItemParser;
 use Throwable;
+use function React\Promise\resolve;
 
 /**
  * Opens a page with hardware items in the remove browser and saves them for browsing context
@@ -103,7 +105,7 @@ class ItemReader
      *
      * @return PromiseInterface<null>
      */
-    public function openBrowserTab(BrowserContext $browserContext): PromiseInterface
+    private function openBrowserTab(BrowserContext $browserContext): PromiseInterface
     {
         $webDriver         = $browserContext->getWebDriver();
         $sessionIdentifier = $browserContext->getHubSession();
@@ -113,6 +115,10 @@ class ItemReader
 
         $activeTabPromise = $activeTabIdentifierPromise->then(
             function (string $activeTabIdentifier) use ($webDriver, $sessionIdentifier, $tabIdentifiers) {
+                if (!isset($tabIdentifiers[0])) {
+                    throw new RuntimeException('Unable to open a browser tab (index: 0).');
+                }
+
                 // assigning tab 0 for hardware items.
                 // will switch to this tab (unless it is already focused).
                 if ($tabIdentifiers[0] === $activeTabIdentifier) {
@@ -133,7 +139,7 @@ class ItemReader
      *
      * @return PromiseInterface<null>
      */
-    public function accessResource(BrowserContext $browserContext): PromiseInterface
+    private function accessResource(BrowserContext $browserContext): PromiseInterface
     {
         $webDriver         = $browserContext->getWebDriver();
         $sessionIdentifier = $browserContext->getHubSession();
@@ -164,7 +170,7 @@ class ItemReader
      *
      * @return PromiseInterface<null>
      */
-    public function readSourceCode(BrowserContext $browserContext): PromiseInterface
+    private function readSourceCode(BrowserContext $browserContext): PromiseInterface
     {
         $webDriver         = $browserContext->getWebDriver();
         $sessionIdentifier = $browserContext->getHubSession();

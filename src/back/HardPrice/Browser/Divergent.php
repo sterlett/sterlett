@@ -13,10 +13,11 @@
 
 declare(strict_types=1);
 
-namespace Sterlett\Browser;
+namespace Sterlett\HardPrice\Browser;
 
 use React\Promise\PromiseInterface;
 use RuntimeException;
+use Sterlett\Browser\Context as BrowserContext;
 use function React\Promise\reject;
 
 /**
@@ -25,7 +26,12 @@ use function React\Promise\reject;
  */
 class Divergent
 {
-    public function randomAction(): PromiseInterface
+    /**
+     * Returns a promise that will be resolved when service finishes a set of random actions on the website
+     *
+     * @return PromiseInterface<null>
+     */
+    public function randomAction(BrowserContext $browserContext): PromiseInterface
     {
         // todo (gen 3)
 

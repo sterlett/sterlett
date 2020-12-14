@@ -23,7 +23,7 @@ use Sterlett\Bridge\React\EventLoop\TimeIssuerInterface;
 use Throwable;
 
 /**
- * Opens a remote browser and starts new browsing session to find hardware prices on the website
+ * Opens a remote browser and starts a new browsing session to find hardware prices on the website
  */
 class Opener
 {

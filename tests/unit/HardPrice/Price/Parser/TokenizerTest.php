@@ -61,11 +61,7 @@ final class TokenizerTest extends TestCase
 
         $priceListActual = $this->propertyTokenizer->tokenize($responseBodyContents);
 
-        if ($priceListActual instanceof Traversable) {
-            $sellerIdWithPriceArrayActual = iterator_to_array($priceListActual);
-        } else {
-            $sellerIdWithPriceArrayActual = (array) $priceListActual;
-        }
+        $sellerIdWithPriceArrayActual = [...$priceListActual];
 
         $this->assertEqualsCanonicalizing(
             $sellerIdWithPriceArrayExpected,
