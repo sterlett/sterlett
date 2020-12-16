@@ -24,7 +24,7 @@ use Sterlett\HardPrice\Price\Parser as PriceParser;
 use Throwable;
 use Traversable;
 use function React\Promise\reduce;
-use function React\Promise\resolve;
+use function React\Promise\reject;
 
 /**
  * Starts price accumulating routine for hardware items from the HardPrice website using a remote browser instance
@@ -40,6 +40,8 @@ class PriceAccumulator
     private Divergent $divergent;
 
     /**
+     * Performs actions in the remove browser to find a page with hardware item
+     *
      * @var ItemSearcher
      */
     private ItemSearcher $itemSearcher;
@@ -111,8 +113,11 @@ class PriceAccumulator
     }
 
     /**
+     * Returns a collection of promises, where each one represents a set of actions in the remote browser, to retrieve
+     * prices for a single hardware item
+     *
      * @param BrowserContext $browserContext Holds browser state and a driver reference to perform actions
-     * @param iterable       $hardwareItems
+     * @param iterable       $hardwareItems  A collection of hardware items (1 item = 1 iteration promise)
      *
      * @return Traversable<PromiseInterface>|PromiseInterface[]
      */
@@ -125,26 +130,45 @@ class PriceAccumulator
         }
     }
 
+    /**
+     * Returns a promise that resolves to a price list for the given hardware item
+     *
+     * @param BrowserContext $browserContext Holds browser state and a driver reference to perform actions
+     * @param Item           $item           A single hardware item, to make a price list resolving promise
+     *
+     * @return PromiseInterface<iterable>
+     */
     private function findPrices(BrowserContext $browserContext, Item $item): PromiseInterface
     {
         $browsingThread = $browserContext->getBrowsingThread();
+
+        $webDriver         = $browserContext->getWebDriver();
+        $sessionIdentifier = $browserContext->getHubSession();
 
         $tabReadyPromise = $browsingThread
             // acquiring a time frame in the shared event loop.
             ->getTime()
             // opening an appropriate tab in the remote browser.
-            ->then(fn() => $this->openBrowserTab($browserContext))
+            ->then(fn () => $this->openBrowserTab($browserContext))
             // protecting existence (as long as such protection does not conflict with the First or Second Law).
-            ->then(fn() => $this->divergent->randomAction($browserContext))
+            ->then(fn () => $this->divergent->randomAction($webDriver, $sessionIdentifier))
+            // applying a delay.
+            ->then(fn () => $webDriver->wait(5.0))
         ;
 
-        // todo: complete
+        $pageAccessPromise = $tabReadyPromise
+            // opening a page with hardware item.
+            ->then(fn () => $this->itemSearcher->searchItem($browserContext, $item))
+        ;
 
-        return $tabReadyPromise->then(
-            function () {
-                throw new RuntimeException('todo');
-            }
-        );
+        $priceListPromise = $pageAccessPromise
+            // loading a page source.
+            ->then(fn () => $this->readSourceCode($browserContext))
+            // extracting price data from the page source.
+            ->then(fn (string $rawData) => $this->parsePrices($item, $rawData))
+        ;
+
+        return $priceListPromise;
     }
 
     /**
@@ -175,9 +199,46 @@ class PriceAccumulator
                 if ($tabIdentifiers[1] === $activeTabIdentifier) {
                     return null;
                 }
+
+                return $webDriver->setActiveTab($sessionIdentifier, $tabIdentifiers[1]);
             }
         );
 
         return $activeTabPromise;
+    }
+
+    /**
+     * Extracts hardware price data from the web page as a raw string (to fill a list of DTOs)
+     *
+     * @param BrowserContext $browserContext Holds browser state and a driver reference to perform actions
+     *
+     * @return PromiseInterface<string>
+     */
+    private function readSourceCode(BrowserContext $browserContext): PromiseInterface
+    {
+        $webDriver         = $browserContext->getWebDriver();
+        $sessionIdentifier = $browserContext->getHubSession();
+
+        $rawDataPromise = $webDriver
+            ->getSource($sessionIdentifier)
+            ->then(fn (string $sourceCode) => preg_replace('/\s+/', '', $sourceCode))
+        ;
+
+        return $rawDataPromise;
+    }
+
+    /**
+     * Returns a promise that resolve to a collection of hardware prices, which has been extracted from the item page
+     *
+     * @param Item   $item    A hardware item DTO with metadata for price retrieving
+     * @param string $rawData Item page contents
+     *
+     * @return PromiseInterface<iterable>
+     */
+    private function parsePrices(Item $item, string $rawData): PromiseInterface
+    {
+        // todo: complete
+
+        return reject(new RuntimeException('todo'));
     }
 }

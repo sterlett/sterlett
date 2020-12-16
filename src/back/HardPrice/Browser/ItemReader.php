@@ -19,10 +19,8 @@ use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use RuntimeException;
 use Sterlett\Browser\Context as BrowserContext;
-use Sterlett\Dto\Hardware\Item;
 use Sterlett\HardPrice\Item\Parser as ItemParser;
 use Throwable;
-use function React\Promise\resolve;
 
 /**
  * Opens a page with hardware items in the remove browser and saves them for browsing context
@@ -70,7 +68,8 @@ class ItemReader
 
         $resourceAccessPromise = $tabReadyPromise
             // accessing a page with hardware list.
-            ->then(fn () => $this->accessResource($browserContext));
+            ->then(fn () => $this->accessResource($browserContext))
+        ;
 
         $resourceAccessPromise
             // loading a page source.
@@ -168,7 +167,7 @@ class ItemReader
      *
      * @param BrowserContext $browserContext Holds browser state and a driver reference to perform actions
      *
-     * @return PromiseInterface<null>
+     * @return PromiseInterface<string>
      */
     private function readSourceCode(BrowserContext $browserContext): PromiseInterface
     {

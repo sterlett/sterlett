@@ -20,7 +20,6 @@ use React\Promise\PromiseInterface;
 use RuntimeException;
 use Sterlett\Browser\Context as BrowserContext;
 use Throwable;
-use function React\Promise\resolve;
 
 /**
  * Opens the HardPrice website in the remote browser tab
@@ -57,7 +56,7 @@ class SiteNavigator
             ->actualizeContext($siteAccessPromise, $browserContext)
             // handling errors and releasing a thread lock.
             ->then(
-                function () use ($browsingThread, $navigationDeferred, $webDriver) {
+                function () use ($browsingThread, $navigationDeferred) {
                     $browsingThread->release();
 
                     $navigationDeferred->resolve(null);

@@ -18,6 +18,7 @@ namespace Sterlett\HardPrice\Browser;
 use React\Promise\PromiseInterface;
 use RuntimeException;
 use Sterlett\Browser\Context as BrowserContext;
+use Sterlett\Dto\Hardware\Item;
 use Sterlett\HardPrice\Browser\ItemSearcher\SearchBarLocator;
 use function React\Promise\reject;
 
@@ -36,7 +37,7 @@ class ItemSearcher
         $this->searchBarLocator = $searchBarLocator;
     }
 
-    public function searchItem(BrowserContext $browserContext): PromiseInterface
+    public function searchItem(BrowserContext $browserContext, Item $item): PromiseInterface
     {
         // todo (gen 3)
 

@@ -54,6 +54,7 @@ class Reducer
      */
     public function reduce(iterable $responsePromises): PromiseInterface
     {
+        // this is a potentially blocking statement, so there should not be any heavy logic (e.g. from the generators).
         $promiseArray = [...$responsePromises];
 
         // todo: move tracking logic to the separate unit (at onReady level) instead (or make a TrackableReducer)
