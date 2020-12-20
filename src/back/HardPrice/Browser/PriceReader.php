@@ -17,17 +17,99 @@ namespace Sterlett\HardPrice\Browser;
 
 use React\Promise\PromiseInterface;
 use RuntimeException;
-use function React\Promise\reject;
+use Sterlett\Browser\Context as BrowserContext;
+use Sterlett\Dto\Hardware\Item;
+use Sterlett\Dto\Hardware\Price;
+use Sterlett\HardPrice\Price\Parser as PriceParser;
+use Throwable;
+use Traversable;
 
 /**
- * Opens a page with item prices in the remove browser and saves them for the browsing context
+ * Opens a page with item prices in the remove browser and reads it contents
  */
 class PriceReader
 {
-    public function readPrices(): PromiseInterface
-    {
-        // todo (gen 3)
+    /**
+     * Transforms price data from the raw format to the list of application-level DTOs
+     *
+     * @var PriceParser
+     */
+    private PriceParser $priceParser;
 
-        return reject(new RuntimeException('todo'));
+    /**
+     * PriceReader constructor.
+     *
+     * @param PriceParser $priceParser Transforms price data from the raw format to the list of DTOs
+     */
+    public function __construct(PriceParser $priceParser)
+    {
+        $this->priceParser = $priceParser;
+    }
+
+    /**
+     * Returns a promise that resolves to a collection of prices from the different stores for the given item
+     *
+     * @param BrowserContext $browserContext Holds browser state and a driver reference to perform actions
+     * @param Item           $item           A hardware item DTO with metadata for price retrieving
+     *
+     * @return PromiseInterface<iterable>
+     */
+    public function readPrices(BrowserContext $browserContext, Item $item): PromiseInterface
+    {
+        $priceListPromise = $this
+            // loading a page source.
+            ->readSourceCode($browserContext)
+            // extracting price data.
+            ->then(fn (string $rawData) => $this->parsePrices($item, $rawData))
+            ->then(
+                null,
+                function (Throwable $rejectionReason) {
+                    throw new RuntimeException('Unable to read hardware prices from the page.', 0, $rejectionReason);
+                }
+            )
+        ;
+
+        return $priceListPromise;
+    }
+
+    /**
+     * Extracts hardware price data from the web page as a raw string (to fill a list of DTOs)
+     *
+     * @param BrowserContext $browserContext Holds browser state and a driver reference to perform actions
+     *
+     * @return PromiseInterface<string>
+     */
+    private function readSourceCode(BrowserContext $browserContext): PromiseInterface
+    {
+        $webDriver         = $browserContext->getWebDriver();
+        $sessionIdentifier = $browserContext->getHubSession();
+
+        $rawDataPromise = $webDriver
+            ->getSource($sessionIdentifier)
+            // normalizing, to get a cleaner input for parsing.
+            ->then(fn (string $sourceCode) => preg_replace('/\s+/', '', $sourceCode))
+        ;
+
+        return $rawDataPromise;
+    }
+
+    /**
+     * Returns a collection of hardware prices, which has been extracted from the item page
+     *
+     * @param Item   $item    A hardware item DTO with metadata for price retrieving
+     * @param string $rawData Item page contents
+     *
+     * @return Traversable<Price>|Price[]
+     */
+    private function parsePrices(Item $item, string $rawData): iterable
+    {
+        $itemName   = $item->getName();
+        $itemPrices = $this->priceParser->parse($rawData);
+
+        foreach ($itemPrices as $itemPrice) {
+            $itemPrice->setHardwareName($itemName);
+
+            yield $itemPrice;
+        }
     }
 }

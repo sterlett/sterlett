@@ -1,0 +1,6 @@
+
+services:
+    app.hardprice.browser.price_reader:
+        class: Sterlett\HardPrice\Browser\PriceReader
+        arguments:
+            - '@app.hardprice.price.parser'

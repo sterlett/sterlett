@@ -65,6 +65,9 @@ Example:
 - [itnelo/reactphp-foundation](https://github.com/itnelo/reactphp-foundation) — A fresh skeleton
 for building asynchronous microservices using PHP 7.4+, ReactPHP and Symfony 5 components,
 with a deployment preset for scaling and load balancing.
+- [itnelo/reactphp-webdriver](https://github.com/itnelo/reactphp-webdriver) — **Sterlett** uses the ReactPHP WebDriver, a
+fast and non-blocking PHP client for the [Selenium](https://www.selenium.dev) browser automation engine,
+to acquire data from some websites.
 
 ## Changelog
 

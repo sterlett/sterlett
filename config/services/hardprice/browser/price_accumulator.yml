@@ -5,4 +5,4 @@ services:
         arguments:
             - '@app.hardprice.browser.divergent'
             - '@app.hardprice.browser.item_searcher'
-            - '@app.hardprice.price.parser'
+            - '@app.hardprice.browser.price_reader'

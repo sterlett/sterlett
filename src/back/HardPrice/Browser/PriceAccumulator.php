@@ -20,11 +20,9 @@ use React\Promise\PromiseInterface;
 use RuntimeException;
 use Sterlett\Browser\Context as BrowserContext;
 use Sterlett\Dto\Hardware\Item;
-use Sterlett\HardPrice\Price\Parser as PriceParser;
 use Throwable;
 use Traversable;
 use function React\Promise\reduce;
-use function React\Promise\reject;
 
 /**
  * Starts price accumulating routine for hardware items from the HardPrice website using a remote browser instance
@@ -47,24 +45,24 @@ class PriceAccumulator
     private ItemSearcher $itemSearcher;
 
     /**
-     * Transforms price data from the raw format to the list of application-level DTOs
+     * Opens a page with item prices in the remove browser and reads it contents
      *
-     * @var PriceParser
+     * @var PriceReader
      */
-    private PriceParser $priceParser;
+    private PriceReader $priceReader;
 
     /**
      * PriceAccumulator constructor.
      *
      * @param Divergent    $divergent    Performs random actions in the remote browser (anti-automation bypass)
      * @param ItemSearcher $itemSearcher Performs actions in the remove browser to find a page with hardware item
-     * @param PriceParser  $priceParser  Transforms price data from the raw format to the list of DTOs
+     * @param PriceReader  $priceReader  Reads a page with item prices from the remove browser tab
      */
-    public function __construct(Divergent $divergent, ItemSearcher $itemSearcher, PriceParser $priceParser)
+    public function __construct(Divergent $divergent, ItemSearcher $itemSearcher, PriceReader $priceReader)
     {
         $this->divergent    = $divergent;
         $this->itemSearcher = $itemSearcher;
-        $this->priceParser  = $priceParser;
+        $this->priceReader  = $priceReader;
     }
 
     /**
@@ -162,10 +160,21 @@ class PriceAccumulator
         ;
 
         $priceListPromise = $pageAccessPromise
-            // loading a page source.
-            ->then(fn () => $this->readSourceCode($browserContext))
-            // extracting price data from the page source.
-            ->then(fn (string $rawData) => $this->parsePrices($item, $rawData))
+            // extracting item prices.
+            ->then(fn () => $this->priceReader->readPrices($browserContext, $item))
+            // releasing a thread lock / handling errors.
+            ->then(
+                function (iterable $hardwarePrices) use ($browsingThread) {
+                    $browsingThread->release();
+
+                    return $hardwarePrices;
+                },
+                function (Throwable $rejectionReason) use ($browsingThread) {
+                    $browsingThread->release();
+
+                    throw new RuntimeException('Unable to find a price list for an item.', 0, $rejectionReason);
+                }
+            )
         ;
 
         return $priceListPromise;
@@ -205,40 +214,5 @@ class PriceAccumulator
         );
 
         return $activeTabPromise;
-    }
-
-    /**
-     * Extracts hardware price data from the web page as a raw string (to fill a list of DTOs)
-     *
-     * @param BrowserContext $browserContext Holds browser state and a driver reference to perform actions
-     *
-     * @return PromiseInterface<string>
-     */
-    private function readSourceCode(BrowserContext $browserContext): PromiseInterface
-    {
-        $webDriver         = $browserContext->getWebDriver();
-        $sessionIdentifier = $browserContext->getHubSession();
-
-        $rawDataPromise = $webDriver
-            ->getSource($sessionIdentifier)
-            ->then(fn (string $sourceCode) => preg_replace('/\s+/', '', $sourceCode))
-        ;
-
-        return $rawDataPromise;
-    }
-
-    /**
-     * Returns a promise that resolve to a collection of hardware prices, which has been extracted from the item page
-     *
-     * @param Item   $item    A hardware item DTO with metadata for price retrieving
-     * @param string $rawData Item page contents
-     *
-     * @return PromiseInterface<iterable>
-     */
-    private function parsePrices(Item $item, string $rawData): PromiseInterface
-    {
-        // todo: complete
-
-        return reject(new RuntimeException('todo'));
     }
 }

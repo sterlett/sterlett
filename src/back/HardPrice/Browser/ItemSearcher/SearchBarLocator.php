@@ -17,14 +17,15 @@ namespace Sterlett\HardPrice\Browser\ItemSearcher;
 
 use React\Promise\PromiseInterface;
 use RuntimeException;
+use Sterlett\Browser\Context as BrowserContext;
 use function React\Promise\reject;
 
 /**
- * Finds an element on the page, in the remote browser tab, that is suited for item search
+ * Finds an element on the page, which is suited for item search
  */
 class SearchBarLocator
 {
-    public function resolveElementIdentifier(): PromiseInterface
+    public function locateSearchBar(BrowserContext $browserContext): PromiseInterface
     {
         // todo (gen 3)
 
