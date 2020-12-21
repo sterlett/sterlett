@@ -16,19 +16,31 @@ declare(strict_types=1);
 namespace Sterlett\HardPrice\Browser\ItemSearcher;
 
 use React\Promise\PromiseInterface;
-use RuntimeException;
 use Sterlett\Browser\Context as BrowserContext;
-use function React\Promise\reject;
 
 /**
  * Finds an element on the page, which is suited for item search
  */
 class SearchBarLocator
 {
+    /**
+     * Returns a promise that resolves to a string, representing an internal WebDriver handle of the search input on
+     * the page
+     *
+     * @param BrowserContext $browserContext Holds browser state and a driver reference to perform actions
+     *
+     * @return PromiseInterface<string>
+     */
     public function locateSearchBar(BrowserContext $browserContext): PromiseInterface
     {
-        // todo (gen 3)
+        $webDriver         = $browserContext->getWebDriver();
+        $sessionIdentifier = $browserContext->getHubSession();
 
-        return reject(new RuntimeException('todo'));
+        $elementIdentifierPromise = $webDriver->getElementIdentifier(
+            $sessionIdentifier,
+            '//form[@name="search"]//input[@type="text"]'
+        );
+
+        return $elementIdentifierPromise;
     }
 }

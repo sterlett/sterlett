@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Sterlett\HardPrice\Browser;
 
+use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use RuntimeException;
 use Sterlett\Browser\Context as BrowserContext;
@@ -54,22 +55,38 @@ class ItemSearcher
      */
     public function searchItem(BrowserContext $browserContext, Item $item): PromiseInterface
     {
-        $searchReadyPromise = $this->searchBarLocator
-            // resolving search bar element on the page / navigating to the search page.
-            ->locateSearchBar($browserContext)
-            // focusing an input to send a search query.
-            ->then(fn (string $elementIdentifier) => $this->focusSearchBar($browserContext, $elementIdentifier))
-        ;
-
-        $searchQueryPromise = $searchReadyPromise
+        $searchQueryPromise = $this
+            ->prepareSearchBar($browserContext)
             // sending a search query.
-            ->then(fn () => $this->typeSearchQuery($browserContext, $item))
-            // waiting for the results.
-            ->then(fn () => $this->waitSearchResults($browserContext, $item))
+            ->then(
+                function (array $searchBarIdentifier) use ($browserContext, $item) {
+                    return $this->doSearchQuery($browserContext, $searchBarIdentifier, $item);
+                }
+            )
         ;
 
-        $pageAccessPromise = $searchQueryPromise
-            ->then(fn () => $this->openItemPage($browserContext, $item))
+        $linkIdentifierPromise = $searchQueryPromise
+            // waiting for the results.
+            // todo: extract results analyser
+            ->then(fn () => $this->waitSearchResults($browserContext, $item))
+            // applying a divergence delay.
+            ->then(
+                function (array $linkIdentifier) use ($browserContext) {
+                    $webDriver           = $browserContext->getWebDriver();
+                    $divergenceDelayTime = (float) random_int(5, 10);
+
+                    return $webDriver
+                        ->wait($divergenceDelayTime)
+                        ->then(fn () => $linkIdentifier)
+                    ;
+                }
+            )
+        ;
+
+        $pageAccessPromise = $linkIdentifierPromise
+            ->then(fn (array $linkIdentifier) => $this->doPageTransition($browserContext, $linkIdentifier))
+            // ensure a page is fully loaded before we can proceed further.
+            ->then(fn () => $this->ensurePageLoaded($browserContext))
             ->then(
                 null,
                 function (Throwable $rejectionReason) {
@@ -82,67 +99,229 @@ class ItemSearcher
     }
 
     /**
+     * Returns a promise that resolves to a data structure, representing an internal handle of the page element, which
+     * is used for item search
+     *
+     * @param BrowserContext $browserContext Holds browser state and a driver reference to perform actions
+     *
+     * @return PromiseInterface<array>
+     */
+    private function prepareSearchBar(BrowserContext $browserContext): PromiseInterface
+    {
+        $searchBarReadyPromise = $this->searchBarLocator
+            // resolving search bar element / navigating to the appropriate search page.
+            ->locateSearchBar($browserContext)
+            // focusing the input.
+            ->then(
+                function (array $searchBarIdentifier) use ($browserContext) {
+                    return $this
+                        ->focusSearchBar($browserContext, $searchBarIdentifier)
+                        // forwarding a search bar handle to the next async handler.
+                        ->then(fn () => $searchBarIdentifier)
+                    ;
+                }
+            )
+        ;
+
+        return $searchBarReadyPromise;
+    }
+
+    /**
      * Returns a promise that will be resolved when the search input becomes active
      *
-     * @param BrowserContext $browserContext    Holds browser state and a driver reference to perform actions
-     * @param string         $elementIdentifier An internal WebDriver handle for the search input
+     * @param BrowserContext $browserContext      Holds browser state and a driver reference to perform actions
+     * @param array          $searchBarIdentifier An internal WebDriver handle for the search input
      *
      * @return PromiseInterface<null>
      */
-    private function focusSearchBar(BrowserContext $browserContext, string $elementIdentifier): PromiseInterface
+    private function focusSearchBar(BrowserContext $browserContext, array $searchBarIdentifier): PromiseInterface
     {
         $webDriver         = $browserContext->getWebDriver();
         $sessionIdentifier = $browserContext->getHubSession();
 
-        // todo
+        $divergenceOffsetX = random_int(0, 20);
+        $divergenceOffsetY = random_int(0, 5);
+
+        $clickConfirmationPromise = $webDriver
+            // moving a mouse pointer to the search bar.
+            ->mouseMove(
+                $sessionIdentifier,
+                $divergenceOffsetX,
+                $divergenceOffsetY,
+                100,
+                $searchBarIdentifier
+            )
+            // sending a left click action.
+            ->then(fn () => $webDriver->mouseLeftClick($sessionIdentifier))
+        ;
+
+        return $clickConfirmationPromise;
     }
 
     /**
      * Returns a promise that will be resolved when the remove WebDriver service confirms a text type operation for the
      * search input
      *
-     * @param BrowserContext $browserContext Holds browser state and a driver reference to perform actions
-     * @param Item           $item           A hardware item DTO with metadata for price retrieving
+     * @param BrowserContext $browserContext      Holds browser state and a driver reference to perform actions
+     * @param array          $searchBarIdentifier An internal WebDriver handle for the search input
+     * @param Item           $item                A hardware item DTO with metadata for price retrieving
      *
      * @return PromiseInterface<null>
      */
-    private function typeSearchQuery(BrowserContext $browserContext, Item $item): PromiseInterface
-    {
+    private function doSearchQuery(
+        BrowserContext $browserContext,
+        array $searchBarIdentifier,
+        Item $item
+    ): PromiseInterface {
         $webDriver         = $browserContext->getWebDriver();
         $sessionIdentifier = $browserContext->getHubSession();
 
-        // todo
+        $itemName   = $item->getName();
+        $textToType = mb_strtolower($itemName);
+
+        $textTypePromise = $webDriver->keypressElement($sessionIdentifier, $searchBarIdentifier, $textToType);
+
+        return $textTypePromise;
     }
 
     /**
-     * Returns a promise that will be resolved when the remote browser completes search results rendering
+     * Returns a promise that resolves to a data structure, representing an internal handle for the item page link,
+     * when the remote browser completes search results rendering
      *
      * @param BrowserContext $browserContext Holds browser state and a driver reference to perform actions
      * @param Item           $item           A hardware item DTO with metadata for price retrieving
      *
-     * @return PromiseInterface<null>
+     * @return PromiseInterface<array>
      */
     private function waitSearchResults(BrowserContext $browserContext, Item $item): PromiseInterface
     {
+        $waitingDeferred = new Deferred();
+
         $webDriver         = $browserContext->getWebDriver();
         $sessionIdentifier = $browserContext->getHubSession();
 
-        // todo
+        $linkXPathQuery = $this->buildLinkXPath($item);
+
+        // todo: decompose
+        $conditionMetCallback = function () use ($webDriver, $sessionIdentifier, $linkXPathQuery) {
+            // resolving an internal WebDriver handle for the link element.
+            $linkIdentifierPromise = $webDriver->getElementIdentifier($sessionIdentifier, $linkXPathQuery);
+
+            // checking visibility state for the link.
+            return $linkIdentifierPromise->then(
+                function (array $linkIdentifier) use ($webDriver, $sessionIdentifier) {
+                    $visibilityStatePromise = $webDriver->getElementVisibility($sessionIdentifier, $linkIdentifier);
+
+                    return $visibilityStatePromise->then(
+                        function (bool $isVisible) use ($linkIdentifier) {
+                            if (!$isVisible) {
+                                // this will force WebDriver to retry visibility check operation.
+                                throw new RuntimeException();
+                            }
+
+                            // ok, the link becomes visible by this point.
+                            // forwarding an internal link handle to the resolving closure.
+                            return $linkIdentifier;
+                        }
+                    );
+                }
+            );
+        };
+
+        $becomeVisiblePromise = $webDriver->waitUntil($conditionMetCallback);
+
+        $becomeVisiblePromise->then(
+            function (array $linkIdentifier) use ($waitingDeferred) {
+                $waitingDeferred->resolve($linkIdentifier);
+            },
+            // handling a case, when we don't see search results on the page (client-side errors, etc.).
+            function (Throwable $rejectionReason) use ($waitingDeferred) {
+                $reason = new RuntimeException('Unable to analyse search results.', 0, $rejectionReason);
+
+                $waitingDeferred->reject($reason);
+            }
+        );
+
+        $linkIdentifierPromise = $waitingDeferred->promise();
+
+        return $linkIdentifierPromise;
     }
 
     /**
-     * Returns a promise that will be resolved when an item page, from the search results, becomes open
+     * Returns a promise that will be resolved when an item page, from the search results, becomes open (link
+     * transition was successfully performed)
      *
      * @param BrowserContext $browserContext Holds browser state and a driver reference to perform actions
-     * @param Item           $item           A hardware item DTO with metadata for price retrieving
+     * @param array          $linkIdentifier An internal WebDriver handle for link in the search results
      *
      * @return PromiseInterface<null>
      */
-    private function openItemPage(BrowserContext $browserContext, Item $item): PromiseInterface
+    private function doPageTransition(BrowserContext $browserContext, array $linkIdentifier): PromiseInterface
+    {
+        // todo: extract to a shared unit (similar to focusSearchBar)
+
+        $webDriver         = $browserContext->getWebDriver();
+        $sessionIdentifier = $browserContext->getHubSession();
+
+        $divergenceOffsetX = random_int(0, 20);
+        $divergenceOffsetY = random_int(0, 5);
+
+        $clickConfirmationPromise = $webDriver
+            ->mouseMove(
+                $sessionIdentifier,
+                $divergenceOffsetX,
+                $divergenceOffsetY,
+                100,
+                $linkIdentifier
+            )
+            ->then(fn () => $webDriver->mouseLeftClick($sessionIdentifier))
+        ;
+
+        return $clickConfirmationPromise;
+    }
+
+    /**
+     * Returns a promise that will be resolved when the page becomes completely loaded in the remote browser instance
+     * (including client-side scripts and other runtime assets)
+     *
+     * @param BrowserContext $browserContext Holds browser state and a driver reference to perform actions
+     *
+     * @return PromiseInterface<null>
+     */
+    private function ensurePageLoaded(BrowserContext $browserContext): PromiseInterface
     {
         $webDriver         = $browserContext->getWebDriver();
         $sessionIdentifier = $browserContext->getHubSession();
 
-        // todo
+        $becomeAvailablePromise = $webDriver->waitUntil(
+            function () use ($webDriver, $sessionIdentifier) {
+                return $webDriver->getElementIdentifier(
+                    $sessionIdentifier,
+                    '//table[contains(@class, "price-all")]//*[@data-store]'
+                );
+            }
+        );
+
+        return $becomeAvailablePromise;
+    }
+
+    /**
+     * Returns an XPath query string, which will be used to find a link with item's URI in the search results
+     *
+     * @param Item $item A hardware item DTO with metadata for price retrieving
+     *
+     * @return string
+     */
+    private function buildLinkXPath(Item $item): string
+    {
+        $itemPageUri = $item->getPageUri();
+
+        if (false !== strpos($itemPageUri, '"')) {
+            throw new RuntimeException('Unable to prepare an XPath query: incorrect format for the item page URI.');
+        }
+
+        $linkXPathQuery = sprintf('//a[@href="%s"]', $itemPageUri);
+
+        return $linkXPathQuery;
     }
 }
