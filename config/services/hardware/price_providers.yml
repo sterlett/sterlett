@@ -4,14 +4,7 @@ services:
     app.hardware.price.provider.hardprice_provider.cpu.synchronous:
         class: Sterlett\Hardware\Price\Provider\BlockingProvider
         arguments:
-            # gen 1
-            #- '@app.hardware.price.provider.hardprice.fallback_provider.cpu'
-
-            # gen 2
-            #- '@app.hardware.price.provider.hardprice.scraping_provider.cpu.console'
-
-            - '@app.hardware.price.provider.hardprice.browsing_provider.cpu'
-
+            - '@app.hardware.price.provider.hardprice.fallback_provider.cpu'
             - '@app.event_loop'
         tags:
             -   name: 'price_provider.synchronous'

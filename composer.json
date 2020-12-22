@@ -34,7 +34,7 @@
         "ext-pcntl": ">=7.4",
         "clue/block-react": "^1.4",
         "clue/http-proxy-react": "^1.6",
-        "itnelo/reactphp-webdriver": "0.x-dev",
+        "itnelo/reactphp-webdriver": "^0.2",
         "psr/container": "^1.0",
         "psr/event-dispatcher": "^1.0",
         "psr/http-message": "^1.0",

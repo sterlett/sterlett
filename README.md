@@ -8,7 +8,8 @@
 - [Architecture](#architecture)
 - [Honeycomb](#honeycomb)
 - [Console API](#console-api)
-    - [List of benchmarks](#list-of-benchmarks)
+    - [Downloading a benchmark list](#downloading-a-benchmark-list)
+    - [Retrieving hardware prices](#retrieving-hardware-prices)
 - [See also](#see-also)
 - [Changelog](#changelog)
 
@@ -38,7 +39,7 @@ This one is currently at the prototyping stage :honeybee:.
 :honey_pot: Frontend base \
 :honey_pot: Routing and load balancing capabilities \
 :honey_pot: CI ground \
-:black_square_button: Prices retrieving \
+:honey_pot: Prices retrieving \
 :honey_pot: Benchmarks retrieving \
 :black_square_button: Data persistence \
 :black_square_button: Console API: CPU list \
@@ -47,18 +48,35 @@ This one is currently at the prototyping stage :honeybee:.
 
 ## Console API
 
-### List of benchmarks
+### Downloading a benchmark list
 
 Renders a list with benchmark results from the configured providers, which are used in the algorithm as a source
 for hardware efficiency measure.
 
 ```
-$ docker-compose run --rm app bin/console benchmark:list
+$ docker-compose run --rm --no-deps app bin/console benchmark:list
 ```
 
 Example:
 
-![console_api_benchmark_list_asciicast](https://github.com/sterlett/sterlett/blob/0.x/.github/images/console-api-benchmark-list.gif)
+![console_api_benchmark_list_asciicast](.github/images/console-api-benchmark-list.gif)
+
+### Retrieving hardware prices
+
+Renders a table with hardware prices from the different sellers, which are used to suggest deals *.
+
+> \* — Actually, a [FallbackProvider](src/back/Hardware/Price/Provider/HardPrice/FallbackProvider.php) will be used for
+> price retrieving in the console environment; a normal run could take from 20 minutes to 2.5+ hours, due to some
+> sophisticated scraping techs that are executing asynchronously, in the background, and guarantee a certain level of
+> stability, while the microservice serves HTTP requests. See [BrowsingProvider](src/back/Hardware/Price/Provider/HardPrice/BrowsingProvider.php).
+
+```
+$ docker-compose run --rm --no-deps app bin/console price:list
+```
+
+Example:
+
+![console_api_price_list_asciicast](.github/images/console-api-price-list.gif)
 
 ## See also
 

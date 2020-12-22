@@ -20,7 +20,7 @@ use Symfony\Component\Console\DependencyInjection\AddConsoleCommandPass;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-// todo: remove after gen 3 algo implementation
+// todo: remove after gen 3 algo migration to the microservice scope
 define('PROJECT_DIR', realpath(__DIR__ . '/../'));
 define('PROJECT_CACHE_DIR', PROJECT_DIR . '/var/cache');
 

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "180ba48d8380edd4eb5bc98e8ff215d6",
+    "content-hash": "eec8447b1090b4651eec68c543d28f4b",
     "packages": [
         {
             "name": "clue/block-react",
@@ -190,16 +190,16 @@
         },
         {
             "name": "itnelo/reactphp-webdriver",
-            "version": "0.x-dev",
+            "version": "0.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/itnelo/reactphp-webdriver.git",
-                "reference": "e4e23fd8434eb0a1440ab9d61f0a67337fe0362e"
+                "reference": "4f4f347e8c7e690a6266f3cedc26a66988e9a8c1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/itnelo/reactphp-webdriver/zipball/e4e23fd8434eb0a1440ab9d61f0a67337fe0362e",
-                "reference": "e4e23fd8434eb0a1440ab9d61f0a67337fe0362e",
+                "url": "https://api.github.com/repos/itnelo/reactphp-webdriver/zipball/4f4f347e8c7e690a6266f3cedc26a66988e9a8c1",
+                "reference": "4f4f347e8c7e690a6266f3cedc26a66988e9a8c1",
                 "shasum": ""
             },
             "require": {
@@ -216,7 +216,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "0.x-dev"
+                    "dev-master": "0.2.x-dev"
                 }
             },
             "autoload": {
@@ -248,9 +248,9 @@
             ],
             "support": {
                 "issues": "https://github.com/itnelo/reactphp-webdriver/issues",
-                "source": "https://github.com/itnelo/reactphp-webdriver/tree/0.x"
+                "source": "https://github.com/itnelo/reactphp-webdriver/tree/0.2.1"
             },
-            "time": "2020-12-21T12:54:37+00:00"
+            "time": "2020-12-22T06:25:12+00:00"
         },
         {
             "name": "psr/container",
@@ -4871,9 +4871,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "itnelo/reactphp-webdriver": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
