@@ -24,8 +24,7 @@ use Sterlett\Browser\Context as BrowserContext;
 class SearchBarLocator
 {
     /**
-     * Returns a promise that resolves to a string, representing an internal WebDriver handle of the search input on
-     * the page
+     * Returns a promise that resolves to a string, representing an internal WebDriver handle of the search input
      *
      * @param BrowserContext $browserContext Holds browser state and a driver reference to perform actions
      *

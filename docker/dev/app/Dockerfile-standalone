@@ -65,7 +65,7 @@ RUN chown www-data:www-data /var/www ${DEPLOYMENT_PATH}
 USER www-data
 
 # dependencies
-RUN composer install --no-scripts --no-suggest --classmap-authoritative --ansi --no-interaction
+RUN composer install --no-scripts --classmap-authoritative --ansi --no-interaction
 
 # configurations
 RUN cp config/parameters.yml.dev.dist config/parameters.yml

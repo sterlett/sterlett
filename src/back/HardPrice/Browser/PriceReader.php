@@ -25,7 +25,7 @@ use Throwable;
 use Traversable;
 
 /**
- * Opens a page with item prices in the remove browser and reads it contents
+ * Opens a page with item prices in the remove browser and reads its contents
  */
 class PriceReader
 {

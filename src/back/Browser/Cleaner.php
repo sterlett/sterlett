@@ -16,8 +16,6 @@ declare(strict_types=1);
 namespace Sterlett\Browser;
 
 use React\Promise\PromiseInterface;
-use RuntimeException;
-use function React\Promise\reject;
 
 /**
  * Stops a remote browser session and cleans all related resources
@@ -25,12 +23,20 @@ use function React\Promise\reject;
 class Cleaner
 {
     /**
+     * Returns a promise that will be resolved when a remote WebDriver service stops browsing session and cleans
+     * related data
+     *
+     * @param Context $context Holds browser state and a driver reference to perform actions
+     *
      * @return PromiseInterface<null>
      */
     public function cleanBrowser(Context $context): PromiseInterface
     {
-        // todo (gen 3)
+        $webDriver         = $context->getWebDriver();
+        $sessionIdentifier = $context->getHubSession();
 
-        return reject(new RuntimeException('todo'));
+        $quitPromise = $webDriver->removeSession($sessionIdentifier);
+
+        return $quitPromise;
     }
 }

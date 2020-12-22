@@ -20,6 +20,9 @@ use Sterlett\Hardware\PriceInterface;
 
 /**
  * Data context for a single price record from the price provider
+ *
+ * todo: for php 8.0+ context - named constructor arguments are preferred, instead of fluent setters
+ *  https://wiki.php.net/rfc/named_params
  */
 final class Price implements PriceInterface
 {
@@ -30,12 +33,32 @@ final class Price implements PriceInterface
      */
     private ?string $hardwareName;
 
+    /**
+     * Seller (store) identifier, to which price record belongs to
+     *
+     * @var string|null
+     */
     private ?string $sellerIdentifier;
 
+    /**
+     * Price amount
+     *
+     * @var int|null
+     */
     private ?int $amount;
 
+    /**
+     * Price precision
+     *
+     * @var int|null
+     */
     private ?int $precision;
 
+    /**
+     * Currency label
+     *
+     * @var string|null
+     */
     private ?string $currency;
 
     /**
@@ -86,6 +109,13 @@ final class Price implements PriceInterface
         return $this->sellerIdentifier;
     }
 
+    /**
+     * Sets seller identifier
+     *
+     * @param string $sellerIdentifier Seller (store) identifier
+     *
+     * @return void
+     */
     public function setSellerIdentifier(string $sellerIdentifier): void
     {
         $this->sellerIdentifier = $sellerIdentifier;
@@ -103,6 +133,13 @@ final class Price implements PriceInterface
         return $this->amount;
     }
 
+    /**
+     * Sets price amount
+     *
+     * @param int $amount Price amount
+     *
+     * @return void
+     */
     public function setAmount(int $amount): void
     {
         $this->amount = $amount;
@@ -120,6 +157,13 @@ final class Price implements PriceInterface
         return $this->precision;
     }
 
+    /**
+     * Sets price precision
+     *
+     * @param int $precision Price precision
+     *
+     * @return void
+     */
     public function setPrecision(int $precision): void
     {
         $this->precision = $precision;
@@ -137,6 +181,13 @@ final class Price implements PriceInterface
         return $this->currency;
     }
 
+    /**
+     * Sets currency label
+     *
+     * @param string $currency Currency label
+     *
+     * @return void
+     */
     public function setCurrency(string $currency): void
     {
         $this->currency = $currency;

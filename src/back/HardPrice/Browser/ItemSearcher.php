@@ -73,8 +73,10 @@ class ItemSearcher
             ->then(
                 function (array $linkIdentifier) use ($browserContext) {
                     $webDriver           = $browserContext->getWebDriver();
-                    $divergenceDelayTime = (float) random_int(5, 10);
+                    $divergenceDelayTime = (float) random_int(3, 10);
 
+                    // note: an exception will not be bubbled to the parent context
+                    // (need an explicit rejection handler here, in case of more advanced logic).
                     return $webDriver
                         ->wait($divergenceDelayTime)
                         ->then(fn () => $linkIdentifier)
@@ -85,7 +87,7 @@ class ItemSearcher
 
         $pageAccessPromise = $linkIdentifierPromise
             ->then(fn (array $linkIdentifier) => $this->doPageTransition($browserContext, $linkIdentifier))
-            // ensure a page is fully loaded before we can proceed further.
+            // ensure a page is fully loaded before we can analyse its contents.
             ->then(fn () => $this->ensurePageLoaded($browserContext))
             ->then(
                 null,

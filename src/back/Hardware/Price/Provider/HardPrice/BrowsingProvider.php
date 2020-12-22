@@ -31,8 +31,6 @@ use Throwable;
  * Gen 3 algorithm for price data retrieving from the HardPrice website.
  *
  * Emulates user behavior while traversing site pages using browser API (XVFB mode).
- *
- * todo: complete gen 3 algo implementation
  */
 class BrowsingProvider implements ProviderInterface
 {
@@ -44,6 +42,8 @@ class BrowsingProvider implements ProviderInterface
     private BrowserOpener $browserOpener;
 
     /**
+     * Stops a remote browser session and cleans all related resources
+     *
      * @var BrowserCleaner
      */
     private BrowserCleaner $browserCleaner;
@@ -73,7 +73,7 @@ class BrowsingProvider implements ProviderInterface
      * BrowsingProvider constructor.
      *
      * @param BrowserOpener    $browserOpener    Opens a remote browser and starts a new browsing session
-     * @param BrowserCleaner   $browserCleaner
+     * @param BrowserCleaner   $browserCleaner   Stops a remote browser session and cleans all related resources
      * @param SiteNavigator    $siteNavigator    Opens HardPrice website in the remote browser tab
      * @param ItemReader       $itemReader       Opens a page with hardware items in the remove browser tab
      * @param PriceAccumulator $priceAccumulator Starts price accumulating routine for hardware items
@@ -243,6 +243,15 @@ class BrowsingProvider implements ProviderInterface
         );
     }
 
+    /**
+     * Runs when a collection of hardware prices is successfully accumulated and provider is about to finish its work
+     *
+     * @param Deferred       $retrievingDeferred Represents the price retrieving process itself
+     * @param BrowserContext $browserContext     Holds browser state and a driver reference to perform actions
+     * @param iterable       $hardwarePrices     A collection of hardware prices from the different stores
+     *
+     * @return void
+     */
     public function onPricesAccumulated(
         Deferred $retrievingDeferred,
         BrowserContext $browserContext,

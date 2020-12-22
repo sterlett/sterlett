@@ -49,7 +49,6 @@ services:
             -   name: 'price_provider'
                 providerId: 'HardPrice'
 
-    # todo: generation 3 crawling algorithm: browser emulator
     app.hardware.price.provider.hardprice.browsing_provider.cpu:
         class: Sterlett\Hardware\Price\Provider\HardPrice\BrowsingProvider
         arguments:

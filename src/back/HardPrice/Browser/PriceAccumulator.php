@@ -45,7 +45,7 @@ class PriceAccumulator
     private ItemSearcher $itemSearcher;
 
     /**
-     * Opens a page with item prices in the remove browser and reads it contents
+     * Opens a page with item prices in the remove browser and reads its contents
      *
      * @var PriceReader
      */
