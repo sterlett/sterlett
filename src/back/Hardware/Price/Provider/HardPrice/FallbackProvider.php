@@ -36,6 +36,7 @@ use Throwable;
  * accurate data, but will return a result almost immediately (prices are still relevant).
  *
  * @see ScrapingProvider
+ * @see BrowsingProvider
  */
 class FallbackProvider implements ProviderInterface
 {

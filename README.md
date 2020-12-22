@@ -1,15 +1,16 @@
 
 # Sterlett
 
-[![Build Status](https://travis-ci.com/sterlett/sterlett.svg?branch=master)](https://travis-ci.com/sterlett/sterlett)
-[![CodeFactor](https://www.codefactor.io/repository/github/sterlett/sterlett/badge)](https://www.codefactor.io/repository/github/sterlett/sterlett)
+[![Build Status](https://travis-ci.com/sterlett/sterlett.svg?branch=0.x)](https://travis-ci.com/sterlett/sterlett)
+[![CodeFactor](https://www.codefactor.io/repository/github/sterlett/sterlett/badge/0.x)](https://www.codefactor.io/repository/github/sterlett/sterlett/overview/0.x)
 
 - [Goals](#goals)
 - [Architecture](#architecture)
-- [Honeycomb](#honeycomb)
+- [Starting microservice](#starting-microservice)
 - [Console API](#console-api)
     - [Downloading a benchmark list](#downloading-a-benchmark-list)
     - [Retrieving hardware prices](#retrieving-hardware-prices)
+- [Honeycomb](#honeycomb)
 - [See also](#see-also)
 - [Changelog](#changelog)
 
@@ -31,20 +32,20 @@ Frontend: [Lighttpd](https://lighttpd.net) 1.4, JavaScript (ES5, ES6+),
 [Svelte](https://github.com/sveltejs/svelte) 3, [Spectre.css](https://github.com/picturepan2/spectre). \
 Gateway: [HAProxy](https://www.haproxy.com) 2.2.
 
-## Honeycomb
+## Starting microservice
 
-This one is currently at the prototyping stage :honeybee:.
+Clone the repository, then build a `.env` and other configuration files:
 
-:honey_pot: Backend base \
-:honey_pot: Frontend base \
-:honey_pot: Routing and load balancing capabilities \
-:honey_pot: CI ground \
-:honey_pot: Prices retrieving \
-:honey_pot: Benchmarks retrieving \
-:black_square_button: Data persistence \
-:black_square_button: Console API: CPU list \
-:black_square_button: Console API: Day/Week deals \
-:black_square_button: Microservice: CPU list browsing
+```
+$ git clone git@github.com:sterlett/sterlett.git sterlett && cd "$_"
+$ bin/configure-env dev
+```
+
+Run a compose project (or a stack):
+
+```
+$ docker-compose up -d
+```
 
 ## Console API
 
@@ -70,6 +71,8 @@ Renders a table with hardware prices from the different sellers, which are used 
 > sophisticated scraping techs that are executing asynchronously, in the background, and guarantee a certain level of
 > stability, while the microservice serves HTTP requests. See [BrowsingProvider](src/back/Hardware/Price/Provider/HardPrice/BrowsingProvider.php).
 
+Currently supported regions: RU/CIS.
+
 ```
 $ docker-compose run --rm --no-deps app bin/console price:list
 ```
@@ -77,6 +80,21 @@ $ docker-compose run --rm --no-deps app bin/console price:list
 Example:
 
 ![console_api_price_list_asciicast](.github/images/console-api-price-list.gif)
+
+## Honeycomb
+
+This one is currently at the prototyping stage :honeybee:.
+
+:honey_pot: Backend base \
+:honey_pot: Frontend base \
+:honey_pot: Routing and load balancing capabilities \
+:honey_pot: CI ground \
+:honey_pot: Prices retrieving \
+:honey_pot: Benchmarks retrieving \
+:black_square_button: Data persistence \
+:black_square_button: Console API: CPU list \
+:black_square_button: Console API: Day/Week deals \
+:black_square_button: Microservice: CPU list browsing
 
 ## See also
 
