@@ -29,7 +29,7 @@ RUN mv /opt/selenium/chromedriver-87.0.4280.20 /opt/selenium/chromedriver-87.0.4
 
 # overriding launch arguments for chrome executable
 COPY docker/dev/selenium-node-chrome/wrap_chrome_binary /opt/bin/wrap_chrome_binary-overrides
-RUN chmod +x /opt/bin/wrap_chrome_binary-overrides && \
-    /opt/bin/wrap_chrome_binary-overrides
+RUN chmod +x /opt/bin/wrap_chrome_binary-overrides
+RUN /opt/bin/wrap_chrome_binary-overrides
 
 USER seluser:1201

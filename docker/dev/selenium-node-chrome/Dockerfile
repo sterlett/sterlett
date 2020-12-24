@@ -30,8 +30,9 @@ RUN mv /opt/selenium/chromedriver-87.0.4280.20 /opt/selenium/chromedriver-87.0.4
 
 # overriding launch arguments for chrome executable
 COPY wrap_chrome_binary /opt/bin/wrap_chrome_binary-overrides
-RUN chmod +x /opt/bin/wrap_chrome_binary-overrides && \
-    /opt/bin/wrap_chrome_binary-overrides
+RUN chmod +x /opt/bin/wrap_chrome_binary-overrides
+# as a separate layer, to prevent potentially possible ETXTBSY errors.
+RUN /opt/bin/wrap_chrome_binary-overrides
 
 RUN usermod -u ${HOST_UID} seluser
 

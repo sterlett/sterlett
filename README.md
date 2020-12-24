@@ -6,7 +6,8 @@
 
 - [Goals](#goals)
 - [Architecture](#architecture)
-- [Starting microservice](#starting-microservice)
+- [Installation](#installation)
+    - [Docker Compose](#docker-compose)
 - [Console API](#console-api)
     - [Downloading a benchmark list](#downloading-a-benchmark-list)
     - [Retrieving hardware prices](#retrieving-hardware-prices)
@@ -24,7 +25,7 @@ and pricing fraud.
 ## Architecture
 
 The microservice represents a set of backend and frontend containers behind a gateway
-for routing and load balancing.
+for routing and load balancing ([stack](https://github.com/itnelo/reactphp-foundation#docker-swarm)).
 
 Backend: PHP 7.4+, [ReactPHP](https://github.com/reactphp/reactphp), 
 [Symfony](https://github.com/symfony/symfony) 5 components. \
@@ -32,27 +33,51 @@ Frontend: [Lighttpd](https://lighttpd.net) 1.4, JavaScript (ES5, ES6+),
 [Svelte](https://github.com/sveltejs/svelte) 3, [Spectre.css](https://github.com/picturepan2/spectre). \
 Gateway: [HAProxy](https://www.haproxy.com) 2.2.
 
-## Starting microservice
+## Installation
+
+### Docker Compose
 
 Clone the repository, then build a `.env` and other configuration files:
 
 ```
 $ git clone git@github.com:sterlett/sterlett.git sterlett && cd "$_"
 $ bin/configure-env dev
+$ cp config/parameters.yml.dev.dist config/parameters.yml
 ```
 
-The microservice scope requires an HTTP/HTTPS proxy for some websites, specify a valid host and port in the `.env`
+The microservice scope requires an HTTP/HTTPS proxy for some websites, specify a valid host and port in the `.env` file
 you have just created:
 
 ```
-SELENIUM_PROXY_HOST
-SELENIUM_PROXY_PORT
+$ sed -i -E "s/(SELENIUM_PROXY_HOST)=_/\1=0.0.0.0/" .env      # replace 0.0.0.0
+$ sed -i -E "s/(SELENIUM_PROXY_PORT)=_/\1=80/" .env           # replace 80
 ```
 
-Now you can run a compose project (or a stack):
+Build images:
 
 ```
-$ docker-compose up -d
+$ docker-compose build --no-cache --force-rm --parallel
+```
+
+In the `dev` environment you need to manually install back/front dependencies for the project (however, there are also
+`Dockerfile-standalone` files, which you can use to build isolated and self-sufficient containers):
+
+```
+$ docker-compose run --rm --no-deps app composer install
+$ docker-compose run --rm --no-deps app npm clean-install --no-optional
+```
+
+To compile frontend assets:
+
+```
+$ docker-compose run --rm --no-deps app npm run dev
+```
+
+Now you can launch a microservice at [http://localhost:6638](http://localhost:6638/stats) (or interact with
+command-line interface, see below):
+
+```
+$ docker-compose start
 ```
 
 ## Console API

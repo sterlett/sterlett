@@ -72,7 +72,6 @@ before_script:
     - |
         docker-compose run --rm app composer install \
             --no-scripts \
-            --no-suggest \
             --classmap-authoritative \
             --ansi \
             --no-interaction

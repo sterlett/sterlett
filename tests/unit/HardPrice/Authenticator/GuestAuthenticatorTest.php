@@ -150,5 +150,4 @@ final class GuestAuthenticatorTest extends TestCase
             'CSRF Token is not properly extracted.'
         );
     }
-    // todo: test for session memento
 }
