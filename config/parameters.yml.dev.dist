@@ -19,7 +19,7 @@ parameters:
     # Selenium Grid will be used by gen 3 (or "T-1000") scraping algorithms (for some websites with advanced bot
     # protection), as they emulate human-like behavior in the real browser instance (Google Chrome with XVFB server)
     # https://selenium.dev/documentation/en/grid
-    app.selenium.hub.host: 'selenium-hub'
+    app.selenium.hub.host: '%env(string:SELENIUM_HUB_HOST)%'
     app.selenium.hub.port: '%env(int:SELENIUM_HUB_PORT)%'
 
     # Benchmarks
@@ -31,7 +31,7 @@ parameters:
     hardprice.authentication.base_uri: 'https://hardprice.ru'
     hardprice.cpu.download_uri: 'https://hardprice.ru/media/data/c/cpu.json'
     hardprice.price_list_uri: 'https://hardprice.ru/api/product_prices'
-    # You can speed up price collecting routine, but it may lead to IP ban due to aggressive rate limiting
+    # You can speed up price collecting routine, but it may lead to IP ban due to aggressive rate limiting / tarpitting
     # Estimated timings for price retrieving (gen 2, cpu cat., proxy enabled; w/o authentication actions & delays):
     # 1-1: 7 min            2-1: 6 min 39 sec
     # 8-1: 6 min 16 sec     8-2: 3 min 7 sec

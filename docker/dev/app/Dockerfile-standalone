@@ -30,7 +30,7 @@ USER root
 
 # system
 RUN apt-get update && apt-get install -qy --no-install-recommends \
-        # composer
+        # composer, to manage dependencies from composer.json
         unzip
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -40,10 +40,6 @@ RUN ln -snf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime && \
     echo ${TIMEZONE} > /etc/timezone && \
     printf '[PHP]\ndate.timezone = "%s"\n', ${TIMEZONE} > /usr/local/etc/php/conf.d/tzone.ini && \
     date
-
-# xdebug
-RUN pecl install xdebug-beta && docker-php-ext-enable xdebug
-COPY docker/dev/app/docker-php-ext-xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 # pcntl
 RUN docker-php-ext-install pcntl

@@ -41,7 +41,15 @@ $ git clone git@github.com:sterlett/sterlett.git sterlett && cd "$_"
 $ bin/configure-env dev
 ```
 
-Run a compose project (or a stack):
+The microservice scope requires an HTTP/HTTPS proxy for some websites, specify a valid host and port in the `.env`
+you have just created:
+
+```
+SELENIUM_PROXY_HOST
+SELENIUM_PROXY_PORT
+```
+
+Now you can run a compose project (or a stack):
 
 ```
 $ docker-compose up -d
@@ -83,7 +91,7 @@ Example:
 
 ## Honeycomb
 
-This one is currently at the prototyping stage :honeybee:.
+This one is currently at the development stage :honeybee:.
 
 :honey_pot: Backend base \
 :honey_pot: Frontend base \
@@ -101,8 +109,8 @@ This one is currently at the prototyping stage :honeybee:.
 - [itnelo/reactphp-foundation](https://github.com/itnelo/reactphp-foundation) — A fresh skeleton
 for building asynchronous microservices using PHP 7.4+, ReactPHP and Symfony 5 components,
 with a deployment preset for scaling and load balancing.
-- [itnelo/reactphp-webdriver](https://github.com/itnelo/reactphp-webdriver) — **Sterlett** uses the ReactPHP WebDriver, a
-fast and non-blocking PHP client for the [Selenium](https://www.selenium.dev) browser automation engine,
+- [itnelo/reactphp-webdriver](https://github.com/itnelo/reactphp-webdriver) — **Sterlett** uses the ReactPHP WebDriver,
+a fast and non-blocking PHP client for [Selenium](https://www.selenium.dev) browser automation engine,
 to acquire data from some websites.
 
 ## Changelog

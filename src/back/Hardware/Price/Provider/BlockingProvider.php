@@ -54,7 +54,7 @@ class BlockingProvider implements BlockingProviderInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getPrices(): iterable
     {

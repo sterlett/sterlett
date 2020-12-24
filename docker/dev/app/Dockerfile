@@ -30,9 +30,7 @@ USER root
 # system
 RUN apt-get update && apt-get install -qy --no-install-recommends \
         # composer, to manage dependencies from composer.json
-        unzip \
-        # for ext-zip
-        libzip-dev
+        unzip
 
 # timezone
 RUN ln -snf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime && \
@@ -43,9 +41,6 @@ RUN ln -snf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime && \
 # xdebug
 RUN pecl install xdebug-beta && docker-php-ext-enable xdebug
 COPY docker-php-ext-xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-
-# zip (for php-webdriver/webdriver)
-RUN docker-php-ext-install zip
 
 # pcntl
 RUN docker-php-ext-install pcntl
