@@ -72,8 +72,8 @@ for varName in ${!envMap[@]}; do
     printf "%s=%s\n" ${varName} ${envMap["${varName}"]} >> .env
 done
 
-sed -i -E "s/(HOST_UID)=.*/\1=`id -u`/" .env
-sed -i -E "s|(TIMEZONE)=.*|\1=`cat /etc/timezone`|" .env
+sed -i -E "s/(HOST_UID)=.*/\1=$(id -u)/" .env
+sed -i -E "s|(TIMEZONE)=.*|\1=$(cat /etc/timezone)|" .env
 
 cat .env
 
