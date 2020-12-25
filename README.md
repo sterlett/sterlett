@@ -1,8 +1,8 @@
 
 # Sterlett
 
-[![Build Status](https://travis-ci.com/sterlett/sterlett.svg?branch=0.x)](https://travis-ci.com/sterlett/sterlett)
-[![CodeFactor](https://www.codefactor.io/repository/github/sterlett/sterlett/badge/0.x)](https://www.codefactor.io/repository/github/sterlett/sterlett/overview/0.x)
+[![Build Status](https://travis-ci.com/sterlett/sterlett.svg?branch=master)](https://travis-ci.com/sterlett/sterlett)
+[![CodeFactor](https://www.codefactor.io/repository/github/sterlett/sterlett/badge)](https://www.codefactor.io/repository/github/sterlett/sterlett)
 
 - [Goals](#goals)
 - [Architecture](#architecture)
