@@ -1,0 +1,10 @@
+
+services:
+    app.hardprice.response.reducer:
+        class: Sterlett\HardPrice\Response\Reducer
+
+    # with progress tracker for console environment
+    app.hardprice.response.reducer.trackable.console:
+        class: Sterlett\HardPrice\Response\Reducer
+        arguments:
+            - '@app.progress.tracker.hardprice.console'

@@ -1,0 +1,13 @@
+
+services:
+    app.selenium.webdriver:
+        alias: 'app.bridge.itnelo.react.webdriver.selenium_hub_driver'
+
+    app.bridge.itnelo.react.webdriver.selenium_hub_driver:
+        class: Itnelo\React\WebDriver\SeleniumHubDriver
+        factory: ['Itnelo\React\WebDriver\WebDriverFactory', create]
+        arguments:
+            - '@app.event_loop'
+            -   hub:
+                    host: '%app.selenium.hub.host%'
+                    port: '%app.selenium.hub.port%'

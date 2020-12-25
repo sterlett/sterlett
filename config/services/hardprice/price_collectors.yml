@@ -1,0 +1,12 @@
+
+services:
+    app.hardprice.price.collector.merging_collector:
+        class: Sterlett\HardPrice\Price\Collector\MergingCollector
+        arguments:
+            - '@app.hardprice.price.collector.sequential_collector'
+
+    app.hardprice.price.collector.sequential_collector:
+        class: Sterlett\HardPrice\Price\Collector\SequentialCollector
+        arguments:
+            - '@app.hardprice.price.parser'
+            - '@app.hardprice.item.storage.cpu'

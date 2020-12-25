@@ -20,6 +20,9 @@ use Sterlett\Bridge\Symfony\Component\DependencyInjection\Configurator\YamlConfi
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+define('PROJECT_DIR', realpath(__DIR__ . '/../'));
+define('PROJECT_CACHE_DIR', PROJECT_DIR . '/var/cache');
+
 $parameterFilePath = __DIR__ . '/../config/parameters.yml';
 
 if (!file_exists($parameterFilePath)) {
@@ -32,7 +35,7 @@ $containerConfigurator->setParameterFilePath($parameterFilePath);
 $containerConfigurator->setDefinitionFilePaths(
     [
         __DIR__ . '/../config/services.yml',
-        __DIR__ . '/../config/services/loggers.yml',
+        __DIR__ . '/../config/services/async/loggers.yml',
         __DIR__ . '/../config/services/async/event_loop.yml',
         __DIR__ . '/../config/services/async/server.yml',
         __DIR__ . '/../config/services/async/streams.yml',
@@ -46,7 +49,6 @@ $containerConfigurator->setDefinitionFilePaths(
 $containerConfigurator->setDefinitionDefaultsFilePath(__DIR__ . '/../config/services.yml');
 
 $container = $containerConfigurator->getContainerBuilder();
-
 $container->addCompilerPass(new RegisterEvenementListenersPass());
 
 // we are starting an async web server with some concurrent code

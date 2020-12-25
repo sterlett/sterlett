@@ -76,6 +76,70 @@ services:
                     cpus: '0.25'
                     memory: 64M
 
+    selenium-hub:
+        image: 'selenium/hub@${SELENIUM_HUB_IMAGE_DIGEST}'
+        networks:
+            - back_overlay
+        environment:
+            GRID_HUB_PORT: ${SELENIUM_HUB_PORT}
+            GRID_MAX_SESSION: 1
+            # do not release inactive browser nodes (focusing on session persistence)
+            GRID_TIMEOUT: 0
+            # do not wait for new sessions, we have to use a persistent one (maintaining a white fingerprint)
+            GRID_NEW_SESSION_WAIT_TIMEOUT: 5
+        deploy:
+            mode: replicated
+            replicas: 1
+            placement:
+                constraints:
+                    - "node.role == worker"
+            restart_policy:
+                condition: on-failure
+                delay: 3s
+                max_attempts: 3
+                window: 30s
+            resources:
+                limits:
+                    cpus: '0.5'
+                    memory: 384M
+                reservations:
+                    cpus: '0.25'
+                    memory: 192M
+
+    selenium-node-chrome:
+        image: '${SNC_STACK_IMAGE_NAME}:${SNC_STACK_IMAGE_VERSION}'
+        networks:
+            - back_overlay
+        environment:
+            HUB_HOST: ${SELENIUM_HUB_HOST}
+            NODE_MAX_INSTANCES: 1
+            NODE_MAX_SESSION: 1
+            # virtual display resolution (framebuffer mode only)
+            SCREEN_WIDTH: 1706
+            SCREEN_HEIGHT: 960
+        # using a unique hostname, which will be assigned for the replica, to keep hub-node communications
+        # within a single address space (overlay network); hub sends heartbeat signals and commands to its
+        # nodes and, therefore, we need to properly resolve IPs in both directions.
+        entrypoint: bash -c 'SE_OPTS="-host $${HOSTNAME}" /opt/bin/entry_point.sh'
+        deploy:
+            mode: replicated
+            replicas: 1
+            placement:
+                constraints:
+                    - "node.role == worker"
+            restart_policy:
+                condition: on-failure
+                delay: 3s
+                max_attempts: 3
+                window: 30s
+            resources:
+                limits:
+                    cpus: '0.5'
+                    memory: 384M
+                reservations:
+                    cpus: '0.25'
+                    memory: 192M
+
     haproxy:
         image: 'haproxy:${HAPROXY_VERSION}-alpine'
         networks:

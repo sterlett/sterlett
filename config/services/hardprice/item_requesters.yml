@@ -1,0 +1,7 @@
+
+services:
+    app.hardprice.item.requester.cpu:
+        class: Sterlett\HardPrice\Item\Requester
+        arguments:
+            - '@app.client.hardprice'
+            - '%hardprice.cpu.download_uri%'

@@ -1,0 +1,10 @@
+
+services:
+    app.browser.opener.hardprice:
+        class: Sterlett\Browser\Opener
+        arguments:
+            - '@app.thread.hardprice_browsing'
+            - '@app.selenium.webdriver'
+
+    app.browser.cleaner:
+        class: Sterlett\Browser\Cleaner

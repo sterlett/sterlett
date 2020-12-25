@@ -1,0 +1,4 @@
+
+services:
+    app.hardprice.browser.divergent:
+        class: Sterlett\HardPrice\Browser\Divergent

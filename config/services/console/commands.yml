@@ -1,0 +1,21 @@
+
+services:
+    app.console.command.hardware.benchmark.list_command.cpu:
+        class: Sterlett\Console\Command\Hardware\Benchmark\ListCommand
+        arguments:
+            - !tagged_iterator
+                tag: 'benchmark_provider.synchronous'
+                index_by: 'providerId'
+            - 'Prints a list with live benchmark values for the CPU hardware category'
+        tags:
+            -   name: 'console.command'
+                command: 'benchmark:list'
+
+    app.console.command.hardware.price.list_command.cpu:
+        class: Sterlett\Console\Command\Hardware\Price\ListCommand
+        arguments:
+            - '@app.hardware.price.provider.hardprice_provider.cpu.synchronous'
+            - 'Prints a list with live prices for the CPU hardware category'
+        tags:
+            -   name: 'console.command'
+                command: 'price:list'

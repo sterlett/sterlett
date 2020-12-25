@@ -1,0 +1,9 @@
+
+services:
+    app.hardprice.browser.item_searcher:
+        class: Sterlett\HardPrice\Browser\ItemSearcher
+        arguments:
+            - '@app.hardprice.browser.item_searcher.search_bar_locator'
+
+    app.hardprice.browser.item_searcher.search_bar_locator:
+        class: Sterlett\HardPrice\Browser\ItemSearcher\SearchBarLocator

@@ -1,0 +1,89 @@
+#!/usr/bin/env php
+<?php
+
+/*
+ * This file is part of the Sterlett project <https://github.com/sterlett/sterlett>.
+ *
+ * (c) 2020 Pavel Petrov <itnelo@gmail.com>.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * @license https://opensource.org/licenses/GPL-3.0 GPL-3.0
+ */
+
+declare(strict_types=1);
+
+use Sterlett\Bridge\Symfony\Component\DependencyInjection\Configurator\YamlConfigurator;
+use Sterlett\Console\Application as ConsoleApplication;
+use Symfony\Component\Console\DependencyInjection\AddConsoleCommandPass;
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+// todo: remove after gen 3 algo migration to the microservice scope
+define('PROJECT_DIR', realpath(__DIR__ . '/../'));
+define('PROJECT_CACHE_DIR', PROJECT_DIR . '/var/cache');
+
+$parameterFilePath = __DIR__ . '/../config/parameters.yml';
+
+if (!file_exists($parameterFilePath)) {
+    throw new RuntimeException("File 'parameters.yml' is missing. Please, put it into the 'config' directory.");
+}
+
+$containerConfigurator = new YamlConfigurator();
+$containerConfigurator->setEnvironmentFilePath(__DIR__ . '/../.env');
+$containerConfigurator->setParameterFilePath($parameterFilePath);
+$containerConfigurator->setDefinitionFilePaths(
+    [
+        __DIR__ . '/../config/services.yml',
+        __DIR__ . '/../config/services/loggers.yml',
+        __DIR__ . '/../config/services/progress_trackers.yml',
+        __DIR__ . '/../config/services/async/event_loop.yml',
+        __DIR__ . '/../config/services/async/clients.yml',
+        __DIR__ . '/../config/services/async/threads.yml',
+        __DIR__ . '/../config/services/selenium_webdriver.yml',
+        __DIR__ . '/../config/services/browser.yml',
+        // PassMark
+        __DIR__ . '/../config/services/passmark/parsers.yml',
+        // HardPrice
+        __DIR__ . '/../config/services/hardprice/csrf_token_parser.yml',
+        __DIR__ . '/../config/services/hardprice/authenticator.yml',
+        __DIR__ . '/../config/services/hardprice/item_requesters.yml',
+        __DIR__ . '/../config/services/hardprice/item_parser.yml',
+        __DIR__ . '/../config/services/hardprice/item_storages.yml',
+        __DIR__ . '/../config/services/hardprice/item_loaders.yml',
+        __DIR__ . '/../config/services/hardprice/price_requester.yml',
+        __DIR__ . '/../config/services/hardprice/price_extractor.yml',
+        __DIR__ . '/../config/services/hardprice/response_reducers.yml',
+        __DIR__ . '/../config/services/hardprice/store_mapper.yml',
+        __DIR__ . '/../config/services/hardprice/price_parsers.yml',
+        __DIR__ . '/../config/services/hardprice/price_collectors.yml',
+        // HardPrice (gen 3)
+        __DIR__ . '/../config/services/hardprice/browser/divergent.yml',
+        __DIR__ . '/../config/services/hardprice/browser/site_navigator.yml',
+        __DIR__ . '/../config/services/hardprice/browser/item_reader.yml',
+        __DIR__ . '/../config/services/hardprice/browser/item_searcher.yml',
+        __DIR__ . '/../config/services/hardprice/browser/price_reader.yml',
+        __DIR__ . '/../config/services/hardprice/browser/price_accumulator.yml',
+        // providers
+        __DIR__ . '/../config/services/hardware/benchmark_providers.yml',
+        __DIR__ . '/../config/services/hardware/price_providers.yml',
+        // console
+        __DIR__ . '/../config/services/console/commands.yml',
+    ]
+);
+$containerConfigurator->setDefinitionDefaultsFilePath(__DIR__ . '/../config/services.yml');
+
+$container = $containerConfigurator->getContainerBuilder();
+$container->addCompilerPass(new AddConsoleCommandPass());
+
+$container->compile(true);
+
+$applicationName    = $container->getParameter('app.console.name');
+$applicationVersion = $container->getParameter('app.console.version');
+$commandLoader      = $container->get('console.command_loader');
+
+$application = new ConsoleApplication($applicationName, $applicationVersion);
+$application->setCommandLoader($commandLoader);
+
+$application->run();

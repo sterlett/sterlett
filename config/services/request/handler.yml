@@ -2,7 +2,6 @@
 services:
     app.request.handler:
         alias: 'app.request.handler.hardware_mark_handler'
-        public: true
 
     app.request.handler.hardware_mark_handler:
         class: Sterlett\Request\Handler\HardwareMarkHandler

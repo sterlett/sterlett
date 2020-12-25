@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses>.
 
+# Don't use it directly, run bin/configure-env to generate docker-compose.yml based on this template.
+
 version: '3.8'
 
 services:
@@ -26,6 +28,8 @@ services:
                 DEPLOYMENT_PATH: ${DEPLOYMENT_PATH}
                 PHP_VERSION: ${PHP_VERSION}
                 NODEJS_VERSION: ${NODEJS_VERSION}
+        depends_on:
+            - selenium-hub
         networks:
             - back_bridge
         ports:
@@ -61,9 +65,48 @@ services:
         volumes:
             - ./docker/${APP_ENV}/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
 
+    selenium-hub:
+        image: 'selenium/hub@${SELENIUM_HUB_IMAGE_DIGEST}'
+        depends_on:
+            - selenium-node-chrome
+        networks:
+            - back_bridge
+        environment:
+            GRID_HUB_PORT: ${SELENIUM_HUB_PORT}
+            GRID_MAX_SESSION: 1
+            # do not release inactive browser nodes (focusing on session persistence)
+            GRID_TIMEOUT: 0
+            # do not wait for new sessions, we have to use a persistent one (maintaining a white fingerprint)
+            GRID_NEW_SESSION_WAIT_TIMEOUT: 5
+
+    selenium-node-chrome:
+        build:
+            context: ./docker/${APP_ENV}/selenium-node-chrome
+            args:
+                HOST_UID: ${HOST_UID}
+                SELENIUM_NODE_CHROME_IMAGE_DIGEST: ${SELENIUM_NODE_CHROME_IMAGE_DIGEST}
+                CHROME_ARG_PROXY_SERVER: "${SELENIUM_PROXY_HOST}:${SELENIUM_PROXY_PORT}"
+        networks:
+            - back_bridge
+        environment:
+            HUB_HOST: selenium-hub
+            NODE_MAX_INSTANCES: 1
+            NODE_MAX_SESSION: 1
+            # virtual display resolution (framebuffer mode only)
+            SCREEN_WIDTH: 1706
+            SCREEN_HEIGHT: 960
+            # disable display server (headless mode; additional args are required, see wrap_chrome_binary)
+            # START_XVFB: 0
+            # JAVA_OPTS: "-Dwebdriver.chrome.verboseLogging=true"
+        volumes:
+            # profile directory (to persist cookies and other session-related assets)
+            - ${SOURCE_PATH}/var/cache/selenium-node-chrome/profiles:${SELENIUM_NODE_CHROME_PROFILE_DIR}
+
 networks:
-    # Debugging example:
-    # docker-compose run -p 6636:6636 --rm app -d xdebug.remote_autostart=1 -d xdebug.remote_host=172.120.0.1 bin/app
+    # Debugging example (Xdebug < 3.0.0):
+    # docker-compose run -p 6637:6637 --rm app -d xdebug.remote_autostart=1 -d xdebug.remote_host=172.120.0.1 bin/app
+    # Debugging example (Xdebug >= 3.0.0):
+    # docker-compose run -p 6637:6637 --rm app -d xdebug.start_with_request=1 -d xdebug.client_host=172.120.0.1 bin/app
     # you can also try more convenient "host.docker.internal" for some systems.
     back_bridge:
         driver: bridge

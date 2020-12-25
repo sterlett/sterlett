@@ -1,0 +1,24 @@
+
+services:
+    app.thread.hardprice_scraping:
+        alias: 'app.bridge.react.event_loop.time_issuer.sequential_time_issuer.hardprice_scraping'
+
+    app.thread.hardprice_browsing:
+        alias: 'app.bridge.react.event_loop.time_issuer.sequential_time_issuer.hardprice_browsing'
+
+    app.bridge.react.event_loop.time_issuer.sequential_time_issuer.hardprice_scraping:
+        class: Sterlett\Bridge\React\EventLoop\TimeIssuer\SequentialTimeIssuer
+        arguments:
+            - '@app.event_loop'
+            -   actions_per_second: '%hardprice.requests_per_second%'
+                concurrent_actions: '%hardprice.concurrent_requests%'
+                actions_delay_random: '%hardprice.requests_random_delay%'
+                is_stack: true
+
+    app.bridge.react.event_loop.time_issuer.sequential_time_issuer.hardprice_browsing:
+        class: Sterlett\Bridge\React\EventLoop\TimeIssuer\SequentialTimeIssuer
+        arguments:
+            - '@app.event_loop'
+            -   actions_per_second: '%hardprice.requests_per_second%'
+                concurrent_actions: '%hardprice.concurrent_requests%'
+                actions_delay_random: '%hardprice.requests_random_delay%'

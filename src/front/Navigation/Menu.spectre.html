@@ -6,11 +6,13 @@
         <li class="divider" data-content={$format('HARDWARE')} />
 
         {#each routes as route}
-        <li class="menu-item">
-            <Link to={route.url} getProps={onLinkUpdate}>
-                {route.title}
-            </Link>
-        </li>
+            {#if route.url?.length > 0}
+            <li class="menu-item">
+                <Link to={route.url} getProps={onLinkUpdate}>
+                    {route.title}
+                </Link>
+            </li>
+            {/if}
         {/each}
     </ul>
 </Router>

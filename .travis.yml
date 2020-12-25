@@ -2,7 +2,7 @@ os:
     - linux
 arch:
     - amd64
-dist: bionic
+dist: focal
 
 language: shell
 
@@ -17,7 +17,7 @@ branches:
 
 env:
     global:
-        - DOCKER_COMPOSE_VERSION=1.26.2
+        - DOCKER_COMPOSE_VERSION=1.27.4
         - DOCKER_COMPOSE_URI_PATTERN=https://github.com/docker/compose/releases/download/%s/docker-compose-%s-%s
 
 before_install:
@@ -32,8 +32,18 @@ before_install:
 before_script:
     - ls -lth
     # configuring environment
-    - bin/configure-env dev
+    - |
+        bin/configure-env dev && \
+        sed -i -E "s/(SELENIUM_PROXY_HOST)=_/\1=0.0.0.0/" .env && \
+        sed -i -E "s/(SELENIUM_PROXY_PORT)=_/\1=80/" .env
     # building services
+    - |
+        docker-compose --env-file .env --file docker-compose.yml build \
+            --build-arg "HOST_UID=$(id -u)" \
+            --build-arg "CHROME_ARG_PROXY_SERVER=" \
+            --force-rm \
+            --no-cache \
+            selenium-node-chrome
     - docker-compose --env-file .env --file docker-compose.yml build --force-rm --no-cache haproxy lighttpd
     - |
         docker-compose --env-file .env --file docker-compose.yml build \
@@ -62,7 +72,6 @@ before_script:
     - |
         docker-compose run --rm app composer install \
             --no-scripts \
-            --no-suggest \
             --classmap-authoritative \
             --ansi \
             --no-interaction
@@ -79,21 +88,31 @@ before_script:
 script:
     - docker-compose up --no-recreate --no-build --detach
     - docker-compose ps && sleep 5
-    # checking load balancer is running
-    - |
-        if [ -z $(docker ps -q --no-trunc | grep $(docker-compose ps -q haproxy)) ]; then
-            docker-compose logs haproxy
-            exit 1
-        fi
     # checking frontend is running
     - |
         if [ -z $(docker ps -q --no-trunc | grep $(docker-compose ps -q lighttpd)) ]; then
             docker-compose logs lighttpd
-            exit 2
+            exit 1
         fi
     # checking backend is running
     - |
+        if [ -z $(docker ps -q --no-trunc | grep $(docker-compose ps -q selenium-hub)) ]; then
+            docker-compose logs selenium-hub
+            exit 2
+        fi
+    - |
+        if [ -z $(docker ps -q --no-trunc | grep $(docker-compose ps -q selenium-node-chrome)) ]; then
+            docker-compose logs selenium-node-chrome
+            exit 3
+        fi
+    - |
         if [ -z $(docker ps -q --no-trunc | grep $(docker-compose ps -q app)) ]; then
             docker-compose logs app
-            exit 3
+            exit 4
+        fi
+    # checking load balancer is running
+    - |
+        if [ -z $(docker ps -q --no-trunc | grep $(docker-compose ps -q haproxy)) ]; then
+            docker-compose logs haproxy
+            exit 5
         fi

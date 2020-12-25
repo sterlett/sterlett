@@ -1,0 +1,7 @@
+
+services:
+    app.hardprice.item.storage.cpu:
+        alias: 'app.hardprice.item.storage.ds_map_storage.cpu'
+
+    app.hardprice.item.storage.ds_map_storage.cpu:
+        class: Sterlett\HardPrice\Item\Storage\DsMapStorage

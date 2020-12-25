@@ -8,13 +8,14 @@ services:
         class: Sterlett\Bridge\React\Http\Server
         arguments:
             - '@app.log.logger.stdout'
-            - '@react.http.streaming_server'
+            - '@react.http.server'
             - '@react.socket.tcp_server'
 
     # react
-    react.http.streaming_server:
-        class: React\Http\StreamingServer
+    react.http.server:
+        class: React\Http\Server
         arguments:
+            - '@app.event_loop'
             - '@app.request.handler'
 
     react.socket.tcp_server:

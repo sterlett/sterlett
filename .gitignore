@@ -5,8 +5,19 @@ config/parameters.yml
 node_modules/
 vendor/
 
-/public/build/*
-!/public/build/.gitkeep
+tests/_output/*
+!tests/_output/.gitkeep
+
+var/cache/*
+!var/cache/.gitkeep
+!var/cache/selenium-node-chrome
+var/cache/selenium-node-chrome/*
+!var/cache/selenium-node-chrome/profiles
+var/cache/selenium-node-chrome/profiles/*
+!var/cache/selenium-node-chrome/profiles/.gitkeep
+
+public/build/*
+!public/build/.gitkeep
 
 .env
 docker-compose.yml

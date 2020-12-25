@@ -20,7 +20,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher as BaseEventDispatcher;
 /**
  * Dispatches application-level events using future tick queue of the ReactPHP event loop.
  *
- * Uses a dedicated service to schedule listener callbacks as loop's ticks. There are few implementations of tick
+ * Uses a dedicated service to schedule listener callbacks as loop's ticks. There are a few implementations of tick
  * scheduler allowing to achieve this goal, one simply registers all listener calls as one-off set of callbacks for the
  * future tick, one by one in the order they are subscribed to the event (straightforward way; event propagation
  * behavior is handled within each callback separately). The other one implementation registers each listener call as

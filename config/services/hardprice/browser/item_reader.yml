@@ -1,0 +1,6 @@
+
+services:
+    app.hardprice.browser.item_reader:
+        class: Sterlett\HardPrice\Browser\ItemReader
+        arguments:
+            - '@app.hardprice.item.parser'

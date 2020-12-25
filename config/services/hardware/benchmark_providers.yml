@@ -1,0 +1,30 @@
+
+services:
+    # passmark
+    app.hardware.benchmark.provider.passmark_provider.cpu.console.synchronous:
+        class: Sterlett\Hardware\Benchmark\Provider\BlockingProvider
+        arguments:
+            - '@app.hardware.benchmark.provider.passmark_provider.cpu.console'
+            - '@app.event_loop'
+        tags:
+            -   name: 'benchmark_provider.synchronous'
+                providerId: 'PassMark'
+
+    # mixin with tracking behavior
+    app.hardware.benchmark.provider.passmark_provider.cpu.console:
+        class: Sterlett\Hardware\Benchmark\Provider\PassMarkProvider
+        arguments:
+            - '@app.client.passmark_cpu.console'
+            - '@app.passmark.parser.cpu'
+            - '%passmark.cpu.download_uri%'
+
+    # async
+    app.hardware.benchmark.provider.passmark_provider.cpu:
+        class: Sterlett\Hardware\Benchmark\Provider\PassMarkProvider
+        arguments:
+            - '@app.client'
+            - '@app.passmark.parser.cpu'
+            - '%passmark.cpu.download_uri%'
+        tags:
+            -   name: 'benchmark_provider'
+                providerId: 'PassMark'

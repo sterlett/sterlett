@@ -1,0 +1,7 @@
+
+services:
+    app.hardprice.price.requester:
+        class: Sterlett\HardPrice\Price\Requester
+        arguments:
+            - '@app.client.hardprice'
+            - '%hardprice.price_list_uri%'

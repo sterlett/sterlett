@@ -1,0 +1,17 @@
+
+services:
+    # app.hardprice.authenticator
+
+    app.hardprice.authenticator.guest_authenticator:
+        class: Sterlett\HardPrice\Authenticator\GuestAuthenticator
+        arguments:
+            - '@app.thread.hardprice_scraping'
+            - '@app.hardprice.browsing_session'
+            - '@app.client.hardprice'
+            - '@app.hardprice.csrf.token_parser'
+            - '%hardprice.authentication.base_uri%'
+
+    app.hardprice.browsing_session:
+        class: Sterlett\HardPrice\SessionMemento
+        arguments:
+            - !php/const PROJECT_CACHE_DIR

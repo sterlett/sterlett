@@ -1,0 +1,53 @@
+
+services:
+    # --- hardprice
+    app.hardware.price.provider.hardprice_provider.cpu.synchronous:
+        class: Sterlett\Hardware\Price\Provider\BlockingProvider
+        arguments:
+            - '@app.hardware.price.provider.hardprice.fallback_provider.cpu'
+            - '@app.event_loop'
+        tags:
+            -   name: 'price_provider.synchronous'
+                providerId: 'HardPrice'
+
+    # generation 1 crawling algorithm: api requests
+    app.hardware.price.provider.hardprice.fallback_provider.cpu:
+        class: Sterlett\Hardware\Price\Provider\HardPrice\FallbackProvider
+        arguments:
+            - '@app.client.hardprice'
+            - '@app.hardprice.price.fallback_parser'
+            - '%hardprice.cpu.download_uri%'
+
+    # for the microservice scope; used within an async execution flow, without progress tracking
+    # (generation 2 crawling algorithm: enhanced requests with basic state/session control)
+    app.hardware.price.provider.hardprice.scraping_provider.cpu.console:
+        class: Sterlett\Hardware\Price\Provider\HardPrice\ScrapingProvider
+        arguments:
+            - '@app.hardprice.item.loader.cpu'
+            - '@app.hardprice.price.extractor'
+            - '@app.hardprice.response.reducer.trackable.console'
+            - '@app.hardprice.price.collector.merging_collector'
+        tags:
+            -   name: 'price_provider'
+                providerId: 'HardPrice'
+
+    app.hardware.price.provider.hardprice.scraping_provider.cpu:
+        class: Sterlett\Hardware\Price\Provider\HardPrice\ScrapingProvider
+        arguments:
+            - '@app.hardprice.item.loader.cpu'
+            - '@app.hardprice.price.extractor'
+            - '@app.hardprice.response.reducer'
+            - '@app.hardprice.price.collector.sequential_collector'
+        tags:
+            -   name: 'price_provider'
+                providerId: 'HardPrice'
+
+    app.hardware.price.provider.hardprice.browsing_provider.cpu:
+        class: Sterlett\Hardware\Price\Provider\HardPrice\BrowsingProvider
+        arguments:
+            - '@app.browser.opener.hardprice'
+            - '@app.browser.cleaner'
+            - '@app.hardprice.browser.site_navigator'
+            - '@app.hardprice.browser.item_reader'
+            - '@app.hardprice.browser.price_accumulator'
+    # ---

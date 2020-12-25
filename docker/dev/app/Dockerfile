@@ -45,6 +45,11 @@ COPY docker-php-ext-xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.i
 # pcntl
 RUN docker-php-ext-install pcntl
 
+# ds
+# https://github.com/php-ds/ext-ds
+RUN pecl install ds && docker-php-ext-enable ds
+COPY docker-php-ext-ds.ini /usr/local/etc/php/conf.d/docker-php-ext-ds.ini
+
 COPY php.ini /usr/local/etc/php/conf.d/php.ini
 
 # composer

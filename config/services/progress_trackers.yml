@@ -1,0 +1,51 @@
+
+services:
+    app.progress.tracker.passmark_cpu.console:
+        alias: 'app.progress.tracker.configurable_tracker.passmark_cpu.console'
+
+    app.progress.tracker.hardprice.console:
+        alias: 'app.bridge.symfony.console.progress_bar_tracker.hardprice'
+
+    # tracker mixins
+    app.progress.tracker.configurable_tracker.passmark_cpu.console:
+        class: Sterlett\Progress\Tracker\ConfigurableTracker
+        arguments:
+            - '@app.bridge.symfony.console.progress_bar_tracker.benchmark_downloading'
+            - '@app.progress.tracker.max_steps_normalizer.estimated_max_steps_normalizer.passmark_cpu'
+
+    app.bridge.symfony.console.progress_bar_tracker.benchmark_downloading:
+        class: Sterlett\Bridge\Symfony\Component\Console\ProgressBarTracker
+        arguments:
+            - '@app.bridge.symfony.console.helper.progress_bar.benchmark_downloading'
+
+    app.bridge.symfony.console.progress_bar_tracker.hardprice:
+        class: Sterlett\Bridge\Symfony\Component\Console\ProgressBarTracker
+        arguments:
+            - '@app.bridge.symfony.console.helper.progress_bar.price_fetching'
+
+    # tracker validators & normalizers
+    app.progress.tracker.max_steps_normalizer.estimated_max_steps_normalizer.passmark_cpu:
+        class: Sterlett\Progress\Tracker\MaxStepsNormalizer\EstimatedMaxStepsNormalizer
+        arguments:
+            - '%passmark.cpu.download_size_bytes_estimated%'
+
+    # progress bars
+    app.bridge.symfony.console.helper.progress_bar.benchmark_downloading:
+        class: Symfony\Component\Console\Helper\ProgressBar
+        arguments:
+            - '@symfony.console.output'
+        calls:
+            -   setFormat:
+                    - ' %%message%%   [%%bar%%] %%percent:3s%%%%   %%remaining:6s%% remains   %%memory:6s%%'
+            -   setMessage:
+                    - 'Downloading benchmarks...'
+
+    app.bridge.symfony.console.helper.progress_bar.price_fetching:
+        class: Symfony\Component\Console\Helper\ProgressBar
+        arguments:
+            - '@symfony.console.output'
+        calls:
+            -   setFormat:
+                    - ' %%message%%   [%%bar%%] %%percent:3s%%%%   %%remaining:6s%% remains   %%memory:6s%%'
+            -   setMessage:
+                    - 'Fetching prices...'

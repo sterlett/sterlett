@@ -1,0 +1,86 @@
+
+services:
+    app.client:
+        alias: 'app.bridge.react.http.buffering_client.take_five'
+
+    app.client.passmark_cpu.console:
+        alias: 'app.bridge.react.http.buffering_client.passmark_cpu.console'
+
+    app.client.hardprice:
+        # alias: 'app.bridge.react.http.buffering_client.proxy_protected'
+        alias: 'app.bridge.react.http.buffering_client.take_five'
+
+    # client mixins
+    app.bridge.react.http.buffering_client.passmark_cpu.console:
+        class: Sterlett\Bridge\React\Http\Client
+        arguments:
+            - '@app.bridge.react.http.browser.take_five'
+            - !iterator
+                - '@app.bridge.react.http.response.middleware.tracker_middleware.passmark_cpu.console'
+                - '@app.bridge.react.http.response.middleware.bufferer_middleware'
+
+    app.bridge.react.http.buffering_client.proxy_protected:
+        class: Sterlett\Bridge\React\Http\Client
+        arguments:
+            - '@app.bridge.react.http.browser.proxy_protected'
+            - !iterator
+                - '@app.bridge.react.http.response.middleware.bufferer_middleware'
+
+    app.bridge.react.http.buffering_client.take_five:
+        class: Sterlett\Bridge\React\Http\Client
+        arguments:
+            - '@app.bridge.react.http.browser.take_five'
+            - !iterator
+                - '@app.bridge.react.http.response.middleware.bufferer_middleware'
+
+    # response middleware
+    app.bridge.react.http.response.middleware.bufferer_middleware:
+        class: Sterlett\Bridge\React\Http\Response\Middleware\BuffererMiddleware
+
+    app.bridge.react.http.response.middleware.tracker_middleware.passmark_cpu.console:
+        class: Sterlett\Bridge\React\Http\Response\Middleware\TrackerMiddleware
+        arguments:
+            - '@app.progress.tracker.passmark_cpu.console'
+
+    # browsers
+    app.bridge.react.http.browser.proxy_protected:
+        class: React\Http\Browser
+        arguments:
+            - '@app.event_loop'
+            - '@app.bridge.react.socket.connector.tcp_proxy'
+
+    app.bridge.react.http.browser.take_five:
+        class: React\Http\Browser
+        arguments:
+            - '@app.event_loop'
+            - '@app.bridge.react.socket.connector.take_five_timeout'
+
+    # connectors
+    app.bridge.react.socket.connector.tcp_proxy:
+        class: React\Socket\Connector
+        arguments:
+            - '@app.event_loop'
+            -   tcp: '@app.bridge.clue.react.http_proxy.proxy_connector.static_uri'
+                tls:
+                    # we are using proxy logic here, so it will cause TLS handshake errors (1416F086:SSL and CN
+                    # mismatch) by default
+                    verify_peer: false
+                    verify_peer_name: false
+                dns: false
+                timeout: !!float 5
+
+    app.bridge.clue.react.http_proxy.proxy_connector.static_uri:
+        class: Clue\React\HttpProxy\ProxyConnector
+        arguments:
+            - '%app.request.proxy_uri%'
+            - '@app.bridge.react.socket.connector.take_five_timeout'
+
+    app.bridge.react.socket.connector.take_five_timeout:
+        class: React\Socket\Connector
+        shared: false
+        arguments:
+            - '@app.event_loop'
+            -   tls:
+                    verify_peer: false
+                    verify_peer_name: false
+                timeout: !!float 5
