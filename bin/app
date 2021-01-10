@@ -38,12 +38,20 @@ $containerConfigurator->setDefinitionFilePaths(
         __DIR__ . '/../config/services/async/loggers.yml',
         __DIR__ . '/../config/services/async/event_loop.yml',
         __DIR__ . '/../config/services/async/server.yml',
+        __DIR__ . '/../config/services/async/clients.yml',
         __DIR__ . '/../config/services/async/streams.yml',
+        __DIR__ . '/../config/services/async/routines.yml',
         __DIR__ . '/../config/services/shutdown.yml',
         __DIR__ . '/../config/services/event_listeners.yml',
         __DIR__ . '/../config/services/request/uri_normalizers.yml',
         __DIR__ . '/../config/services/request/uri_matcher.yml',
         __DIR__ . '/../config/services/request/handler.yml',
+        // HardPrice
+        __DIR__ . '/../config/services/hardprice/price_parsers.yml',
+        // hardware
+        __DIR__ . '/../config/services/hardware/price_repository.yml',
+        __DIR__ . '/../config/services/hardware/price_providers.yml',
+        __DIR__ . '/../config/services/hardware/price_retriever.yml',
     ]
 );
 $containerConfigurator->setDefinitionDefaultsFilePath(__DIR__ . '/../config/services.yml');

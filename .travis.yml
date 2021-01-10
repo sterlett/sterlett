@@ -68,6 +68,13 @@ before_script:
         	--tag 127.0.0.1:5000/sterlett-lighttpd:latest \
         	--file docker/dev/lighttpd/Dockerfile-standalone \
         	.
+    - |
+        docker image build \
+            --build-arg "SELENIUM_NODE_CHROME_IMAGE_DIGEST=sha256:28f1772c4890328aad70180cbf044c7a43bad460ef3cd86f1addabda827756ee" \
+            --build-arg "CHROME_ARG_PROXY_SERVER=0.0.0.0:80" \
+            --tag 127.0.0.1:5000/sterlett-snc:latest \
+            --file docker/dev/selenium-node-chrome/Dockerfile-standalone \
+            .
     # installing backend dependencies
     - |
         docker-compose run --rm app composer install \

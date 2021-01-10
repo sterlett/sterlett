@@ -1,0 +1,14 @@
+
+# "routines" here are callback functions, which will be executed in the event loop periodically
+services:
+    app.routine.price_retrieving:
+        alias: 'app.routine.hardware.price.retrieving_routine'
+        public: true
+
+    app.routine.hardware.price.retrieving_routine:
+        class: Sterlett\Routine\Hardware\Price\RetrievingRoutine
+        arguments:
+            - '@app.log.logger.stdout'
+            - '@app.event_loop'
+            - '@app.hardware.price.retriever'
+            - !!float 28800

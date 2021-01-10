@@ -34,7 +34,7 @@ RU/CIS region).
             [itnelo/reactphp-webdriver](https://github.com/itnelo/reactphp-webdriver)).
         - Emulates human behavior with random actions, to bypass anti-bot measures and tarpits.
         - Maintaining a persistent and clean user identity.
-- `TimerIssuerInterface` as a bridge between event loop internals and actual scraping logic. It controls time frames
+- `TimeIssuerInterface` as a bridge between event loop internals and actual scraping logic. It controls time frames
 and delays between scraping iterations.
 - New containers in stack: `selenium-hub` and `selenium-node-chrome`; used by the 3rd gen price retrieving
 algorithm, to get data from websites using a remote browser instance (see

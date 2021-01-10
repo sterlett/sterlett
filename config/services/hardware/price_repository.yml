@@ -1,0 +1,4 @@
+
+services:
+    app.hardware.price.repository:
+        class: Sterlett\Hardware\Price\Repository

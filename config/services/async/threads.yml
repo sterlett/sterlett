@@ -1,4 +1,5 @@
 
+# "threads" here are services that provides time in the shared event loop for the application components
 services:
     app.thread.hardprice_scraping:
         alias: 'app.bridge.react.event_loop.time_issuer.sequential_time_issuer.hardprice_scraping'

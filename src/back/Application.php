@@ -61,6 +61,10 @@ final class Application
 
         $this->container->get('service_warmer');
 
+        // starting routines / background tasks.
+        $priceRetrievingRoutine = $this->container->get('app.routine.price_retrieving');
+        $priceRetrievingRoutine->run();
+
         $loop->run();
     }
 
