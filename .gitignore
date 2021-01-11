@@ -5,11 +5,15 @@ config/parameters.yml
 node_modules/
 vendor/
 
+data/database/*
+!data/database/sterlett_data
+data/database/sterlett_data/*
+!data/database/sterlett_data/.gitkeep
+
 tests/_output/*
 !tests/_output/.gitkeep
 
 var/cache/*
-!var/cache/.gitkeep
 !var/cache/selenium-node-chrome
 var/cache/selenium-node-chrome/*
 !var/cache/selenium-node-chrome/profiles

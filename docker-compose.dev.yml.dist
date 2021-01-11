@@ -1,5 +1,5 @@
 
-# Copyright (c) 2020 Pavel Petrov <itnelo@gmail.com>
+# Copyright (c) 2020-2021 Pavel Petrov <itnelo@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ services:
                 PHP_VERSION: ${PHP_VERSION}
                 NODEJS_VERSION: ${NODEJS_VERSION}
         depends_on:
+            - database
             - selenium-hub
         networks:
             - back_bridge
@@ -39,6 +40,21 @@ services:
             - "35729:35729"
         volumes:
             - ${SOURCE_PATH}:${DEPLOYMENT_PATH}
+
+    database:
+        image: 'mysql:${DATABASE_VERSION}'
+        networks:
+            - back_bridge
+        environment:
+            MYSQL_RANDOM_ROOT_PASSWORD: 'non-empty'
+            MYSQL_DATABASE: ${DATABASE_NAME}
+            MYSQL_USER: ${DATABASE_USER_NAME}
+            MYSQL_PASSWORD: ${DATABASE_USER_PASSWORD}
+        volumes:
+            - database_data:${DATABASE_DATA_DIR}
+        cap_add:
+            # for mbind
+            - SYS_NICE
 
     lighttpd:
         build:
@@ -114,3 +130,11 @@ networks:
             driver: default
             config:
                 -   subnet: 172.120.0.0/16
+
+volumes:
+    database_data:
+        driver: local
+        driver_opts:
+            type: none
+            device: ${PWD}/data/database/sterlett_data
+            o: bind

@@ -2,3 +2,6 @@
 services:
     app.hardware.price.repository:
         class: Sterlett\Hardware\Price\Repository
+        arguments:
+            - '@app.database.connection.prices'
+            - '%app.database.table_name.price%'

@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Sterlett\Hardware\Price;
 
+use React\MySQL\ConnectionInterface;
 use Sterlett\Dto\Hardware\Price;
 
 /**
@@ -23,11 +24,29 @@ use Sterlett\Dto\Hardware\Price;
 class Repository
 {
     /**
-     * Repository constructor.
+     * Manages database connection state and sends async queries
+     *
+     * @var ConnectionInterface
      */
-    public function __construct()
+    private ConnectionInterface $databaseConnection;
+
+    /**
+     * Table name from which hardware price records will be loaded
+     *
+     * @var string
+     */
+    private string $priceTableName;
+
+    /**
+     * Repository constructor.
+     *
+     * @param ConnectionInterface $databaseConnection Manages database connection state and sends async queries
+     * @param string              $priceTableName     Table name from which hardware price records will be loaded
+     */
+    public function __construct(ConnectionInterface $databaseConnection, string $priceTableName)
     {
-        // todo: inject mysql connection
+        $this->databaseConnection = $databaseConnection;
+        $this->priceTableName     = $priceTableName;
     }
 
     public function findAll(): iterable

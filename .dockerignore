@@ -5,10 +5,11 @@ bin/configure-env
 bin/phpunit
 config/parameters.yml
 node_modules
+data/database/sterlett_data/*
 public/build/*.css
 public/build/*.js
 tests
-var/cache
+var/cache/selenium-node-chrome/profiles/*
 vendor
 LICENSE
 *.md
