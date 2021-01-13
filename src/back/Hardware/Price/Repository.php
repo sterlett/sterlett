@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Sterlett\Hardware\Price;
 
+use InvalidArgumentException;
 use React\MySQL\ConnectionInterface;
 use Sterlett\Dto\Hardware\Price;
 
@@ -35,7 +36,7 @@ class Repository
      *
      * @var string
      */
-    private string $priceTableName;
+    private string $_tableNamePurified;
 
     /**
      * Repository constructor.
@@ -46,7 +47,12 @@ class Repository
     public function __construct(ConnectionInterface $databaseConnection, string $priceTableName)
     {
         $this->databaseConnection = $databaseConnection;
-        $this->priceTableName     = $priceTableName;
+
+        if (1 !== preg_match('/^[a-z0-9_]+$/', $priceTableName)) {
+            throw new InvalidArgumentException('Invalid price table name (repository).');
+        }
+
+        $this->_tableNamePurified = $priceTableName;
     }
 
     public function findAll(): iterable
@@ -58,6 +64,36 @@ class Repository
 
     public function save(Price $hardwarePrice): void
     {
-        // todo
+        $insertStatement = <<<SQL
+            INSERT INTO
+                `{$this->_tableNamePurified}` (`hardware_name`, `seller_name`, `price_amount`, `currency_label`)
+            VALUES
+                (?, ?, ?, ?)
+            ;
+SQL;
+
+        $hardwareName = $hardwarePrice->getHardwareName();
+        $sellerName   = $hardwarePrice->getSellerIdentifier();
+
+        $priceAmount    = $hardwarePrice->getAmount();
+        $pricePrecision = $hardwarePrice->getPrecision();
+
+        if ($pricePrecision > 0) {
+            $amountDenormalized = substr_replace($priceAmount, '.', -$pricePrecision, 0);
+        } else {
+            $amountDenormalized = $priceAmount;
+        }
+
+        $currencyLabel = $hardwarePrice->getCurrency();
+
+        $this->databaseConnection->query(
+            $insertStatement,
+            [
+                $hardwareName,
+                $sellerName,
+                $amountDenormalized,
+                $currencyLabel,
+            ]
+        );
     }
 }

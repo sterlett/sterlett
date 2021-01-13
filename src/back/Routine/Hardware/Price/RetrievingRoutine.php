@@ -96,13 +96,20 @@ class RetrievingRoutine implements RoutineInterface
 
             $completionPromise->then(
                 function () {
+                    $this->logger->info('Price retrieving task is complete.');
+
                     // rescheduling, to perform a next attempt.
                     $this->loop->addTimer($this->attemptInterval, fn () => $this->runInternal());
+                },
+                function (Throwable $rejectionReason) {
+                    $this->logger->error('Price retrieving task has failed.', ['reason' => $rejectionReason]);
+
+                    $this->loop->addTimer($this->attemptInterval, fn () => $this->runInternal());
                 }
-                // todo: react on rejection
             );
         } catch (Throwable $exception) {
-            // todo: handle exception (+log)
+            // todo: enhance the context
+            $this->logger->critical('Unable to schedule a background task: price retrieving.');
         }
     }
 }

@@ -16,7 +16,12 @@ parameters:
     app.console.name: 'Sterlett'
     app.console.version: '0.x'
 
-    app.database.prices.uri: 'mysql://%env(string:DATABASE_USER_NAME)%:%env(string:DATABASE_USER_PASSWORD)%@%env(string:DATABASE_HOST)%:%env(int:DATABASE_PORT)%/%env(string:DATABASE_NAME)%'
+    app.database.migrations.driver: 'pdo_mysql'
+    app.database.migrations.user_name: '%env(string:DATABASE_USER_NAME)%'
+    app.database.migrations.user_password: '%env(string:DATABASE_USER_PASSWORD)%'
+    app.database.migrations.host: '%env(string:DATABASE_HOST)%'
+    app.database.migrations.name: '%env(string:DATABASE_NAME)%'
+    app.database.prices.uri: '%env(string:DATABASE_USER_NAME)%:%env(string:DATABASE_USER_PASSWORD)%@%env(string:DATABASE_HOST)%:%env(int:DATABASE_PORT)%/%env(string:DATABASE_NAME)%'
     app.database.table_name.price: 'hardware_price'
 
     # Selenium Grid will be used by gen 3 (or "T-1000") scraping algorithms (for some websites with advanced bot

@@ -1,0 +1,15 @@
+
+services:
+    app.database.connection.prices:
+        alias: 'app.bridge.react.mysql.connection.hardware_prices.lazy'
+
+    app.bridge.react.mysql.connection.hardware_prices.lazy:
+        class: React\MySQL\Io\LazyConnection
+        factory: ['@app.bridge.react.mysql.connection_factory', createLazyConnection]
+        arguments:
+            - '%app.database.prices.uri%'
+
+    app.bridge.react.mysql.connection_factory:
+        class: React\MySQL\Factory
+        arguments:
+            - '@app.event_loop'

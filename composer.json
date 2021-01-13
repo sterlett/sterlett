@@ -35,6 +35,7 @@
         "clue/block-react": "^1.4",
         "clue/http-proxy-react": "^1.6",
         "doctrine/migrations": "^3.0",
+        "doctrine/sql-formatter": "^1.1",
         "itnelo/reactphp-webdriver": "^0.2",
         "psr/container": "^1.0",
         "psr/event-dispatcher": "^1.0",

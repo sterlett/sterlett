@@ -24,6 +24,8 @@ require_once __DIR__ . '/../vendor/autoload.php';
 define('PROJECT_DIR', realpath(__DIR__ . '/../'));
 define('PROJECT_CACHE_DIR', PROJECT_DIR . '/var/cache');
 
+define('PROJECT_MIGRATIONS_DIR', PROJECT_DIR . '/migrations');
+
 $parameterFilePath = __DIR__ . '/../config/parameters.yml';
 
 if (!file_exists($parameterFilePath)) {
@@ -41,6 +43,7 @@ $containerConfigurator->setDefinitionFilePaths(
         __DIR__ . '/../config/services/async/event_loop.yml',
         __DIR__ . '/../config/services/async/clients.yml',
         __DIR__ . '/../config/services/async/threads.yml',
+        __DIR__ . '/../config/services/database_connections.yml',
         __DIR__ . '/../config/services/selenium_webdriver.yml',
         __DIR__ . '/../config/services/browser.yml',
         // PassMark
