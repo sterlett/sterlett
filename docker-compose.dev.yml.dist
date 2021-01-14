@@ -43,6 +43,7 @@ services:
 
     database:
         image: 'mysql:${DATABASE_VERSION}'
+        # for compatibility with react/mysql client implementation (no caching_sha2_password support at this time)
         command: '--default-authentication-plugin=mysql_native_password'
         networks:
             - back_bridge

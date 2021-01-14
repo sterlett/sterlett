@@ -1,5 +1,5 @@
 
-# Copyright (c) 2020 Pavel Petrov <itnelo@gmail.com>
+# Copyright (c) 2020-2021 Pavel Petrov <itnelo@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -106,6 +106,7 @@ services:
                     cpus: '0.25'
                     memory: 192M
 
+    # todo: profile persistence
     selenium-node-chrome:
         image: '${SNC_STACK_IMAGE_NAME}:${SNC_STACK_IMAGE_VERSION}'
         networks:

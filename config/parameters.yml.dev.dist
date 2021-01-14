@@ -16,7 +16,7 @@ parameters:
     app.console.name: 'Sterlett'
     app.console.version: '0.x'
 
-    app.database.migrations.driver: 'pdo_mysql'
+    app.database.migrations.driver_name: 'pdo_mysql'
     app.database.migrations.user_name: '%env(string:DATABASE_USER_NAME)%'
     app.database.migrations.user_password: '%env(string:DATABASE_USER_PASSWORD)%'
     app.database.migrations.host: '%env(string:DATABASE_HOST)%'

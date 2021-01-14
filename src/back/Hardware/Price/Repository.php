@@ -62,6 +62,13 @@ class Repository
         return [];
     }
 
+    /**
+     * Persists a given price record in the application database
+     *
+     * @param Price $hardwarePrice Price record DTO
+     *
+     * @return void
+     */
     public function save(Price $hardwarePrice): void
     {
         $insertStatement = <<<SQL
@@ -86,6 +93,7 @@ SQL;
 
         $currencyLabel = $hardwarePrice->getCurrency();
 
+        // todo: handle promise
         $this->databaseConnection->query(
             $insertStatement,
             [

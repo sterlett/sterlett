@@ -4,7 +4,7 @@ services:
         class: Doctrine\DBAL\Connection
         factory: ['Doctrine\DBAL\DriverManager', getConnection]
         arguments:
-            -   driver: '%app.database.migrations.driver%'
+            -   driver: '%app.database.migrations.driver_name%'
                 user: '%app.database.migrations.user_name%'
                 password: '%app.database.migrations.user_password%'
                 host: '%app.database.migrations.host%'

@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace Sterlett\Bridge\Doctrine\Migrations;
 
 use Doctrine\Migrations\DependencyFactory;
-use Doctrine\Migrations\Provider\SchemaProvider;
+use Doctrine\Migrations\Provider\SchemaProvider as SchemaProviderInterface;
 use Sterlett\Bridge\Doctrine\Migrations\Provider\ActualSchemaProvider;
 
 /**
@@ -47,9 +47,9 @@ class SchemaProviderConfigurator
      *
      * @param DependencyFactory $dependencyFactory Manages internal dependencies for doctrine commands
      *
-     * @return SchemaProvider
+     * @return SchemaProviderInterface
      */
-    public function __invoke(DependencyFactory $dependencyFactory): SchemaProvider
+    public function __invoke(DependencyFactory $dependencyFactory): SchemaProviderInterface
     {
         return new ActualSchemaProvider($this->priceTableName);
     }
