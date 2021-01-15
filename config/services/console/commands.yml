@@ -22,6 +22,18 @@ services:
             -   name: 'console.command'
                 command: 'price:list'
 
+    # ratio
+    app.console.command.hardware.ratio.calculate_command.cpu:
+        class: Sterlett\Console\Command\Hardware\Ratio\CalculateCommand
+        arguments:
+            - !tagged_locator
+                tag: 'ratio_provider.synchronous'
+                index_by: 'dataSource'
+            - 'Calculates a Value/Benchmark rating for items from the CPU hardware category'
+        tags:
+            -   name: 'console.command'
+                command: 'ratio:calculate'
+
     # migrations (doctrine)
     app.console.command.migrations.status_command:
         class: Doctrine\Migrations\Tools\Console\Command\StatusCommand

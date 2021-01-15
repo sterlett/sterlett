@@ -1,0 +1,34 @@
+
+services:
+    # real-time data
+    # app.hardware.vbratio.provider.live.cpu:
+
+    # precached data
+    # app.hardware.vbratio.provider.database.cpu:
+    #    alias: 'app.hardware.vbratio.provider.configurable_provider.database.cpu'
+
+    # sync adapters for console environment
+    app.hardware.vbratio.provider.live.cpu.synchronous:
+        class: Sterlett\Hardware\VBRatio\Provider\BlockingProvider
+        arguments:
+            - '@app.hardware.vbratio.provider.configurable_provider.live.cpu.console'
+            - '@app.event_loop'
+        tags:
+            -   name: 'ratio_provider.synchronous'
+                dataSource: 'live'
+
+    # --- provider mixins
+    # microservice scope: database
+    # todo: precached price provider (repository-based) is needed
+
+    # console scope: live (fallback price provider; progress trackers)
+    app.hardware.vbratio.provider.configurable_provider.live.cpu.console:
+        class: Sterlett\Hardware\VBRatio\Provider\ConfigurableProvider
+        arguments:
+            - '@app.hardware.price.provider.hardprice.fallback_provider.cpu'
+            - '@app.hardware.benchmark.provider.passmark_provider.cpu.console'
+            - '@app.hardware.vbratio.calculator'
+
+    # console scope: database
+    # todo: precached price provider (repository-based) is needed
+    # ---

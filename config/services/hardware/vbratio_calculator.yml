@@ -1,0 +1,7 @@
+
+services:
+    app.hardware.vbratio.calculator:
+        alias: 'app.hardware.vbratio.calculator.simple_average_calculator'
+
+    app.hardware.vbratio.calculator.simple_average_calculator:
+        class: Sterlett\Hardware\VBRatio\Calculator\SimpleAverageCalculator
