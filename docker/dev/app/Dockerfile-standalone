@@ -44,6 +44,9 @@ RUN ln -snf /usr/share/zoneinfo/${TIMEZONE} /etc/localtime && \
 # pcntl
 RUN docker-php-ext-install pcntl
 
+# bcmath
+RUN docker-php-ext-install bcmath
+
 # ds
 # https://github.com/php-ds/ext-ds
 RUN pecl install ds && docker-php-ext-enable ds

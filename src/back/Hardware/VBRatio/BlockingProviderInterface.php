@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Sterlett\Hardware\VBRatio;
 
+use RuntimeException;
 use Sterlett\Hardware\VBRatioInterface;
 use Traversable;
 
@@ -27,6 +28,8 @@ interface BlockingProviderInterface
      * Returns a collection with V/B ratio calculation results for the configured hardware category
      *
      * @return Traversable<VBRatioInterface>|VBRatioInterface[]
+     *
+     * @throws RuntimeException Whenever an error is raised during v/b ratio extraction
      */
     public function getRatios(): iterable;
 }

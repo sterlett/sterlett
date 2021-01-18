@@ -63,7 +63,7 @@ class SimpleAverageCalculator implements CalculatorInterface
         $priceCountAsString = (string) $priceCount;
         $priceAmountAverage = bcdiv($priceSum, $priceCountAsString, $scaleNumber);
 
-        $ratioCalculated = bcdiv($priceAmountAverage, $benchmarkValue, $scaleNumber);
+        $ratioCalculated = bcdiv($benchmarkValue, $priceAmountAverage, $scaleNumber);
 
         // todo: beautifier wrapper
 

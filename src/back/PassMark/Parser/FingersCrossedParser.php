@@ -66,9 +66,18 @@ class FingersCrossedParser implements ParserInterface
             $benchmarkHardwareName = $matches[1][0];
             $benchmarkValue        = $matches[2][0];
 
+            $benchmarkValueNormalized = preg_replace('/[.,]/', '', $benchmarkValue);
+
+            // todo: remove this branch after ValueThresholdIterator implementation
+            if ((float) $benchmarkValueNormalized < 6000) {
+                $offsetEstimated = $matches[2][1];
+
+                continue;
+            }
+
             $benchmark = new Benchmark();
             $benchmark->setHardwareName($benchmarkHardwareName);
-            $benchmark->setValue($benchmarkValue);
+            $benchmark->setValue($benchmarkValueNormalized);
 
             yield $benchmark;
 

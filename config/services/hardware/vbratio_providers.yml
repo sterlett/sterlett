@@ -27,6 +27,7 @@ services:
         arguments:
             - '@app.hardware.price.provider.hardprice.fallback_provider.cpu'
             - '@app.hardware.benchmark.provider.passmark_provider.cpu.console'
+            - '@app.hardware.vbratio.source_binder'
             - '@app.hardware.vbratio.calculator'
 
     # console scope: database

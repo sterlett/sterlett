@@ -1,0 +1,4 @@
+
+services:
+    app.hardware.vbratio.source_binder:
+        class: Sterlett\Hardware\VBRatio\SourceBinder
