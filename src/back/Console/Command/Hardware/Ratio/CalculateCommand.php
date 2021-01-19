@@ -65,7 +65,7 @@ class CalculateCommand extends BaseCommand
 
         $ratios = $ratioProvider->getRatios();
 
-        print_r([...$ratios]);
+        [...$ratios];
 
         // todo: apply sorting by the ratio value (console-only scope)
         // todo: render view

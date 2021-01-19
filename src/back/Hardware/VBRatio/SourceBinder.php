@@ -15,44 +15,146 @@ declare(strict_types=1);
 
 namespace Sterlett\Hardware\VBRatio;
 
+use ArrayIterator;
+use Iterator;
+use IteratorIterator;
+use Psr\Log\LoggerInterface;
+use React\EventLoop\LoopInterface;
+use React\Promise\Deferred;
+use React\Promise\PromiseInterface;
+use RuntimeException;
 use Sterlett\Dto\Hardware\VBRatio;
 use Sterlett\Hardware\BenchmarkInterface;
 use Sterlett\Hardware\PriceInterface;
 use Sterlett\Hardware\VBRatioInterface;
+use Throwable;
+use Traversable;
 
 /**
  * Creates relations for price records from resource A and independent benchmarks from resource B
+ *
+ * todo: extract price indexing logic into a separate service (remove rude referencing)
  */
 class SourceBinder
 {
     /**
-     * Finds matches between price records and benchmarks (by hardware name) and yields VBRatio object stubs for
-     * further calculations.
+     * Performs event logging for the source binder
+     *
+     * @var LoggerInterface
+     */
+    private LoggerInterface $logger;
+
+    /**
+     * A loop reference, to perform in non-blocking mode
+     *
+     * @var LoopInterface
+     */
+    private LoopInterface $loop;
+
+    /**
+     * SourceBinder constructor.
+     *
+     * @param LoggerInterface $logger Performs event logging for the source binder
+     * @param LoopInterface   $loop   A loop reference, to perform in non-blocking mode
+     */
+    public function __construct(LoggerInterface $logger, LoopInterface $loop)
+    {
+        $this->logger = $logger;
+        $this->loop   = $loop;
+    }
+
+    /**
+     * Finds matches between price records and benchmarks (by hardware name) and then yields VBRatio object stubs for
+     * further calculations. Returns a promise that will be resolved into collection of V/B ratio stub objects.
      *
      * Price list is expected as Traversable<int, iterable>, where iterable element is Traversable<PriceInterface>
      * or PriceInterface[] (with optional int key as item identifier).
      *
      * A benchmark collection is expected as Traversable<BenchmarkInterface> or BenchmarkInterface[].
      *
+     * The resulting value is Traversable<VBRatioInterface>.
+     *
      * @param iterable $hardwarePrices Hardware price records (resource A)
      * @param iterable $benchmarks     Benchmark results for the same hardware (resource B)
      *
-     * @return iterable
+     * @return PromiseInterface<iterable>
      */
-    public function bind(iterable $hardwarePrices, iterable $benchmarks): iterable
+    public function bind(iterable $hardwarePrices, iterable $benchmarks): PromiseInterface
     {
-        // todo: too much time, event loop's future tick queue should be used
+        $indexReadyPromise = $this->buildPriceIndex($hardwarePrices);
 
-        $time = -microtime(true);
-        // holds data to fulfill successful matches with hardware price information.
-        $priceBuffer = [];
+        $timeIndexingStarted  = -microtime(true);
+        $ratioStubListPromise = $indexReadyPromise->then(
+            function (array $indexContext) use ($timeIndexingStarted, $benchmarks) {
+                $timeIndexingElapsed = round(($timeIndexingStarted + microtime(true)) * 1000, 2);
+                $this->logger->debug(
+                    'data binder: price indexing is complete ({time} ms).',
+                    [
+                        'time' => $timeIndexingElapsed
+                    ]
+                );
+
+                [$priceInvertedIndex, $priceBuffer] = $indexContext;
+
+                $ratioStubs = $this->traverseIndex($priceInvertedIndex, $priceBuffer, $benchmarks);
+
+                return $ratioStubs;
+            },
+            function (Throwable $rejectionReason) {
+                throw new RuntimeException('Unable to build a price index (source binder).', 0, $rejectionReason);
+            }
+        );
+
+        return $ratioStubListPromise;
+    }
+
+    private function buildPriceIndex(iterable $hardwarePrices): PromiseInterface
+    {
+        $indexingDeferred = new Deferred();
 
         // an inverted index for all price records, to find better matches between price records and benchmarks (by
         // hardware name). Values are references to the data from buffer (numeric indexes).
         $priceInvertedIndex = [];
 
-        // price indexing.
-        foreach ($hardwarePrices as $itemIdentifier => $prices) {
+        // holds data to fulfill successful matches with hardware price information.
+        $priceBuffer = [];
+
+        if ($hardwarePrices instanceof Traversable) {
+            $priceIterator = new IteratorIterator($hardwarePrices);
+        } else {
+            $priceIterator = new ArrayIterator($hardwarePrices);
+        }
+
+        $priceIterator->rewind();
+
+        // scheduling recursive and async price indexing.
+        $this->loop->futureTick(
+            fn() => $this->doIndexIteration($indexingDeferred, $priceIterator, $priceInvertedIndex, $priceBuffer)
+        );
+
+        $indexReadyPromise = $indexingDeferred->promise();
+
+        return $indexReadyPromise;
+    }
+
+    private function doIndexIteration(
+        Deferred $indexingDeferred,
+        Iterator $priceIterator,
+        array &$priceInvertedIndex,
+        array &$priceBuffer
+    ): void {
+        // if no more price records for the index - resolving the promise (index building is complete).
+        if (!$priceIterator->valid()) {
+            $indexingDeferred->resolve([$priceInvertedIndex, $priceBuffer]);
+
+            return;
+        }
+
+        try {
+            $prices         = $priceIterator->current();
+            $itemIdentifier = $priceIterator->key();
+            $priceIterator->next();
+
             // downcasting from iterable (traversing a generator, if needed).
             $priceBuffer[$itemIdentifier] = [...$prices];
 
@@ -61,14 +163,19 @@ class SourceBinder
                 $priceBuffer[$itemIdentifier],
                 $itemIdentifier
             );
+        } catch (Throwable $exception) {
+            $this->logger->error(
+                'An error has been occurred during price indexing (source binder).',
+                [
+                    'exception' => $exception,
+                ]
+            );
+        } finally {
+            // rescheduling.
+            $this->loop->futureTick(
+                fn() => $this->doIndexIteration($indexingDeferred, $priceIterator, $priceInvertedIndex, $priceBuffer)
+            );
         }
-        $time = round(($time + microtime(true)) * 1000, 5) . ' ms';
-
-        print_r($time);
-
-        $ratioStubs = $this->traverseIndex($priceInvertedIndex, $priceBuffer, $benchmarks);
-
-        yield from $ratioStubs;
     }
 
     /**
@@ -186,8 +293,8 @@ class SourceBinder
             }
 
             $isStopWord = $this->isStopWord($wordNormalized);
-            $wordWeight = ((int) $isStopWord << 10) + 1; // can give some performance boost (no branch guessing)
-            // transcription: $wordWeight += !$isStopWord ? 1025 : 1;
+            $wordWeight = ((int) !$isStopWord << 10) + 1; // can give some performance boost (no branch guessing)
+            // transcription: $wordWeight = !$isStopWord ? 1025 : 1;
 
             $priceBufferIndexes = $priceInvertedIndex[$wordNormalized];
 
@@ -281,7 +388,7 @@ class SourceBinder
     /**
      * Returns a normalized part of the hardware item name
      *
-     * @param mixed $word A part of hardware item name (maybe an int or a string, for the most cases)
+     * @param mixed $word A part of hardware item name (may be an int or a string, for the most cases)
      *
      * @return string
      */

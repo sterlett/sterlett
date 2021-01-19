@@ -91,9 +91,9 @@ HTML_CHUNK;
         }
 
         $dataExpected = [
-            ['AMD Ryzen Threadripper PRO 3995WX', '88,673'],
-            ['AMD Ryzen Threadripper 3990X', '79,930'],
-            ['AMD EPYC 7702', '71,362'],
+            ['AMD Ryzen Threadripper PRO 3995WX', '88673'],
+            ['AMD Ryzen Threadripper 3990X', '79930'],
+            ['AMD EPYC 7702', '71362'],
         ];
 
         $this->assertEquals($dataExpected[0][0], $benchmarkArray[0]->getHardwareName(), 'Incorrect parsing.');

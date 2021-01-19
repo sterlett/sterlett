@@ -93,4 +93,5 @@ $commandLoader      = $container->get('console.command_loader');
 $application = new ConsoleApplication($applicationName, $applicationVersion);
 $application->setCommandLoader($commandLoader);
 
-$application->run();
+$consoleOutput = $container->get('symfony.console.output');
+$application->run(null, $consoleOutput);

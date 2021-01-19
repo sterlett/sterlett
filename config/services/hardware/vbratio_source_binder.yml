@@ -2,3 +2,12 @@
 services:
     app.hardware.vbratio.source_binder:
         class: Sterlett\Hardware\VBRatio\SourceBinder
+        arguments:
+            - '@app.log.logger.stdout'
+            - '@app.event_loop'
+
+    app.hardware.vbratio.source_binder.console:
+        class: Sterlett\Hardware\VBRatio\SourceBinder
+        arguments:
+            - '@app.log.logger.stdout.synchronous'
+            - '@app.event_loop'
