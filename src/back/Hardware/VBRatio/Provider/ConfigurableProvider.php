@@ -23,7 +23,9 @@ use Sterlett\Hardware\Price\ProviderInterface as PriceProviderInterface;
 use Sterlett\Hardware\VBRatio\CalculatorInterface;
 use Sterlett\Hardware\VBRatio\ProviderInterface;
 use Sterlett\Hardware\VBRatio\SourceBinder;
+use Sterlett\Hardware\VBRatioInterface;
 use Throwable;
+use Traversable;
 use function React\Promise\all;
 
 /**
@@ -115,6 +117,13 @@ class ConfigurableProvider implements ProviderInterface
         return $ratioListPromise;
     }
 
+    /**
+     * Returns a collection of calculated V/B ratio objects
+     *
+     * @param iterable $ratioStubs The source records for V/B ratio calculations
+     *
+     * @return Traversable<VBRatioInterface>|VBRatioInterface[]
+     */
     private function fulfillRatioStubs(iterable $ratioStubs): iterable
     {
         /** @var VBRatio $ratio */
@@ -125,7 +134,7 @@ class ConfigurableProvider implements ProviderInterface
             $benchmarkValue  = $sourceBenchmark->getValue();
 
             // todo: +expect possible exception
-            $ratioValue = $this->ratioCalculator->calculateRatio($sourcePrices, $benchmarkValue);
+            $ratioValue        = $this->ratioCalculator->calculateRatio($sourcePrices, $benchmarkValue);
             $ratioValueAsFloat = (float) $ratioValue;
 
             $ratio->setValue($ratioValueAsFloat);

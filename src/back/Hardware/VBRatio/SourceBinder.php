@@ -33,7 +33,7 @@ use Traversable;
 /**
  * Creates relations for price records from resource A and independent benchmarks from resource B
  *
- * todo: extract price indexing logic into a separate service (remove rude referencing)
+ * todo: extract price indexing logic into a separate service (to remove "rude" referencing)
  */
 class SourceBinder
 {
@@ -90,7 +90,7 @@ class SourceBinder
                 $this->logger->debug(
                     'data binder: price indexing is complete ({time} ms).',
                     [
-                        'time' => $timeIndexingElapsed
+                        'time' => $timeIndexingElapsed,
                     ]
                 );
 
@@ -108,6 +108,13 @@ class SourceBinder
         return $ratioStubListPromise;
     }
 
+    /**
+     * Returns a promise that will be resolved when the price index building is complete
+     *
+     * @param iterable $hardwarePrices Price records
+     *
+     * @return PromiseInterface<null>
+     */
     private function buildPriceIndex(iterable $hardwarePrices): PromiseInterface
     {
         $indexingDeferred = new Deferred();
@@ -129,7 +136,7 @@ class SourceBinder
 
         // scheduling recursive and async price indexing.
         $this->loop->futureTick(
-            fn() => $this->doIndexIteration($indexingDeferred, $priceIterator, $priceInvertedIndex, $priceBuffer)
+            fn () => $this->doIndexIteration($indexingDeferred, $priceIterator, $priceInvertedIndex, $priceBuffer)
         );
 
         $indexReadyPromise = $indexingDeferred->promise();
@@ -137,6 +144,16 @@ class SourceBinder
         return $indexReadyPromise;
     }
 
+    /**
+     * Represents a single index building iteration, which will be executed as a separate tick in the event loop queue
+     *
+     * @param Deferred $indexingDeferred   Represents the indexing process itself (for promise resolving)
+     * @param Iterator $priceIterator      Gives access to the price collection
+     * @param array    $priceInvertedIndex The resulting price index
+     * @param array    $priceBuffer        The buffer for accumulated price data
+     *
+     * @return void
+     */
     private function doIndexIteration(
         Deferred $indexingDeferred,
         Iterator $priceIterator,
@@ -173,7 +190,7 @@ class SourceBinder
         } finally {
             // rescheduling.
             $this->loop->futureTick(
-                fn() => $this->doIndexIteration($indexingDeferred, $priceIterator, $priceInvertedIndex, $priceBuffer)
+                fn () => $this->doIndexIteration($indexingDeferred, $priceIterator, $priceInvertedIndex, $priceBuffer)
             );
         }
     }
@@ -262,14 +279,37 @@ class SourceBinder
     private function findBetterMatch(array $priceInvertedIndex, string $itemName): ?int
     {
         $connectionMap = $this->buildConnectionMap($priceInvertedIndex, $itemName);
+        // sorting (ASC); the most relevant price records for the hardware item will be at the end.
         asort($connectionMap, SORT_NUMERIC);
 
         // first position, where will be at least 1 non-stop word will be considered as an actual match.
-        // todo
+        // transcription: a stop word (e.g. "i7", "ryzen") cost 1 point, a unique one (e.g. "3700XT") - 1025.
+        // to ensure that the relation between benchmark result and price record is correct, the item name from the
+        // price record MUST score at least 1025 points (it would mean they have a unique model number in common).
+        // example: Intel    Core    i9    10850K    BOX    Comet    Lake
+        //          ^        ^       ^     ^         ^      ^        ^
+        //          |1       |1      |1    |1025     |1     |1       |1      = 1031 (total points for 100% match)
+        //         stop     stop    stop   unique   stop   stop     stop
+        // count of the stop words is also matters, for example, OEM (or "tray") and BOX (or "boxed") variants have
+        // different price tags and, generally, the OEM version is cheaper (and, therefore, will be more relevant
+        // in the context of benchmarking).
+        $indexWeightThreshold = (1 << 10) + 1;
 
-        $betterMatchIndex = array_key_first($connectionMap);
+        $bufferIndex = array_key_last($connectionMap);
 
-        return $betterMatchIndex;
+        // no match at all.
+        if (null === $bufferIndex) {
+            return null;
+        }
+
+        $indexWeight = $connectionMap[$bufferIndex];
+
+        // no concrete model match.
+        if ($indexWeight < $indexWeightThreshold) {
+            return null;
+        }
+
+        return $bufferIndex;
     }
 
     /**
@@ -309,11 +349,29 @@ class SourceBinder
         return $connectionMap;
     }
 
+    /**
+     * Returns positive whenever a given word is a non-stop word, in the context of hardware items (models).
+     *
+     * Stop word example: amd, intel, i7, ryzen, 9, v4, 3.50ghz
+     * Model number example: 8124M, 3800XT, W3680, V1756B
+     *
+     * @param string $word A minimal unit (part) of the item name
+     *
+     * @return bool
+     */
     private function isStopWord(string $word): bool
     {
-        // todo
+        // discarding false-positive model number matches.
+        if (1 === preg_match('/ghz|^[0-9]$|^[a-z][0-9]{1,2}$/iU', $word)) {
+            return true;
+        }
 
-        return false;
+        // trying to match a model pattern.
+        if (1 === preg_match('/^[a-z]*[0-9]+[a-z]*$/iU', $word)) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -334,7 +392,9 @@ class SourceBinder
         $ratioStub = new VBRatio();
         $ratioStub->setSourceBenchmark($benchmark);
 
-        foreach ($priceBuffer[$priceBufferIndex] as $price) {
+        $hardwarePrices = $priceBuffer[$priceBufferIndex];
+
+        foreach ($hardwarePrices as $price) {
             $ratioStub->addSourcePrice($price);
         }
 
