@@ -1,0 +1,10 @@
+
+services:
+    # passmark
+    app.hardware.benchmark.collector.passmark.cpu:
+        alias: 'app.hardware.benchmark.collector.value_threshold_collector.passmark.cpu'
+
+    app.hardware.benchmark.collector.value_threshold_collector.passmark.cpu:
+        class: Sterlett\Hardware\Benchmark\Collector\ValueThresholdCollector
+        arguments:
+            - '%passmark.cpu.min_value%'

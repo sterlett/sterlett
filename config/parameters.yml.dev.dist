@@ -34,6 +34,12 @@ parameters:
     passmark.cpu.download_uri: 'https://www.cpubenchmark.net/high_end_cpus.html'
     # Estimated download size of the PassMark benchmark list (in bytes)
     passmark.cpu.download_size_bytes_estimated: 750000
+    # Minimum value, which a CPU model must score to be included in the algorithm's source data
+    # Low End CPUs: 0-1000
+    # Low Mid CPUs: 1000-2200
+    # High Mid CPUs: 2200-6200
+    # High End CPUs: 6200+
+    passmark.cpu.min_value: 6200
 
     # Prices (RU)
     hardprice.authentication.base_uri: 'https://hardprice.ru'

@@ -188,7 +188,7 @@ class SourceBinder
                 ]
             );
         } finally {
-            // rescheduling.
+            // scheduling next iteration.
             $this->loop->futureTick(
                 fn () => $this->doIndexIteration($indexingDeferred, $priceIterator, $priceInvertedIndex, $priceBuffer)
             );
@@ -286,7 +286,8 @@ class SourceBinder
         // transcription: a stop word (e.g. "i7", "ryzen") cost 1 point, a unique one (e.g. "3700XT") - 1025.
         // to ensure that the relation between benchmark result and price record is correct, the item name from the
         // price record MUST score at least 1025 points (it would mean they have a unique model number in common).
-        // example: Intel    Core    i9    10850K    BOX    Comet    Lake
+        // Example:
+        //          Intel    Core    i9    10850K    BOX    Comet    Lake
         //          ^        ^       ^     ^         ^      ^        ^
         //          |1       |1      |1    |1025     |1     |1       |1      = 1031 (total points for 100% match)
         //         stop     stop    stop   unique   stop   stop     stop
