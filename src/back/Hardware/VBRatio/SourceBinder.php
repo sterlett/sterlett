@@ -170,7 +170,6 @@ class SourceBinder
         try {
             $prices         = $priceIterator->current();
             $itemIdentifier = $priceIterator->key();
-            $priceIterator->next();
 
             // downcasting from iterable (traversing a generator, if needed).
             $priceBuffer[$itemIdentifier] = [...$prices];
@@ -188,6 +187,8 @@ class SourceBinder
                 ]
             );
         } finally {
+            $priceIterator->next();
+
             // scheduling next iteration.
             $this->loop->futureTick(
                 fn () => $this->doIndexIteration($indexingDeferred, $priceIterator, $priceInvertedIndex, $priceBuffer)

@@ -7,4 +7,4 @@ services:
     app.hardware.benchmark.collector.value_threshold_collector.passmark.cpu:
         class: Sterlett\Hardware\Benchmark\Collector\ValueThresholdCollector
         arguments:
-            - '%passmark.cpu.min_value%'
+            - !!str %passmark.cpu.min_value%

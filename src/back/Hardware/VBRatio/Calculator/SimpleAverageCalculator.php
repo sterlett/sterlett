@@ -29,6 +29,23 @@ use Sterlett\Hardware\VBRatio\CalculatorInterface;
 class SimpleAverageCalculator implements CalculatorInterface
 {
     /**
+     * Defines the number of digits after the decimal place in the V/B ratio value
+     *
+     * @var int
+     */
+    private int $scale;
+
+    /**
+     * SimpleAverageCalculator constructor.
+     *
+     * @param int $scale Defines the number of digits after the decimal place in the V/B ratio value
+     */
+    public function __construct(int $scale = 0)
+    {
+        $this->scale = $scale;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function calculateRatio(iterable $hardwarePrices, string $benchmarkValue): string
@@ -46,13 +63,12 @@ class SimpleAverageCalculator implements CalculatorInterface
 
         $priceSum    = '0.00';
         $priceCount  = 0;
-        $scaleNumber = 2;
 
         /** @var PriceInterface $price */
         foreach ($hardwarePrices as $price) {
             $priceDenormalized = $this->denormalizePrice($price);
 
-            $priceSum = bcadd($priceSum, $priceDenormalized, $scaleNumber);
+            $priceSum = bcadd($priceSum, $priceDenormalized, $this->scale);
             ++$priceCount;
         }
 
@@ -61,9 +77,9 @@ class SimpleAverageCalculator implements CalculatorInterface
         }
 
         $priceCountAsString = (string) $priceCount;
-        $priceAmountAverage = bcdiv($priceSum, $priceCountAsString, $scaleNumber);
+        $priceAmountAverage = bcdiv($priceSum, $priceCountAsString, $this->scale);
 
-        $ratioCalculated = bcdiv($benchmarkValue, $priceAmountAverage, $scaleNumber);
+        $ratioCalculated = bcdiv($benchmarkValue, $priceAmountAverage, $this->scale);
 
         // todo: beautifier wrapper
 
