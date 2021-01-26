@@ -8,7 +8,7 @@ services:
     #    alias: 'app.hardware.vbratio.provider.configurable_provider.database.cpu'
 
     # sync adapters for console environment
-    app.hardware.vbratio.provider.live.cpu.live.cpu.synchronous.sorted:
+    app.hardware.vbratio.provider.live.cpu.live.cpu.synchronous.sorting:
         class: Sterlett\Hardware\VBRatio\Provider\SortingProvider
         arguments:
             - '@app.hardware.vbratio.provider.live.cpu.synchronous'
