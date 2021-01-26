@@ -48,6 +48,7 @@ $containerConfigurator->setDefinitionFilePaths(
         __DIR__ . '/../config/services/browser.yml',
         // hardware
         __DIR__ . '/../config/services/hardware/benchmark_collectors.yml',
+        __DIR__ . '/../config/services/hardware/price_calculators.yml',
         __DIR__ . '/../config/services/hardware/vbratio_source_binder.yml',
         __DIR__ . '/../config/services/hardware/vbratio_calculator.yml',
         // PassMark

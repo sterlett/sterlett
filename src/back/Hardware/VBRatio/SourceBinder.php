@@ -149,8 +149,8 @@ class SourceBinder
      *
      * @param Deferred $indexingDeferred   Represents the indexing process itself (for promise resolving)
      * @param Iterator $priceIterator      Gives access to the price collection
-     * @param array    $priceInvertedIndex The resulting price index
-     * @param array    $priceBuffer        The buffer for accumulated price data
+     * @param array&   $priceInvertedIndex The resulting price index
+     * @param array&   $priceBuffer        The buffer for accumulated price data
      *
      * @return void
      */
@@ -310,6 +310,8 @@ class SourceBinder
         if ($indexWeight < $indexWeightThreshold) {
             return null;
         }
+
+        // todo: removing index to prevent duplicate matches
 
         return $bufferIndex;
     }

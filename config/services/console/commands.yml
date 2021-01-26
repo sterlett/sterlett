@@ -29,6 +29,7 @@ services:
             - !tagged_locator
                 tag: 'ratio_provider.synchronous'
                 index_by: 'dataSource'
+            - '@app.hardware.price.simple_average_calculator'
             - 'Calculates a Value/Benchmark rating for items from the CPU hardware category'
         tags:
             -   name: 'console.command'

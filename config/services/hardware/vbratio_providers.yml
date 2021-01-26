@@ -8,14 +8,20 @@ services:
     #    alias: 'app.hardware.vbratio.provider.configurable_provider.database.cpu'
 
     # sync adapters for console environment
+    app.hardware.vbratio.provider.live.cpu.live.cpu.synchronous.sorted:
+        class: Sterlett\Hardware\VBRatio\Provider\SortingProvider
+        arguments:
+            - '@app.hardware.vbratio.provider.live.cpu.synchronous'
+            - '@app.event_loop'
+        tags:
+            -   name: 'ratio_provider.synchronous'
+                dataSource: 'live'
+
     app.hardware.vbratio.provider.live.cpu.synchronous:
         class: Sterlett\Hardware\VBRatio\Provider\BlockingProvider
         arguments:
             - '@app.hardware.vbratio.provider.configurable_provider.live.cpu.console'
             - '@app.event_loop'
-        tags:
-            -   name: 'ratio_provider.synchronous'
-                dataSource: 'live'
 
     # --- provider mixins
     # microservice scope: database

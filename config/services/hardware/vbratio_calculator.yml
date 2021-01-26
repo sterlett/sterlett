@@ -13,4 +13,5 @@ services:
     app.hardware.vbratio.calculator.simple_average_calculator.scale4:
         class: Sterlett\Hardware\VBRatio\Calculator\SimpleAverageCalculator
         arguments:
+            - '@app.hardware.price.simple_average_calculator'
             - 4

@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace Sterlett\Hardware\VBRatio\Calculator;
 
 use RuntimeException;
-use Sterlett\Hardware\PriceInterface;
+use Sterlett\Hardware\Price\SimpleAverageCalculator as PriceAverageCalculator;
 use Sterlett\Hardware\VBRatio\CalculatorInterface;
 
 /**
@@ -29,6 +29,13 @@ use Sterlett\Hardware\VBRatio\CalculatorInterface;
 class SimpleAverageCalculator implements CalculatorInterface
 {
     /**
+     * Encapsulates logic for average amount calculation, for the defined price interface
+     *
+     * @var PriceAverageCalculator
+     */
+    private PriceAverageCalculator $priceAverageCalculator;
+
+    /**
      * Defines the number of digits after the decimal place in the V/B ratio value
      *
      * @var int
@@ -38,11 +45,13 @@ class SimpleAverageCalculator implements CalculatorInterface
     /**
      * SimpleAverageCalculator constructor.
      *
-     * @param int $scale Defines the number of digits after the decimal place in the V/B ratio value
+     * @param PriceAverageCalculator $priceAverageCalculator Encapsulates logic for average amount calculation
+     * @param int                    $scale                  Defines the number of digits after the decimal place
      */
-    public function __construct(int $scale = 0)
+    public function __construct(PriceAverageCalculator $priceAverageCalculator, int $scale = 0)
     {
-        $this->scale = $scale;
+        $this->priceAverageCalculator = $priceAverageCalculator;
+        $this->scale                  = $scale;
     }
 
     /**
@@ -61,51 +70,10 @@ class SimpleAverageCalculator implements CalculatorInterface
             throw new RuntimeException($invalidBenchmarkValueMessage);
         }
 
-        $priceSum    = '0.00';
-        $priceCount  = 0;
-
-        /** @var PriceInterface $price */
-        foreach ($hardwarePrices as $price) {
-            $priceDenormalized = $this->denormalizePrice($price);
-
-            $priceSum = bcadd($priceSum, $priceDenormalized, $this->scale);
-            ++$priceCount;
-        }
-
-        if ($priceCount < 1) {
-            throw new RuntimeException('Unable to calculate V/B ratio, no price records.');
-        }
-
-        $priceCountAsString = (string) $priceCount;
-        $priceAmountAverage = bcdiv($priceSum, $priceCountAsString, $this->scale);
+        $priceAmountAverage = $this->priceAverageCalculator->calculateAverage($hardwarePrices, $this->scale);
 
         $ratioCalculated = bcdiv($benchmarkValue, $priceAmountAverage, $this->scale);
 
-        // todo: beautifier wrapper
-
         return $ratioCalculated;
-    }
-
-    /**
-     * Returns a denormalized, numeric price representation (precision is applied to the amount)
-     *
-     * @param PriceInterface $price Price record
-     *
-     * @return string
-     */
-    private function denormalizePrice(PriceInterface $price): string
-    {
-        $priceAmount    = $price->getAmount();
-        $amountAsString = (string) $priceAmount;
-
-        $pricePrecision = $price->getPrecision();
-
-        if ($pricePrecision > 0) {
-            $amountDenormalized = substr_replace($amountAsString, '.', -$pricePrecision, 0);
-        } else {
-            $amountDenormalized = $amountAsString;
-        }
-
-        return $amountDenormalized;
     }
 }

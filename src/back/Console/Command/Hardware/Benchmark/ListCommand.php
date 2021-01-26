@@ -163,10 +163,13 @@ class ListCommand extends BaseCommand
         $benchmarkHardwareName = $benchmark->getHardwareName();
         $benchmarkValue        = $benchmark->getValue();
 
+        // todo: extract formatter service
+        $benchmarkValueFormatted = number_format((float) $benchmarkValue, 0);
+
         $tableRow = [
             $providerId,
             $benchmarkHardwareName,
-            $benchmarkValue,
+            $benchmarkValueFormatted,
         ];
 
         $outputTable->appendRow($tableRow);
