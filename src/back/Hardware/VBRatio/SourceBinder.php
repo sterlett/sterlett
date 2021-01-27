@@ -35,7 +35,6 @@ use Traversable;
  * Creates relations for price records from resource A and independent benchmarks from resource B
  *
  * todo: extract price indexing logic into a separate service
- * todo: unit test
  */
 class SourceBinder
 {
@@ -206,6 +205,9 @@ class SourceBinder
     private function updateIndex(InvertedIndex $priceIndex, array $prices, int $priceBufferIndex): void
     {
         $itemName = $this->extractPriceItemName($prices);
+        // reading amount of characters in the string, to determine additional index priority within set.
+        $itemNameLen = mb_strlen($itemName);
+
         // normalizing item name for better results.
         $itemNameNormalized = $this->normalizeItemName($itemName);
 
@@ -218,7 +220,7 @@ class SourceBinder
                 continue;
             }
 
-            $priceIndex->add($wordNormalized, $priceBufferIndex);
+            $priceIndex->add($wordNormalized, $priceBufferIndex, $itemNameLen);
         }
     }
 
@@ -269,21 +271,23 @@ class SourceBinder
     {
         $connectionMap = $this->buildConnectionMap($priceIndex, $itemName);
         // sorting (ASC); the most relevant price records for the hardware item will be at the end.
+        // in a border case, when there are two equal scores, the later ADDED index will have more priority.
         asort($connectionMap, SORT_NUMERIC);
 
+        $weightSubtractReserve = 1 << 16;
         // first position, where will be at least 1 non-stop word will be considered as an actual match.
-        // transcription: a stop word (e.g. "i7", "ryzen") cost 1 point, a unique one (e.g. "3700XT") - 1025.
+        // transcription: a stop word (e.g. "i7", "ryzen") cost 1024 points, a unique one (e.g. "3700XT") - 1049600.
         // to ensure that the relation between benchmark result and price record is correct, the item name from the
         // price record MUST score at least 1025 points (it would mean they have a unique model number in common).
         // Example:
         //          Intel    Core    i9    10850K    BOX    Comet    Lake
         //          ^        ^       ^     ^         ^      ^        ^
-        //          |1       |1      |1    |1025     |1     |1       |1      = 1031 (total points for 100% match)
+        //          |1024    |1024   |1024 |1049600  |1024  |1024    |1024    = 1055744 (total points for 100% match)
         //         stop     stop    stop   unique   stop   stop     stop
         // count of the stop words is also matters, for example, OEM (or "tray") and BOX (or "boxed") variants have
         // different price tags and, generally, the OEM version is cheaper (and, therefore, will be more relevant
         // in the context of benchmarking).
-        $indexWeightThreshold = (1 << 10) + 1;
+        $weightThreshold = (1 << 20) + (1 << 10) - $weightSubtractReserve;
 
         $bufferIndex = array_key_last($connectionMap);
 
@@ -295,12 +299,12 @@ class SourceBinder
         $indexWeight = $connectionMap[$bufferIndex];
 
         // no concrete model match.
-        if ($indexWeight < $indexWeightThreshold) {
+        if ($indexWeight < $weightThreshold) {
             return null;
         }
 
         // removing index to prevent duplicate matches.
-        $priceIndex->remove($bufferIndex);
+        $priceIndex->removeIndex($bufferIndex);
 
         return $bufferIndex;
     }
@@ -319,20 +323,25 @@ class SourceBinder
         $connectionMap = [];
 
         foreach ($itemNameParts as $word) {
-            $wordNormalized     = $this->normalizeWord($word);
-            $priceBufferIndexes = $priceIndex->get($wordNormalized);
+            $wordNormalized = $this->normalizeWord($word);
+            $indexEntries   = $priceIndex->get($wordNormalized);
 
-            if (null === $priceBufferIndexes) {
+            if (null === $indexEntries) {
                 continue;
             }
 
             $isStopWord = $this->isStopWord($wordNormalized);
-            $wordWeight = ((int) !$isStopWord << 10) + 1; // can give some performance boost (no branch guessing)
-            // transcription: $wordWeight = !$isStopWord ? 1025 : 1;
+            $wordWeight = ((int) !$isStopWord << 20) + (1 << 10); // to remove branch guessing
+            // transcription: $wordWeight = !$isStopWord ? 1049600 : 1024;
 
-            foreach ($priceBufferIndexes as $priceBufferIndex) {
+            foreach ($indexEntries as $indexEntry) {
+                $priceBufferIndex = $indexEntry->index;
+                // subtract handles border cases, when index scores are equal, the lesser source string will be
+                // preferable (considering as a more accurate match).
+                $weightSubtract = $indexEntry->priority;
+
                 $indexWeight = $connectionMap[$priceBufferIndex] ?? 0;
-                $indexWeight += $wordWeight;
+                $indexWeight += $wordWeight - $weightSubtract;
 
                 $connectionMap[$priceBufferIndex] = $indexWeight;
             }

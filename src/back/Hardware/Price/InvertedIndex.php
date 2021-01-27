@@ -38,6 +38,11 @@ class InvertedIndex
         $this->_indexesIgnored = new Set();
     }
 
+    /**
+     * @param string $word
+     *
+     * @return InvertedIndexEntry[]|null
+     */
     public function get(string $word): ?array
     {
         /** @var Set $wordIndexes */
@@ -47,14 +52,18 @@ class InvertedIndex
             return null;
         }
 
-        $indexesActualized = $wordIndexes->diff($this->_indexesIgnored);
+        $indexesActualized = $wordIndexes->filter(
+            function (InvertedIndexEntry $indexEntry) {
+                return !$this->_indexesIgnored->contains($indexEntry->index);
+            }
+        );
 
         $indexArray = $indexesActualized->toArray();
 
         return $indexArray;
     }
 
-    public function add(string $word, int $index): void
+    public function add(string $word, int $index, int $priority = 0): void
     {
         /** @var Set|null $wordIndexes */
         $wordIndexes = $this->_indexesByWord->get($word, null);
@@ -65,13 +74,27 @@ class InvertedIndex
             $this->_indexesByWord->put($word, $wordIndexes);
         }
 
-        $wordIndexes->add($index);
+        $indexEntry = new InvertedIndexEntry($index, $priority);
+        $wordIndexes->add($indexEntry);
 
         $this->_indexesIgnored->remove($index);
     }
 
-    public function remove(int $index): void
+    public function removeIndex(int $index): void
     {
         $this->_indexesIgnored->add($index);
+    }
+}
+
+final class InvertedIndexEntry
+{
+    public int $index;
+
+    public int $priority;
+
+    public function __construct(int $index, int $priority)
+    {
+        $this->index    = $index;
+        $this->priority = $priority;
     }
 }

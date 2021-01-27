@@ -30,25 +30,20 @@ final class Application extends BaseApplication
         $helpMessage = "\n";
 
         $helpMessage .= <<<ASCII
-.tt0Gf;,                                                 
-f8808@8GC1,                                              
-tfffft1ifCGLi, ...,,:,,. ..,:.                           
-;f1i1i;::i1fLCLLCCLftG0GCCCGCf1i,.                       
- it;::;;::;i11tLCCCL◖◗tLLfLGCLLLfti:                     
-  ;t;:::;;;;;;;i1ffLCCLfftfCffLLLfft1i,                 
-   :1;;;;::;;:;:;ii1ttLffLfCLfLLCCLLfffi.                
-    ;i;::,:;::::;1ii11111tffffffLCLLfttffi.              
-    ::. ;;;:::::;1iiiiiiii1ti1tffCLfftt1tLt.             
-        :1;;:          ;;iiiiii11tfffffttttL:...          
-         ,;iii        i;iii111111111i1ff11tt1ttt1;.       
-          .,tft111111i11tttt1111iiii;itt111ttttfft;      
-      .;tLLt1tttftfttttttt11111111iii1LGGLtttt111tti.    
-   .ifCLf1;,. .,:;1tfffftt11111111tttttfCG00Lfttttttti.  
-.iLGL1:.            ,itLLLfffffttffft11i;itLCGGGLftttffi 
-fGf:                   ,itfLLLLLLLfffft11111t:iLCGCLfttf:
-..                         .,:i1tffLLffffttt;   .,ifCGCLf
-                                :;tffffftttfi        ,;ti
-                              ;fftt1tfttt11tff:
+;C0tf;.
+LGCGCLCf;.
+itii;:itLLfffftLLffLL1;,
+ ii:;;::;1tLCCL◖◗LfCCLLf1;,
+  ii:;;:;:;;11fLLffLLfLCLff1,
+   i;:::;:::ii111ttffffLCLftf1.
+   ,..i;:::;1iiiiii1i1tfLfft1ft.
+      ,;;;i11    ii1i111t1tf11fiii:.
+      .,iftt111111tt111iii;tft1tttft:
+   ,itLfi;i1tffftt111111111tGGCLt11tti.
+.ifL1:,      .:1fLfffttttft1i1LCCCCfttti
+tf;             .;1tfLLLLfft11it;;fLLLfLi
+                     .,itLfffttt    ,itft
+                     .i11tfft11tt,     ti.
 ASCII;
 
         $helpMessage .= "\n";
