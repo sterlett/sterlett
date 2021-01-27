@@ -1,6 +1,28 @@
 
 # Sterlett
 
+<pre>
+.tt0Gf;,                                                 
+f8808@8GC1,                                              
+tfffft1ifCGLi, ...,,:,,. ..,:.                           
+;f1i1i;::i1fLCLLCCLftG0GCCCGCf1i,.                       
+ it;::;;::;i11tLCCCL◖◗tLLfLGCLLLfti:                     
+  ;t;:::;;;;;;;i1ffLCCLfftfCffLLLfft1i,                 
+   :1;;;;::;;:;:;ii1ttLffLfCLfLLCCLLfffi.                
+    ;i;::,:;::::;1ii11111tffffffLCLLfttffi.              
+    ::. ;;;:::::;1iiiiiiii1ti1tffCLfftt1tLt.             
+        :1;;:          ;;iiiiii11tfffffttttL:...          
+         ,;iii        i;iii111111111i1ff11tt1ttt1;.       
+          .,tft111111i11tttt1111iiii;itt111ttttfft;      
+      .;tLLt1tttftfttttttt11111111iii1LGGLtttt111tti.    
+   .ifCLf1;,. .,:;1tfffftt11111111tttttfCG00Lfttttttti.  
+.iLGL1:.            ,itLLLfffffttffft11i;itLCGGGLftttffi 
+fGf:                   ,itfLLLLLLLfffft11111t:iLCGCLfttf:
+..                         .,:i1tffLLffffttt;   .,ifCGCLf
+                                :;tffffftttfi        ,;ti
+                              ;fftt1tfttt11tff:
+</pre>
+
 [![Build Status](https://travis-ci.com/sterlett/sterlett.svg?branch=0.x)](https://travis-ci.com/sterlett/sterlett)
 [![CodeFactor](https://www.codefactor.io/repository/github/sterlett/sterlett/badge/0.x)](https://www.codefactor.io/repository/github/sterlett/sterlett/overview/0.x)
 
@@ -109,7 +131,7 @@ Example:
 ![console_api_ratio_calculate_asciicast](.github/images/console-api-ratio-calculate.gif)
 
 The source data includes both hardware benchmarks and price lists from the third-party web resources. It is possible to
-dump contents of the related providers by the other API methods.
+dump contents of related providers by the other API methods.
 
 ### Downloading a benchmark list
 

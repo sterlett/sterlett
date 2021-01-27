@@ -25,6 +25,7 @@ use React\Promise\PromiseInterface;
 use RuntimeException;
 use Sterlett\Dto\Hardware\VBRatio;
 use Sterlett\Hardware\BenchmarkInterface;
+use Sterlett\Hardware\Price\InvertedIndex;
 use Sterlett\Hardware\PriceInterface;
 use Sterlett\Hardware\VBRatioInterface;
 use Throwable;
@@ -33,7 +34,8 @@ use Traversable;
 /**
  * Creates relations for price records from resource A and independent benchmarks from resource B
  *
- * todo: extract price indexing logic into a separate service (to remove "rude" referencing)
+ * todo: extract price indexing logic into a separate service
+ * todo: unit test
  */
 class SourceBinder
 {
@@ -94,9 +96,9 @@ class SourceBinder
                     ]
                 );
 
-                [$priceInvertedIndex, $priceBuffer] = $indexContext;
+                [$priceIndex, $priceBuffer] = $indexContext;
 
-                $ratioStubs = $this->traverseIndex($priceInvertedIndex, $priceBuffer, $benchmarks);
+                $ratioStubs = $this->traverseIndex($priceIndex, $priceBuffer, $benchmarks);
 
                 return $ratioStubs;
             },
@@ -121,7 +123,7 @@ class SourceBinder
 
         // an inverted index for all price records, to find better matches between price records and benchmarks (by
         // hardware name). Values are references to the data from buffer (numeric indexes).
-        $priceInvertedIndex = [];
+        $priceIndex = new InvertedIndex();
 
         // holds data to fulfill successful matches with hardware price information.
         $priceBuffer = [];
@@ -136,7 +138,7 @@ class SourceBinder
 
         // scheduling recursive and async price indexing.
         $this->loop->futureTick(
-            fn () => $this->doIndexIteration($indexingDeferred, $priceIterator, $priceInvertedIndex, $priceBuffer)
+            fn () => $this->doIndexIteration($indexingDeferred, $priceIterator, $priceIndex, $priceBuffer)
         );
 
         $indexReadyPromise = $indexingDeferred->promise();
@@ -147,22 +149,22 @@ class SourceBinder
     /**
      * Represents a single index building iteration, which will be executed as a separate tick in the event loop queue
      *
-     * @param Deferred $indexingDeferred   Represents the indexing process itself (for promise resolving)
-     * @param Iterator $priceIterator      Gives access to the price collection
-     * @param array&   $priceInvertedIndex The resulting price index
-     * @param array&   $priceBuffer        The buffer for accumulated price data
+     * @param Deferred      $indexingDeferred Represents the indexing process itself (for promise resolving)
+     * @param Iterator      $priceIterator    Gives access to the price collection
+     * @param InvertedIndex $priceIndex       The resulting price index
+     * @param array&        $priceBuffer      [ref] The buffer for accumulated price data
      *
      * @return void
      */
     private function doIndexIteration(
         Deferred $indexingDeferred,
         Iterator $priceIterator,
-        array &$priceInvertedIndex,
+        InvertedIndex $priceIndex,
         array &$priceBuffer
     ): void {
         // if no more price records for the index - resolving the promise (index building is complete).
         if (!$priceIterator->valid()) {
-            $indexingDeferred->resolve([$priceInvertedIndex, $priceBuffer]);
+            $indexingDeferred->resolve([$priceIndex, $priceBuffer]);
 
             return;
         }
@@ -174,11 +176,7 @@ class SourceBinder
             // downcasting from iterable (traversing a generator, if needed).
             $priceBuffer[$itemIdentifier] = [...$prices];
 
-            $priceInvertedIndex = $this->updateIndex(
-                $priceInvertedIndex,
-                $priceBuffer[$itemIdentifier],
-                $itemIdentifier
-            );
+            $this->updateIndex($priceIndex, $priceBuffer[$itemIdentifier], $itemIdentifier);
         } catch (Throwable $exception) {
             $this->logger->error(
                 'An error has been occurred during price indexing (source binder).',
@@ -191,7 +189,7 @@ class SourceBinder
 
             // scheduling next iteration.
             $this->loop->futureTick(
-                fn () => $this->doIndexIteration($indexingDeferred, $priceIterator, $priceInvertedIndex, $priceBuffer)
+                fn () => $this->doIndexIteration($indexingDeferred, $priceIterator, $priceIndex, $priceBuffer)
             );
         }
     }
@@ -199,21 +197,19 @@ class SourceBinder
     /**
      * Registers a set of price records in the matching index
      *
-     * @param array            $priceInvertedIndex A data structure (read-only pass) to connect benchmarks and prices
-     * @param PriceInterface[] $prices             An array with hardware prices (downcasted from iterable)
-     * @param int              $priceBufferIndex   Index, where price records are stored in the in-memory buffer
+     * @param InvertedIndex    $priceIndex       A data structure to connect benchmarks and prices
+     * @param PriceInterface[] $prices           An array with hardware prices (downcasted from iterable)
+     * @param int              $priceBufferIndex Index, where price records are stored in the in-memory buffer
      *
-     * @return array
+     * @return void
      */
-    private function updateIndex(array $priceInvertedIndex, array $prices, int $priceBufferIndex): array
+    private function updateIndex(InvertedIndex $priceIndex, array $prices, int $priceBufferIndex): void
     {
         $itemName = $this->extractPriceItemName($prices);
         // normalizing item name for better results.
         $itemNameNormalized = $this->normalizeItemName($itemName);
 
         $itemNameParts = explode(' ', $itemNameNormalized);
-        // removing duplicate words.
-        $itemNameParts = array_keys(array_flip($itemNameParts));
 
         foreach ($itemNameParts as $word) {
             $wordNormalized = $this->normalizeWord($word);
@@ -222,29 +218,21 @@ class SourceBinder
                 continue;
             }
 
-            if (!array_key_exists($wordNormalized, $priceInvertedIndex)) {
-                $priceInvertedIndex[$wordNormalized] = [$priceBufferIndex];
-
-                continue;
-            }
-
-            $priceInvertedIndex[$wordNormalized][] = $priceBufferIndex;
+            $priceIndex->add($wordNormalized, $priceBufferIndex);
         }
-
-        return $priceInvertedIndex;
     }
 
     /**
      * Yields stubs for V/B ratio calculation results, with source prices and benchmarks, which were connected to each
      * other by the hardware name using inverted in-memory index
      *
-     * @param array    $priceInvertedIndex A data structure (read-only pass) to connect benchmarks and prices
-     * @param array    $priceBuffer        An array with hardware prices (read-only pass)
-     * @param iterable $benchmarks         The benchmark results collection
+     * @param InvertedIndex $priceIndex  A data structure to connect benchmarks and prices
+     * @param array         $priceBuffer An array with hardware prices (read-only pass)
+     * @param iterable      $benchmarks  The benchmark results collection
      *
      * @return iterable
      */
-    private function traverseIndex(array $priceInvertedIndex, array $priceBuffer, iterable $benchmarks): iterable
+    private function traverseIndex(InvertedIndex $priceIndex, array $priceBuffer, iterable $benchmarks): iterable
     {
         foreach ($benchmarks as $benchmark) {
             $itemName = $this->extractBenchmarkItemName($benchmark);
@@ -256,7 +244,7 @@ class SourceBinder
                 $itemNameNormalized .= ' oem';
             }
 
-            $betterMatchIndex = $this->findBetterMatch($priceInvertedIndex, $itemNameNormalized);
+            $betterMatchIndex = $this->findBetterMatch($priceIndex, $itemNameNormalized);
 
             if (null === $betterMatchIndex) {
                 continue;
@@ -272,14 +260,14 @@ class SourceBinder
      * Returns a numeric index for the price buffer, which indicates the highest possible match between the chosen
      * collection of price records (under that index in the buffer) and an item from the benchmark results
      *
-     * @param array  $priceInvertedIndex A data structure (read-only pass) to connect benchmarks and prices
-     * @param string $itemName           Hardware item name from the benchmark results, to find related price records
+     * @param InvertedIndex $priceIndex A data structure to connect benchmarks and prices
+     * @param string        $itemName   Hardware item name from the benchmark results, to find related price records
      *
      * @return int|null
      */
-    private function findBetterMatch(array $priceInvertedIndex, string $itemName): ?int
+    private function findBetterMatch(InvertedIndex $priceIndex, string $itemName): ?int
     {
-        $connectionMap = $this->buildConnectionMap($priceInvertedIndex, $itemName);
+        $connectionMap = $this->buildConnectionMap($priceIndex, $itemName);
         // sorting (ASC); the most relevant price records for the hardware item will be at the end.
         asort($connectionMap, SORT_NUMERIC);
 
@@ -311,7 +299,8 @@ class SourceBinder
             return null;
         }
 
-        // todo: removing index to prevent duplicate matches
+        // removing index to prevent duplicate matches.
+        $priceIndex->remove($bufferIndex);
 
         return $bufferIndex;
     }
@@ -319,28 +308,27 @@ class SourceBinder
     /**
      * Returns a special data structure, which will be used for relation analysis
      *
-     * @param array  $priceInvertedIndex A data structure (read-only pass) to connect benchmarks and prices
-     * @param string $itemName           Hardware item name from the benchmark results, to find related price records
+     * @param InvertedIndex $priceIndex A data structure to connect benchmarks and prices
+     * @param string        $itemName   Hardware item name from the benchmark results, to find related price records
      *
      * @return array
      */
-    private function buildConnectionMap(array $priceInvertedIndex, string $itemName): array
+    private function buildConnectionMap(InvertedIndex $priceIndex, string $itemName): array
     {
         $itemNameParts = explode(' ', $itemName);
         $connectionMap = [];
 
         foreach ($itemNameParts as $word) {
-            $wordNormalized = $this->normalizeWord($word);
+            $wordNormalized     = $this->normalizeWord($word);
+            $priceBufferIndexes = $priceIndex->get($wordNormalized);
 
-            if ('' === $wordNormalized || !array_key_exists($wordNormalized, $priceInvertedIndex)) {
+            if (null === $priceBufferIndexes) {
                 continue;
             }
 
             $isStopWord = $this->isStopWord($wordNormalized);
             $wordWeight = ((int) !$isStopWord << 10) + 1; // can give some performance boost (no branch guessing)
             // transcription: $wordWeight = !$isStopWord ? 1025 : 1;
-
-            $priceBufferIndexes = $priceInvertedIndex[$wordNormalized];
 
             foreach ($priceBufferIndexes as $priceBufferIndex) {
                 $indexWeight = $connectionMap[$priceBufferIndex] ?? 0;
