@@ -107,7 +107,8 @@ services:
         networks:
             - back_bridge
         environment:
-            HUB_HOST: selenium-hub
+            HUB_HOST: ${SELENIUM_HUB_HOST}
+            HUB_PORT: ${SELENIUM_HUB_PORT}
             NODE_MAX_INSTANCES: 1
             NODE_MAX_SESSION: 1
             # virtual display resolution (framebuffer mode only)

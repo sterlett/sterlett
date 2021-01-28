@@ -8,4 +8,5 @@ services:
                 user: '%app.database.migrations.user_name%'
                 password: '%app.database.migrations.user_password%'
                 host: '%app.database.migrations.host%'
+                port: '%app.database.migrations.port%'
                 dbname: '%app.database.migrations.name%'

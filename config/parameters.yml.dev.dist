@@ -20,6 +20,7 @@ parameters:
     app.database.migrations.user_name: '%env(string:DATABASE_USER_NAME)%'
     app.database.migrations.user_password: '%env(string:DATABASE_USER_PASSWORD)%'
     app.database.migrations.host: '%env(string:DATABASE_HOST)%'
+    app.database.migrations.port: '%env(int:DATABASE_PORT)%'
     app.database.migrations.name: '%env(string:DATABASE_NAME)%'
     app.database.prices.uri: '%env(string:DATABASE_USER_NAME)%:%env(string:DATABASE_USER_PASSWORD)%@%env(string:DATABASE_HOST)%:%env(int:DATABASE_PORT)%/%env(string:DATABASE_NAME)%'
     app.database.table_name.price: 'hardware_price'
