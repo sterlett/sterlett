@@ -24,6 +24,9 @@ use Sterlett\Hardware\VBRatio\SourceBinder;
 use Throwable;
 use function Clue\React\Block\await;
 
+/**
+ * A test for the service that connects benchmarks and price records (from different sources)
+ */
 class SourceBinderTest extends TestCase
 {
     /**
@@ -34,6 +37,8 @@ class SourceBinderTest extends TestCase
     private StreamSelectLoop $loop;
 
     /**
+     * Creates relations for price records from resource A and independent benchmarks from resource B
+     *
      * @var SourceBinder
      */
     private SourceBinder $sourceBinder;
@@ -49,10 +54,16 @@ class SourceBinderTest extends TestCase
         $this->sourceBinder = new SourceBinder($loggerStub, $this->loop);
     }
 
-    // Matching rules:
-    // 1. equal model number = the most accurate case
-    // 2. details match (e.g. OEM/BOX)
-    // 3. shorter string - better, for border cases (overall % match priority)
+    /**
+     * Tests the base source binder's logic
+     *
+     * Matching rules:
+     * - Equal model number = the most accurate case
+     * - Details match (e.g. OEM/BOX)
+     * - Shorter string - better, for border cases (overall % match priority)
+     *
+     * @return void
+     */
     public function testBenchmarksAndPricesAreBinded(): void
     {
         $price1 = new Price();

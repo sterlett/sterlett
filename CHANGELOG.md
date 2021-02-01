@@ -10,6 +10,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - No description yet.
 
+## [0.3.0] - 2021-02-01
+
+### Added
+
+- A configuration option for the PassMark provider, to define a minimal benchmark value that must be scored by the
+hardware item (`passmark.cpu.min_value`; see `Benchmark\ValueThresholdIterator`).
+- `RoutineInterface` as an interface for background tasks and a `Price\RetrievingRoutine`, which collects hardware
+prices, while the microservice serves HTTP requests (gen 1 "fallback" algorithm is used; in testing).
+- New containers in stack: `database` (MySQL 8 docker image); used by the price retrieving routine to persist hardware
+data and price tags.
+- `migrations:status`, `migrations:migrate` and `migrations:diff` command to manage database migrations, with a custom
+schema provider for diffing without ORM layer (using [doctrine/migrations](https://github.com/doctrine/migrations)).
+- Migration for the `hardware_price` table.
+- Async `Price\Repository` service to persist price records in the database (using
+[react/mysql](https://github.com/friends-of-reactphp/mysql)).
+- `VBRatioInterface` and `VBRatio` data object implementation to store and transfer Value/Benchmark calculation results
+([learn more](README.md#calculating-vb-rating)).
+- A set of components, responsible for the V/B rating calculation:
+    - `ProviderInterface` and its `ConfigurableProvider` implementation, mixins for both blocking (Console API) and
+    async (Microservice) scopes.
+    - `SourceBinder` service, which connects benchmarks with related price lists from the third-party web resources.
+	- V/B ratio calculator.
+- `VBRatio\CalculateCommand` implementation for the command-line interface.
+
+### Fixed
+
+- Various fixes and adjustments for `.travis.yml`, `README.md` and other metafiles.
+
+This release introduces a `ratio:calculate` console command — to render a table with numerical scores for each
+available hardware item and measure its customer appeal in terms of price/performance (using regional prices).
+The microservice is starting to persist hardware prices in the local storage on-the-fly (a background routine).
+
 ## [0.2.0] (mvp) - 2020-12-25
 
 ### Added
@@ -86,6 +118,7 @@ frontend files.
 
 \* — [igorw/evenement](https://github.com/igorw/evenement), the way how ReactPHP components communicate with each other.
 
-[Unreleased]: https://github.com/sterlett/sterlett/compare/0.2.0...0.x
+[Unreleased]: https://github.com/sterlett/sterlett/compare/0.3.0...0.x
+[0.3.0]: https://github.com/sterlett/sterlett/compare/0.2.0..0.3.0
 [0.2.0]: https://github.com/sterlett/sterlett/compare/0.1.0..0.2.0
 [0.1.0]: https://github.com/sterlett/sterlett/releases/tag/0.1.0

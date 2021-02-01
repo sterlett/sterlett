@@ -19,6 +19,8 @@ use Ds\Map;
 use Ds\Set;
 
 /**
+ * Data structure to map hardware name parts (words) with price records, which contains them
+ *
  * todo: unit test
  */
 class InvertedIndex
@@ -30,8 +32,16 @@ class InvertedIndex
      */
     private Map $_indexesByWord;
 
+    /**
+     * A collection to ignore "removed" indexes
+     *
+     * @var Set
+     */
     private Set $_indexesIgnored;
 
+    /**
+     * InvertedIndex constructor.
+     */
     public function __construct()
     {
         $this->_indexesByWord  = new Map();
@@ -39,7 +49,9 @@ class InvertedIndex
     }
 
     /**
-     * @param string $word
+     * Returns all indexes of price record buffer, which are related to the given word (hardware name part)
+     *
+     * @param string $word A hardware name part
      *
      * @return InvertedIndexEntry[]|null
      */
@@ -63,6 +75,15 @@ class InvertedIndex
         return $indexArray;
     }
 
+    /**
+     * Attaches an {index} with specified {priority} to the given {word}
+     *
+     * @param string $word     A hardware name part
+     * @param int    $index    A numeric index in the price records buffer
+     * @param int    $priority An additional payload to determine index priority within its set (optional)
+     *
+     * @return void
+     */
     public function add(string $word, int $index, int $priority = 0): void
     {
         /** @var Set|null $wordIndexes */
@@ -80,18 +101,44 @@ class InvertedIndex
         $this->_indexesIgnored->remove($index);
     }
 
+    /**
+     * Removes an index from the mappings
+     *
+     * @param int $index A numeric index in the price records buffer
+     *
+     * @return void
+     */
     public function removeIndex(int $index): void
     {
         $this->_indexesIgnored->add($index);
     }
 }
 
+/**
+ * Internal object that represents an entry of the inverted index
+ */
 final class InvertedIndexEntry
 {
+    /**
+     * Index value
+     *
+     * @var int
+     */
     public int $index;
 
+    /**
+     * Index priority
+     *
+     * @var int
+     */
     public int $priority;
 
+    /**
+     * InvertedIndexEntry constructor.
+     *
+     * @param int $index    Index value (a reference to the price record in the buffer)
+     * @param int $priority Priority among other indexes (for the same word)
+     */
     public function __construct(int $index, int $priority)
     {
         $this->index    = $index;

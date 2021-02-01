@@ -113,7 +113,7 @@ $ docker-compose start
 ### Calculating V/B rating
 
 Value/Benchmark (or _Price/Benchmark_) ratio — is a numerical score, that will be assigned for the hardware item to
-measure its consumer appeal. The more V/B ratio it has, the bigger benefit you can get from buying this item in
+measure its customer appeal. The more V/B ratio it has, the bigger benefit you can get from buying this item in
 terms of rough price/performance. You can calculate a V/B rating for the available hardware items manually, with the
 following command:
 
