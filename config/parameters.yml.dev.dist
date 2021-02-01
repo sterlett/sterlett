@@ -16,6 +16,15 @@ parameters:
     app.console.name: 'Sterlett'
     app.console.version: '0.2.0'
 
+    app.database.migrations.driver_name: 'pdo_mysql'
+    app.database.migrations.user_name: '%env(string:DATABASE_USER_NAME)%'
+    app.database.migrations.user_password: '%env(string:DATABASE_USER_PASSWORD)%'
+    app.database.migrations.host: '%env(string:DATABASE_HOST)%'
+    app.database.migrations.port: '%env(int:DATABASE_PORT)%'
+    app.database.migrations.name: '%env(string:DATABASE_NAME)%'
+    app.database.prices.uri: '%env(string:DATABASE_USER_NAME)%:%env(string:DATABASE_USER_PASSWORD)%@%env(string:DATABASE_HOST)%:%env(int:DATABASE_PORT)%/%env(string:DATABASE_NAME)%'
+    app.database.table_name.price: 'hardware_price'
+
     # Selenium Grid will be used by gen 3 (or "T-1000") scraping algorithms (for some websites with advanced bot
     # protection), as they emulate human-like behavior in the real browser instance (Google Chrome with XVFB server)
     # https://selenium.dev/documentation/en/grid
@@ -26,6 +35,12 @@ parameters:
     passmark.cpu.download_uri: 'https://www.cpubenchmark.net/high_end_cpus.html'
     # Estimated download size of the PassMark benchmark list (in bytes)
     passmark.cpu.download_size_bytes_estimated: 750000
+    # Minimum value, which a CPU model must score to be included in the algorithm's source data
+    # Low End CPUs: 0-1000
+    # Low Mid CPUs: 1000-2200
+    # High Mid CPUs: 2200-6200
+    # High End CPUs: 6200+
+    passmark.cpu.min_value: 6200
 
     # Prices (RU)
     hardprice.authentication.base_uri: 'https://hardprice.ru'

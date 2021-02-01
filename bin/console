@@ -4,7 +4,7 @@
 /*
  * This file is part of the Sterlett project <https://github.com/sterlett/sterlett>.
  *
- * (c) 2020 Pavel Petrov <itnelo@gmail.com>.
+ * (c) 2020-2021 Pavel Petrov <itnelo@gmail.com>.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -24,6 +24,8 @@ require_once __DIR__ . '/../vendor/autoload.php';
 define('PROJECT_DIR', realpath(__DIR__ . '/../'));
 define('PROJECT_CACHE_DIR', PROJECT_DIR . '/var/cache');
 
+define('PROJECT_MIGRATIONS_DIR', PROJECT_DIR . '/migrations');
+
 $parameterFilePath = __DIR__ . '/../config/parameters.yml';
 
 if (!file_exists($parameterFilePath)) {
@@ -41,8 +43,14 @@ $containerConfigurator->setDefinitionFilePaths(
         __DIR__ . '/../config/services/async/event_loop.yml',
         __DIR__ . '/../config/services/async/clients.yml',
         __DIR__ . '/../config/services/async/threads.yml',
+        __DIR__ . '/../config/services/database_connections.yml',
         __DIR__ . '/../config/services/selenium_webdriver.yml',
         __DIR__ . '/../config/services/browser.yml',
+        // hardware
+        __DIR__ . '/../config/services/hardware/benchmark_collectors.yml',
+        __DIR__ . '/../config/services/hardware/price_calculators.yml',
+        __DIR__ . '/../config/services/hardware/vbratio_source_binder.yml',
+        __DIR__ . '/../config/services/hardware/vbratio_calculator.yml',
         // PassMark
         __DIR__ . '/../config/services/passmark/parsers.yml',
         // HardPrice
@@ -68,6 +76,7 @@ $containerConfigurator->setDefinitionFilePaths(
         // providers
         __DIR__ . '/../config/services/hardware/benchmark_providers.yml',
         __DIR__ . '/../config/services/hardware/price_providers.yml',
+        __DIR__ . '/../config/services/hardware/vbratio_providers.yml',
         // console
         __DIR__ . '/../config/services/console/commands.yml',
     ]
@@ -86,4 +95,5 @@ $commandLoader      = $container->get('console.command_loader');
 $application = new ConsoleApplication($applicationName, $applicationVersion);
 $application->setCommandLoader($commandLoader);
 
-$application->run();
+$consoleOutput = $container->get('symfony.console.output');
+$application->run(null, $consoleOutput);

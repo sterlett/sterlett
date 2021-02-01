@@ -1,0 +1,4 @@
+
+services:
+    app.hardware.price.simple_average_calculator:
+        class: Sterlett\Hardware\Price\SimpleAverageCalculator

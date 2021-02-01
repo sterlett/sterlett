@@ -42,6 +42,7 @@ services:
             -   name: 'price_provider'
                 providerId: 'HardPrice'
 
+    # gen 3
     app.hardware.price.provider.hardprice.browsing_provider.cpu:
         class: Sterlett\Hardware\Price\Provider\HardPrice\BrowsingProvider
         arguments:

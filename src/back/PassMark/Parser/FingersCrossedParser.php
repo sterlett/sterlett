@@ -3,7 +3,7 @@
 /*
  * This file is part of the Sterlett project <https://github.com/sterlett/sterlett>.
  *
- * (c) 2020 Pavel Petrov <itnelo@gmail.com>.
+ * (c) 2020-2021 Pavel Petrov <itnelo@gmail.com>.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -66,9 +66,11 @@ class FingersCrossedParser implements ParserInterface
             $benchmarkHardwareName = $matches[1][0];
             $benchmarkValue        = $matches[2][0];
 
+            $benchmarkValueNormalized = preg_replace('/[.,]/', '', $benchmarkValue);
+
             $benchmark = new Benchmark();
             $benchmark->setHardwareName($benchmarkHardwareName);
-            $benchmark->setValue($benchmarkValue);
+            $benchmark->setValue($benchmarkValueNormalized);
 
             yield $benchmark;
 

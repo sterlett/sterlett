@@ -1,5 +1,6 @@
 
 services:
+    # benchmark
     app.console.command.hardware.benchmark.list_command.cpu:
         class: Sterlett\Console\Command\Hardware\Benchmark\ListCommand
         arguments:
@@ -11,6 +12,7 @@ services:
             -   name: 'console.command'
                 command: 'benchmark:list'
 
+    # price
     app.console.command.hardware.price.list_command.cpu:
         class: Sterlett\Console\Command\Hardware\Price\ListCommand
         arguments:
@@ -19,3 +21,68 @@ services:
         tags:
             -   name: 'console.command'
                 command: 'price:list'
+
+    # ratio
+    app.console.command.hardware.ratio.calculate_command.cpu:
+        class: Sterlett\Console\Command\Hardware\Ratio\CalculateCommand
+        arguments:
+            - !tagged_locator
+                tag: 'ratio_provider.synchronous'
+                index_by: 'dataSource'
+            - '@app.hardware.price.simple_average_calculator'
+            - 'Calculates a Value/Benchmark rating for items from the CPU hardware category'
+        tags:
+            -   name: 'console.command'
+                command: 'ratio:calculate'
+
+    # migrations (doctrine)
+    app.console.command.migrations.status_command:
+        class: Doctrine\Migrations\Tools\Console\Command\StatusCommand
+        arguments:
+            - '@app.bridge.doctrine.migrations.dependency_factory.default'
+        tags:
+            -   name: 'console.command'
+                command: 'migrations:status'
+
+    app.console.command.migrations.migrate_command:
+        class: Doctrine\Migrations\Tools\Console\Command\MigrateCommand
+        arguments:
+            - '@app.bridge.doctrine.migrations.dependency_factory.default'
+        tags:
+            -   name: 'console.command'
+                command: 'migrations:migrate'
+
+    app.console.command.migrations.diff_command:
+        class: Doctrine\Migrations\Tools\Console\Command\DiffCommand
+        arguments:
+            - '@app.bridge.doctrine.migrations.dependency_factory.default'
+        tags:
+            -   name: 'console.command'
+                command: 'migrations:diff'
+
+    app.bridge.doctrine.migrations.dependency_factory.default:
+        class: Doctrine\Migrations\DependencyFactory
+        factory: ['Doctrine\Migrations\DependencyFactory', fromConnection]
+        calls:
+            - setDefinition:
+                  - 'Doctrine\Migrations\Provider\SchemaProvider'
+                  - '@app.bridge.doctrine.migrations.schema_provider_configurator.hardware_prices'
+        arguments:
+            - '@app.bridge.doctrine.migrations.configuration.array'
+            - '@app.bridge.doctrine.migrations.configuration.connection.existing'
+
+    app.bridge.doctrine.migrations.schema_provider_configurator.hardware_prices:
+        class: Sterlett\Bridge\Doctrine\Migrations\SchemaProviderConfigurator
+        arguments:
+            - '%app.database.table_name.price%'
+
+    app.bridge.doctrine.migrations.configuration.array:
+        class: Doctrine\Migrations\Configuration\Migration\ConfigurationArray
+        arguments:
+            -   migrations_paths:
+                    SterlettMigrations: !php/const PROJECT_MIGRATIONS_DIR
+
+    app.bridge.doctrine.migrations.configuration.connection.existing:
+        class: Doctrine\Migrations\Configuration\Connection\ExistingConnection
+        arguments:
+            - '@app.database.connection.migrations.synchronous'

@@ -1,5 +1,5 @@
 
-# Copyright (c) 2020 Pavel Petrov <itnelo@gmail.com>
+# Copyright (c) 2020-2021 Pavel Petrov <itnelo@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -45,6 +45,39 @@ services:
                 # restarting containers one by one with some time intervals to prevent complete service denial
                 # in case when all containers are down simultaneously
                 delay: 30s
+            resources:
+                limits:
+                    cpus: '0.5'
+                    memory: 512M
+                reservations:
+                    cpus: '0.25'
+                    memory: 256M
+
+    database:
+        image: 'mysql:${DATABASE_VERSION}'
+        # for compatibility with react/mysql client implementation (no caching_sha2_password support at this time)
+        command: '--default-authentication-plugin=mysql_native_password'
+        networks:
+            - back_overlay
+        environment:
+            MYSQL_RANDOM_ROOT_PASSWORD: 'non-empty'
+            MYSQL_DATABASE: ${DATABASE_NAME}
+            MYSQL_USER: ${DATABASE_USER_NAME}
+            MYSQL_PASSWORD: ${DATABASE_USER_PASSWORD}
+        volumes:
+            - database_data:${DATABASE_DATA_DIR}
+            - ./docker/dev/database/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
+        deploy:
+            mode: replicated
+            replicas: 1
+            placement:
+                constraints:
+                    - "node.role == manager"
+            restart_policy:
+                condition: any
+                delay: 5s
+                max_attempts: 5
+                window: 60s
             resources:
                 limits:
                     cpus: '0.5'
@@ -106,12 +139,14 @@ services:
                     cpus: '0.25'
                     memory: 192M
 
+    # todo: profile persistence
     selenium-node-chrome:
         image: '${SNC_STACK_IMAGE_NAME}:${SNC_STACK_IMAGE_VERSION}'
         networks:
             - back_overlay
         environment:
             HUB_HOST: ${SELENIUM_HUB_HOST}
+            HUB_PORT: ${SELENIUM_HUB_PORT}
             NODE_MAX_INSTANCES: 1
             NODE_MAX_SESSION: 1
             # virtual display resolution (framebuffer mode only)
@@ -179,3 +214,11 @@ networks:
             encrypted: ''
         # to ensure an external service can access this network
         attachable: true
+
+volumes:
+    database_data:
+        driver: local
+        driver_opts:
+            type: none
+            device: ${PWD}/data/database/sterlett_data
+            o: bind

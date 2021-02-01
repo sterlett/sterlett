@@ -3,7 +3,7 @@
 /*
  * This file is part of the Sterlett project <https://github.com/sterlett/sterlett>.
  *
- * (c) 2020 Pavel Petrov <itnelo@gmail.com>.
+ * (c) 2020-2021 Pavel Petrov <itnelo@gmail.com>.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace Sterlett\Hardware\Price;
 
 use React\Promise\PromiseInterface;
+use Sterlett\Hardware\PriceInterface;
 use Traversable;
 
 /**
@@ -32,6 +33,8 @@ interface ProviderInterface
      * todo: retval decomposition
      *
      * @return PromiseInterface<Traversable<iterable>>|iterable[]>
+     *
+     * @see PriceInterface
      */
     public function getPrices(): PromiseInterface;
 }

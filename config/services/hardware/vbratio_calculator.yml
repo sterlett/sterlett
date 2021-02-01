@@ -1,0 +1,17 @@
+
+services:
+    app.hardware.vbratio.calculator:
+        alias: 'app.hardware.vbratio.calculator.value_multiplying_calculator.simple_average.mul100scale2'
+
+    app.hardware.vbratio.calculator.value_multiplying_calculator.simple_average.mul100scale2:
+        class: Sterlett\Hardware\VBRatio\Calculator\ValueMultiplyingCalculator
+        arguments:
+            - '@app.hardware.vbratio.calculator.simple_average_calculator.scale4'
+            - !!str 100
+            - 2
+
+    app.hardware.vbratio.calculator.simple_average_calculator.scale4:
+        class: Sterlett\Hardware\VBRatio\Calculator\SimpleAverageCalculator
+        arguments:
+            - '@app.hardware.price.simple_average_calculator'
+            - 4

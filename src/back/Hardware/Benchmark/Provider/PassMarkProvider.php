@@ -3,7 +3,7 @@
 /*
  * This file is part of the Sterlett project <https://github.com/sterlett/sterlett>.
  *
- * (c) 2020 Pavel Petrov <itnelo@gmail.com>.
+ * (c) 2020-2021 Pavel Petrov <itnelo@gmail.com>.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -20,6 +20,7 @@ use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use RuntimeException;
 use Sterlett\ClientInterface;
+use Sterlett\Hardware\Benchmark\CollectorInterface;
 use Sterlett\Hardware\Benchmark\ParserInterface;
 use Sterlett\Hardware\Benchmark\ProviderInterface;
 use Sterlett\Hardware\BenchmarkInterface;
@@ -48,6 +49,13 @@ class PassMarkProvider implements ProviderInterface
     private ParserInterface $benchmarkParser;
 
     /**
+     * Applies filtering logic for the benchmark set
+     *
+     * @var CollectorInterface
+     */
+    private CollectorInterface $benchmarkCollector;
+
+    /**
      * Resource identifier for data extracting
      *
      * @var string
@@ -57,16 +65,21 @@ class PassMarkProvider implements ProviderInterface
     /**
      * PassMarkProvider constructor.
      *
-     * @param ClientInterface $httpClient      Requests data from the external source
-     * @param ParserInterface $benchmarkParser Transforms raw benchmark data from the external resource to the list of
-     *                                         application-level DTOs
-     * @param string          $downloadUri     Resource identifier for data extracting
+     * @param ClientInterface    $httpClient         Requests data from the external source
+     * @param ParserInterface    $benchmarkParser    Transforms raw benchmark data to the list of DTOs
+     * @param CollectorInterface $benchmarkCollector Applies filtering logic for the benchmark set
+     * @param string             $downloadUri        Resource identifier for data extracting
      */
-    public function __construct(ClientInterface $httpClient, ParserInterface $benchmarkParser, string $downloadUri)
-    {
-        $this->httpClient      = $httpClient;
-        $this->benchmarkParser = $benchmarkParser;
-        $this->downloadUri     = $downloadUri;
+    public function __construct(
+        ClientInterface $httpClient,
+        ParserInterface $benchmarkParser,
+        CollectorInterface $benchmarkCollector,
+        string $downloadUri
+    ) {
+        $this->httpClient         = $httpClient;
+        $this->benchmarkParser    = $benchmarkParser;
+        $this->benchmarkCollector = $benchmarkCollector;
+        $this->downloadUri        = $downloadUri;
     }
 
     /**
@@ -116,9 +129,11 @@ class PassMarkProvider implements ProviderInterface
     private function onResponseSuccess(ResponseInterface $response): iterable
     {
         $bodyAsString = (string) $response->getBody();
+        $benchmarks   = $this->benchmarkParser->parse($bodyAsString);
 
-        $benchmarks = $this->benchmarkParser->parse($bodyAsString);
+        // applying filtering conditions for the result set.
+        $benchmarkListFiltered = $this->benchmarkCollector->collect($benchmarks);
 
-        return $benchmarks;
+        return $benchmarkListFiltered;
     }
 }

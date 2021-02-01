@@ -1,14 +1,32 @@
 
 # Sterlett
 
+<pre>
+;C0tf;.
+LGCGCLCf;.
+itii;:itLLfffftLLffLL1;,
+ ii:;;::;1tLCCL◖◗LfCCLLf1;,
+  ii:;;:;:;;11fLLffLLfLCLff1,
+   i;:::;:::ii111ttffffLCLftf1.
+   ,..i;:::;1iiiiii1i1tfLfft1ft.
+      ,;;;i11    ii1i111t1tf11fiii:.
+      .,iftt111111tt111iii;tft1tttft:
+   ,itLfi;i1tffftt111111111tGGCLt11tti.
+.ifL1:,      .:1fLfffttttft1i1LCCCCfttti
+tf;             .;1tfLLLLfft11it;;fLLLfLi
+                     .,itLfffttt    ,itft
+                     .i11tfft11tt,     ti.
+</pre>
+
 [![Build Status](https://travis-ci.com/sterlett/sterlett.svg?branch=master)](https://travis-ci.com/sterlett/sterlett)
 [![CodeFactor](https://www.codefactor.io/repository/github/sterlett/sterlett/badge)](https://www.codefactor.io/repository/github/sterlett/sterlett)
 
 - [Goals](#goals)
 - [Architecture](#architecture)
 - [Installation](#installation)
-    - [Docker Compose](#docker-compose)
+    - [Docker](#docker)
 - [Console API](#console-api)
+    - [Calculating V/B rating](#calculating-vb-rating)
     - [Downloading a benchmark list](#downloading-a-benchmark-list)
     - [Retrieving hardware prices](#retrieving-hardware-prices)
 - [Honeycomb](#honeycomb)
@@ -28,14 +46,18 @@ The microservice represents a set of backend and frontend containers behind a ga
 for routing and load balancing ([stack](https://github.com/itnelo/reactphp-foundation#docker-swarm)).
 
 Backend: PHP 7.4+, [ReactPHP](https://github.com/reactphp/reactphp), 
-[Symfony](https://github.com/symfony/symfony) 5 components. \
-Frontend: [Lighttpd](https://lighttpd.net) 1.4, JavaScript (ES5, ES6+),
-[Svelte](https://github.com/sveltejs/svelte) 3, [Spectre.css](https://github.com/picturepan2/spectre). \
+[Symfony](https://github.com/symfony/symfony) 5 components (async adapters).
+[MySQL](https://dev.mysql.com/doc/refman/8.0/en) 8 for data persistence. \
+Frontend: JavaScript (ES5, ES6+), [Svelte](https://github.com/sveltejs/svelte) 3,
+[Spectre.css](https://github.com/picturepan2/spectre). [Lighttpd](https://lighttpd.net) 1.4 to serve assets. \
 Gateway: [HAProxy](https://www.haproxy.com) 2.2.
 
 ## Installation
 
-### Docker Compose
+### Docker
+
+> Ensure you have a [Docker daemon](https://docs.docker.com/get-docker) and a [compose](https://docs.docker.com/compose)
+> tool available on your machine.
 
 Clone the repository, then build a `.env` and other configuration files:
 
@@ -67,6 +89,12 @@ $ docker-compose run --rm --no-deps app composer install
 $ docker-compose run --rm --no-deps app npm clean-install --no-optional
 ```
 
+Apply migrations:
+
+```
+$ docker-compose run --rm app bin/console migrations:migrate --no-interaction -vv latest
+```
+
 To compile frontend assets:
 
 ```
@@ -81,6 +109,24 @@ $ docker-compose start
 ```
 
 ## Console API
+
+### Calculating V/B rating
+
+Value/Benchmark (or _Price/Benchmark_) ratio — is a numerical score, that will be assigned for the hardware item to
+measure its customer appeal. The more V/B ratio it has, the bigger benefit you can get from buying this item in
+terms of rough price/performance. You can calculate a V/B rating for the available hardware items manually, with the
+following command:
+
+```
+$ docker-compose run --rm --no-deps app bin/console ratio:calculate
+```
+
+Example:
+
+![console_api_ratio_calculate_asciicast](.github/images/console-api-ratio-calculate.gif)
+
+The source data includes both hardware benchmarks and price lists from the third-party web resources. It is possible to
+dump contents of related providers by the other API methods.
 
 ### Downloading a benchmark list
 
@@ -124,8 +170,8 @@ This one is currently at the development stage :honeybee:.
 :honey_pot: CI ground \
 :honey_pot: Prices retrieving \
 :honey_pot: Benchmarks retrieving \
-:black_square_button: Data persistence \
-:black_square_button: Console API: CPU list \
+:honey_pot: Data persistence \
+:honey_pot: Console API: CPU list \
 :black_square_button: Console API: Day/Week deals \
 :black_square_button: Microservice: CPU list browsing
 

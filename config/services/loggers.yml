@@ -11,3 +11,4 @@ services:
 
     symfony.console.output:
         class: Symfony\Component\Console\Output\ConsoleOutput
+        public: true

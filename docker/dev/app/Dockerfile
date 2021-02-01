@@ -1,5 +1,5 @@
 
-# Copyright (c) 2020 Pavel Petrov <itnelo@gmail.com>
+# Copyright (c) 2020-2021 Pavel Petrov <itnelo@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -45,10 +45,16 @@ COPY docker-php-ext-xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.i
 # pcntl
 RUN docker-php-ext-install pcntl
 
+# bcmath
+RUN docker-php-ext-install bcmath
+
 # ds
 # https://github.com/php-ds/ext-ds
 RUN pecl install ds && docker-php-ext-enable ds
 COPY docker-php-ext-ds.ini /usr/local/etc/php/conf.d/docker-php-ext-ds.ini
+
+# database
+RUN docker-php-ext-install pdo_mysql
 
 COPY php.ini /usr/local/etc/php/conf.d/php.ini
 
