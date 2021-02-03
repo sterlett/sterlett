@@ -37,12 +37,21 @@ services:
 #                event: 'data'
 #                method: 'onDataReceived'
 
+#    app.event.listener.cpu_mark_acceptance_listener.stub:
+#        class: Sterlett\Event\Listener\CpuMarkAcceptanceListener
+#        arguments:
+#            - '@app.request.handler.hardware_mark_handler'
+#        tags:
+#            -   name: 'evenement.event_listener'
+#                dispatcher: 'react.stream.readable_resource_stream.file_cpus_json'
+#                event: 'data'
+#                method: 'onCpuMarkReceived'
+
     app.event.listener.cpu_mark_acceptance_listener:
         class: Sterlett\Event\Listener\CpuMarkAcceptanceListener
         arguments:
             - '@app.request.handler.hardware_mark_handler'
         tags:
-            -   name: 'evenement.event_listener'
-                dispatcher: 'react.stream.readable_resource_stream.file_cpus_json'
-                event: 'data'
+            -   name: 'psr14.event_listener'
+                event: !php/const Sterlett\Event\VBRatiosEmittedEvent::NAME
                 method: 'onCpuMarkReceived'

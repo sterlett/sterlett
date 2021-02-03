@@ -3,7 +3,7 @@
 /*
  * This file is part of the Sterlett project <https://github.com/sterlett/sterlett>.
  *
- * (c) 2020 Pavel Petrov <itnelo@gmail.com>.
+ * (c) 2020-2021 Pavel Petrov <itnelo@gmail.com>.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,6 +15,8 @@ declare(strict_types=1);
 
 namespace Sterlett\Bridge\Symfony\Component\EventDispatcher;
 
+use InvalidArgumentException;
+use React\Promise\PromiseInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher as BaseEventDispatcher;
 
 /**
@@ -52,6 +54,28 @@ class DeferredEventDispatcher extends BaseEventDispatcher
         parent::__construct();
 
         $this->tickScheduler = $tickScheduler;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return PromiseInterface<DeferredEventInterface>
+     */
+    public function dispatch(object $event, string $eventName = null): PromiseInterface
+    {
+        if (!$event instanceof DeferredEventInterface) {
+            throw new InvalidArgumentException(
+                'Event should implement the DeferredEventInterface to be handled by the deferred event dispatcher.'
+            );
+        }
+
+        /** @var DeferredEventInterface $event */
+        $event = parent::dispatch($event, $eventName);
+
+        $dispatchingDeferred       = $event->getDeferred();
+        $propagationStoppedPromise = $dispatchingDeferred->promise();
+
+        return $propagationStoppedPromise;
     }
 
     /**

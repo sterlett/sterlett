@@ -65,6 +65,9 @@ final class Application
         $priceRetrievingRoutine = $this->container->get('app.routine.price_retrieving');
         $priceRetrievingRoutine->run();
 
+        $ratioFeedRoutine = $this->container->get('app.routine.vbratio_feed');
+        $ratioFeedRoutine->run();
+
         $loop->run();
     }
 

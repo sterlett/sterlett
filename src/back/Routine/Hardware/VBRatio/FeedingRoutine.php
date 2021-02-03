@@ -13,18 +13,18 @@
 
 declare(strict_types=1);
 
-namespace Sterlett\Routine\Hardware\Price;
+namespace Sterlett\Routine\Hardware\VBRatio;
 
 use Psr\Log\LoggerInterface;
 use React\EventLoop\LoopInterface;
-use Sterlett\Hardware\Price\Retriever as PriceRetriever;
+use Sterlett\Hardware\VBRatio\Feeder as VBRatioFeeder;
 use Sterlett\RoutineInterface;
 use Throwable;
 
 /**
- * Runs a background task, which actualizes price information for hardware items
+ * Runs a background task, which updates V/B ratio list for the HTTP handler
  */
-class RetrievingRoutine implements RoutineInterface
+class FeedingRoutine implements RoutineInterface
 {
     /**
      * Logs routine activity
@@ -41,36 +41,36 @@ class RetrievingRoutine implements RoutineInterface
     private LoopInterface $loop;
 
     /**
-     * Finds price records for the different hardware items and saves them into the local storage
+     * Emits a list with V/B ranks for the available hardware items
      *
-     * @var PriceRetriever
+     * @var VBRatioFeeder
      */
-    private PriceRetriever $priceRetriever;
+    private VBRatioFeeder $ratioFeeder;
 
     /**
-     * The interval between price retrieving attempts, in seconds (8h by default)
+     * The interval between feed updates, in seconds (default: 4h)
      *
      * @var float
      */
     private float $attemptInterval;
 
     /**
-     * RetrievingRoutine constructor.
+     * FeedingRoutine constructor.
      *
      * @param LoggerInterface $logger          Logs routine activity
      * @param LoopInterface   $loop            Event loop reference
-     * @param PriceRetriever  $priceRetriever  Finds hardware prices and saves them into the local storage
-     * @param float           $attemptInterval The interval between price retrieving attempts, in seconds
+     * @param VBRatioFeeder   $ratioFeeder     Emits a list with V/B ranks for the available hardware items
+     * @param float           $attemptInterval The interval between feed updates, in seconds (default: 4h)
      */
     public function __construct(
         LoggerInterface $logger,
         LoopInterface $loop,
-        PriceRetriever $priceRetriever,
-        float $attemptInterval = 28800.0
+        VBRatioFeeder $ratioFeeder,
+        float $attemptInterval = 14400.0
     ) {
         $this->logger          = $logger;
         $this->loop            = $loop;
-        $this->priceRetriever  = $priceRetriever;
+        $this->ratioFeeder     = $ratioFeeder;
         $this->attemptInterval = $attemptInterval;
     }
 
@@ -83,26 +83,26 @@ class RetrievingRoutine implements RoutineInterface
     }
 
     /**
-     * Runs price retrieving logic in the background task (as a timer)
+     * Runs V/B ratio list feed logic in the background task (as a timer)
      *
      * @return void
      */
     private function runInternal(): void
     {
-        $this->logger->info('Executing a background task: price retrieving.');
+        $this->logger->info('Executing a background task: V/B ratio feed.');
 
         try {
-            $completionPromise = $this->priceRetriever->retrievePrices();
+            $completionPromise = $this->ratioFeeder->emitRatios();
 
             $completionPromise->then(
                 function () {
-                    $this->logger->info('Price retrieving task is complete.');
+                    $this->logger->info('V/B ratio feed task is complete.');
 
                     // rescheduling, to perform a next attempt.
                     $this->loop->addTimer($this->attemptInterval, fn () => $this->runInternal());
                 },
                 function (Throwable $rejectionReason) {
-                    $this->logger->error('Price retrieving task has failed.', ['reason' => $rejectionReason]);
+                    $this->logger->error('V/B ratio feed task task has failed.', ['reason' => $rejectionReason]);
 
                     $this->loop->addTimer($this->attemptInterval, fn () => $this->runInternal());
                 }
@@ -110,7 +110,12 @@ class RetrievingRoutine implements RoutineInterface
         } catch (Throwable $exception) {
             // todo: enhance the context
 
-            $this->logger->critical('Unable to schedule a background task: price retrieving.');
+            $this->logger->critical(
+                'Unable to schedule a background task: V/B ratio feed.',
+                [
+                    'exception' => $exception,
+                ]
+            );
         }
     }
 }

@@ -73,3 +73,6 @@ services:
     property_accessor:
         class: Symfony\Component\PropertyAccess\PropertyAccessor
         factory: ['Symfony\Component\PropertyAccess\PropertyAccess', createPropertyAccessor]
+
+    event_dispatcher:
+        alias: 'app.event.dispatcher'

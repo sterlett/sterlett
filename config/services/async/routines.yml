@@ -5,6 +5,10 @@ services:
         alias: 'app.routine.hardware.price.retrieving_routine'
         public: true
 
+    app.routine.vbratio_feed:
+        alias: 'app.routine.hardware.vbratio.feeding_routine'
+        public: true
+
     app.routine.hardware.price.retrieving_routine:
         class: Sterlett\Routine\Hardware\Price\RetrievingRoutine
         arguments:
@@ -12,3 +16,11 @@ services:
             - '@app.event_loop'
             - '@app.hardware.price.retriever'
             - !!float 28800
+
+    app.routine.hardware.vbratio.feeding_routine:
+        class: Sterlett\Routine\Hardware\VBRatio\FeedingRoutine
+        arguments:
+            - '@app.log.logger.stdout'
+            - '@app.event_loop'
+            - '@app.hardware.vbratio.feeder'
+            - !!float 14400

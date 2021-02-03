@@ -1,0 +1,6 @@
+
+services:
+    app.hardware.vbratio.feeder:
+        class: Sterlett\Hardware\VBRatio\Feeder
+        arguments:
+            - '@app.event.dispatcher'

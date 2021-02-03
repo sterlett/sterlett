@@ -3,7 +3,7 @@
 /*
  * This file is part of the Sterlett project <https://github.com/sterlett/sterlett>.
  *
- * (c) 2020 Pavel Petrov <itnelo@gmail.com>.
+ * (c) 2020-2021 Pavel Petrov <itnelo@gmail.com>.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -85,11 +85,9 @@ class HardwareMarkHandler implements HandlerInterface
 
         if (self::ACTION_CPU_LIST === $actionName) {
             // todo: handle chunked data (in "pending" status, if buffer is used)
-            if (is_string($this->cpuData)) {
-                $response = $this->getCpuListResponse();
-            } else {
-                $response = $this->getCpuListNotReadyResponse();
-            }
+            //$response = $this->getCpuListNotReadyResponse();
+
+            $response = $this->getCpuListResponse();
         } else {
             $response = $this->getNotFoundResponse();
         }
