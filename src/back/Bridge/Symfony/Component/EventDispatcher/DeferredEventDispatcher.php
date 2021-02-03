@@ -59,9 +59,9 @@ class DeferredEventDispatcher extends BaseEventDispatcher
     /**
      * {@inheritDoc}
      *
-     * @return PromiseInterface<DeferredEventInterface>
+     * @return DeferredEventInterface
      */
-    public function dispatch(object $event, string $eventName = null): PromiseInterface
+    public function dispatch(object $event, string $eventName = null): DeferredEventInterface
     {
         if (!$event instanceof DeferredEventInterface) {
             throw new InvalidArgumentException(
@@ -72,10 +72,7 @@ class DeferredEventDispatcher extends BaseEventDispatcher
         /** @var DeferredEventInterface $event */
         $event = parent::dispatch($event, $eventName);
 
-        $dispatchingDeferred       = $event->getDeferred();
-        $propagationStoppedPromise = $dispatchingDeferred->promise();
-
-        return $propagationStoppedPromise;
+        return $event;
     }
 
     /**

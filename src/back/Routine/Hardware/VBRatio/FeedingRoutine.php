@@ -102,7 +102,7 @@ class FeedingRoutine implements RoutineInterface
                     $this->loop->addTimer($this->attemptInterval, fn () => $this->runInternal());
                 },
                 function (Throwable $rejectionReason) {
-                    $this->logger->error('V/B ratio feed task task has failed.', ['reason' => $rejectionReason]);
+                    $this->logger->error('V/B ratio feed task has failed.', ['reason' => $rejectionReason]);
 
                     $this->loop->addTimer($this->attemptInterval, fn () => $this->runInternal());
                 }

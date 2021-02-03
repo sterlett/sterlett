@@ -75,14 +75,15 @@ class Feeder
                     }
                 ]
             }
-        
 DATA;
 
         $ratioListEmittedEvent = new VBRatiosEmittedEvent();
         $ratioListEmittedEvent->setRatioData($tmpData);
 
-        /** @var PromiseInterface<DeferredEventInterface> $propagationStoppedPromise */
-        $propagationStoppedPromise = $this->eventDispatcher->dispatch($ratioListEmittedEvent, VBRatiosEmittedEvent::NAME);
+        $this->eventDispatcher->dispatch($ratioListEmittedEvent, VBRatiosEmittedEvent::NAME);
+
+        $dispatchingDeferred       = $ratioListEmittedEvent->getDeferred();
+        $propagationStoppedPromise = $dispatchingDeferred->promise();
 
         return $propagationStoppedPromise;
     }
