@@ -1,6 +1,12 @@
 
 services:
     app.hardware.vbratio.feeder:
+        alias: 'app.hardware.vbratio.feeder.fallback_feeder'
+
+    # todo: move to the precached provider (gen 3)
+    app.hardware.vbratio.feeder.fallback_feeder:
         class: Sterlett\Hardware\VBRatio\Feeder
         arguments:
+            - '@app.hardware.vbratio.provider.configurable_provider.live.cpu'
+            - '@app.hardware.price.simple_average_calculator'
             - '@app.event.dispatcher'

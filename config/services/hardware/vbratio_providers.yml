@@ -24,6 +24,16 @@ services:
             - '@app.event_loop'
 
     # --- provider mixins
+
+    # todo: remove after precached provider become implemented
+    app.hardware.vbratio.provider.configurable_provider.live.cpu:
+        class: Sterlett\Hardware\VBRatio\Provider\ConfigurableProvider
+        arguments:
+            - '@app.hardware.price.provider.hardprice.fallback_provider.cpu'
+            - '@app.hardware.benchmark.provider.passmark_provider.cpu'
+            - '@app.hardware.vbratio.source_binder'
+            - '@app.hardware.vbratio.calculator'
+
     # microservice scope: database
     # todo: precached price provider (repository-based) is needed
 

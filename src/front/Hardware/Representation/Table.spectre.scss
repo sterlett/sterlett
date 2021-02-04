@@ -1,5 +1,10 @@
 
 @import 'spectre.css/src/tables';
+@import 'spectre.css/src/utilities/cursors';
+
+:global {
+    @import 'spectre.css/src/typography';
+}
 
 table {
     img {

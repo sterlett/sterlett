@@ -2,7 +2,15 @@
 {#await cpuListLoadPromise}
 <div class="loading loading-lg"></div>
 {:then}
-<Table header={tableHeader} items={cpus} emptyMessage={tableEmptyMessage} isStriped={tableIsStriped} />
+<Table
+    header={tableHeader}
+    items={cpus}
+    emptyMessage={tableEmptyMessage}
+    isStriped={tableIsStriped}
+    sortDefaultHeaderIndex={tableSortDefaultHeaderIndex}
+    sortDefaultModifier={tableSortDefaultModifier}
+    sortFunctionFactory={tableSortFunctionFactory}
+/>
 {:catch}
 <div>
     Unable to fetch CPUs list.

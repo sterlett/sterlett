@@ -134,10 +134,9 @@ class ConfigurableProvider implements ProviderInterface
             $benchmarkValue  = $sourceBenchmark->getValue();
 
             // todo: +expect possible exception
-            $ratioValue        = $this->ratioCalculator->calculateRatio($sourcePrices, $benchmarkValue);
-            $ratioValueAsFloat = (float) $ratioValue;
+            $ratioValue = $this->ratioCalculator->calculateRatio($sourcePrices, $benchmarkValue);
 
-            $ratio->setValue($ratioValueAsFloat);
+            $ratio->setValue($ratioValue);
 
             yield $ratio;
         }

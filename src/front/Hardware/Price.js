@@ -52,7 +52,10 @@ class Price {
      * @return {String}
      */
     toString() {
-        return this.#priceModel.toFormat('0,0 dollar');
+        const priceUnit = this.#priceModel.toFormat('0,0');
+        const priceCurrency = this.#priceModel.getCurrency();
+
+        return `${priceUnit} ${priceCurrency}`;
     }
 }
 

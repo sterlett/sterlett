@@ -89,7 +89,7 @@ class SourceBinder
             function (array $indexContext) use ($timeIndexingStarted, $benchmarks) {
                 $timeIndexingElapsed = round(($timeIndexingStarted + microtime(true)) * 1000, 2);
                 $this->logger->debug(
-                    'data binder: price indexing is complete ({time} ms).',
+                    'Data binder: price indexing is complete ({time} ms).',
                     [
                         'time' => $timeIndexingElapsed,
                     ]

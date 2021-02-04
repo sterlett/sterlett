@@ -15,8 +15,6 @@ declare(strict_types=1);
 
 namespace Sterlett\Hardware;
 
-use Traversable;
-
 /**
  * Represents a V/B calculation result for the specific hardware item on the market
  */
@@ -25,9 +23,9 @@ interface VBRatioInterface
     /**
      * Returns a collection of price records for the target hardware item, which is used in the calculation
      *
-     * @return Traversable<PriceInterface>|PriceInterface[]
+     * @return PriceInterface[]
      */
-    public function getSourcePrices(): iterable;
+    public function getSourcePrices(): array;
 
     /**
      * Returns a related benchmark record
@@ -39,7 +37,7 @@ interface VBRatioInterface
     /**
      * Returns a calculated V/B rating value
      *
-     * @return float
+     * @return string
      */
-    public function getValue(): float;
+    public function getValue(): string;
 }
