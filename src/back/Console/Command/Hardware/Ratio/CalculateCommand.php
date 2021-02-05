@@ -26,6 +26,7 @@ use Sterlett\Hardware\VBRatioInterface;
 use Symfony\Component\Console\Command\Command as BaseCommand;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
@@ -43,6 +44,13 @@ class CalculateCommand extends BaseCommand
      * @var string
      */
     private const PROVIDER_LIVE = 'live';
+
+    /**
+     * Indicates that prices will be pulled from the database instead of "live" providers
+     *
+     * @var string
+     */
+    private const PROVIDER_DATABASE = 'database';
 
     /**
      * Collects all registered V/B ratio provider implementations for usage within the command
@@ -79,6 +87,36 @@ class CalculateCommand extends BaseCommand
     }
 
     /**
+     * {@inheritdoc}
+     */
+    protected function configure()
+    {
+        $this
+            ->addOption(
+                'source',
+                's',
+                InputOption::VALUE_REQUIRED,
+                'Source for price retrieving: ' . self::PROVIDER_LIVE . ' or ' . self::PROVIDER_DATABASE,
+                self::PROVIDER_LIVE
+            )
+            ->setHelp(
+                <<<HELP
+The <info>%command.name%</info> command renders a list with Value/Benchmark ratios, calculated for the available hardware items:
+
+    <info>%command.full_name%</info>
+
+You can specify a source type <comment>live</comment> or <comment>database</comment>. Live providers may cause requests to the third-party
+web resources and real-time parsing, while the database providers could utilize local cache from previous
+price retrieving sessions (as a microservice) and, generally, operates much faster. But live data is more
+accurate (used by default). The database switch is:
+
+    <info>%command.full_name% --source=database</info>
+HELP
+            )
+        ;
+    }
+
+    /**
      * {@inheritDoc}
      */
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -97,8 +135,16 @@ class CalculateCommand extends BaseCommand
         $outputTable = new Table($tableSection);
         $outputTable->setHeaders(['Hardware name', 'V/B ratio', 'Benchmark rating', 'Price avg.']);
 
-        $ratioIterator = $this->pullRatios();
+        $dataSource    = $input->getOption('source');
+        $ratioIterator = $this->pullRatios($dataSource);
         $ratioIterator->rewind();
+
+        // in case when there are no price records (or benchmarks).
+        if (!$ratioIterator->valid()) {
+            $output->writeln('<info>Not enough data to build a ratio table.</info>');
+
+            return parent::SUCCESS;
+        }
 
         $questionHelper  = $this->getHelper('question');
         $questionSection = $output->section();
@@ -126,12 +172,14 @@ class CalculateCommand extends BaseCommand
     /**
      * Returns an iterator for the available V/B ratio records (pulling from the aggregated providers)
      *
+     * @param string $dataSource Name of the source for price retrieving (live, database, etc.)
+     *
      * @return Iterator
      */
-    private function pullRatios(): Iterator
+    private function pullRatios(string $dataSource): Iterator
     {
         /** @var BlockingProviderInterface $ratioProvider */
-        $ratioProvider = $this->ratioProviderLocator->get(self::PROVIDER_LIVE);
+        $ratioProvider = $this->ratioProviderLocator->get($dataSource);
 
         $ratios = $ratioProvider->getRatios();
 

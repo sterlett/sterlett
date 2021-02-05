@@ -14,8 +14,8 @@ services:
         arguments:
             - '@app.log.logger.stdout'
             - '@app.event_loop'
-            - '@app.hardware.price.retriever'
-            - !!float 28800
+            - '@app.hardware.price.retriever.cpu'
+            - !!float 43200
 
     app.routine.hardware.vbratio.feeding_routine:
         class: Sterlett\Routine\Hardware\VBRatio\FeedingRoutine

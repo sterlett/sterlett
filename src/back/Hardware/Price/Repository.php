@@ -15,9 +15,16 @@ declare(strict_types=1);
 
 namespace Sterlett\Hardware\Price;
 
+use DateTimeInterface;
 use InvalidArgumentException;
 use React\MySQL\ConnectionInterface;
+use React\MySQL\QueryResult;
+use React\Promise\PromiseInterface;
+use RuntimeException;
 use Sterlett\Dto\Hardware\Price;
+use Sterlett\Hardware\PriceInterface;
+use Throwable;
+use Traversable;
 
 /**
  * A storage with price records for the hardware items
@@ -55,11 +62,43 @@ class Repository
         $this->_tableNamePurified = $priceTableName;
     }
 
-    public function findAll(): iterable
+    /**
+     * Returns a promise that resolves to an iterable collection of price records from the storage
+     *
+     * @param DateTimeInterface $dateFrom The lower datetime boundary for desired collection of price records
+     * @param DateTimeInterface $dateTo   The upper datetime boundary
+     *
+     * @return PromiseInterface<iterable>
+     */
+    public function findByCreatedAt(DateTimeInterface $dateFrom, DateTimeInterface $dateTo): PromiseInterface
     {
-        // todo
+        $selectStatement = <<<SQL
+            SELECT
+                hp.*
+            FROM
+                `{$this->_tableNamePurified}` hp
+            WHERE
+                hp.`created_at` BETWEEN ? AND ?
+SQL;
 
-        return [];
+        $dateFromString = $dateFrom->format('Y-m-d H:i:s');
+        $dateToString   = $dateTo->format('Y-m-d H:i:s');
+
+        $priceListPromise = $this->databaseConnection
+            // selecting records from the local storage.
+            ->query($selectStatement, [$dateFromString, $dateToString])
+            // hydrating, to make a DTO set, based on the given raw data.
+            ->then(fn (QueryResult $queryResult) => $this->hydrate($queryResult))
+        ;
+
+        $priceListPromise = $priceListPromise->then(
+            null,
+            function (Throwable $rejectionReason) {
+                throw new RuntimeException('Unable to find price records in the local storage.', 0, $rejectionReason);
+            }
+        );
+
+        return $priceListPromise;
     }
 
     /**
@@ -103,5 +142,27 @@ SQL;
                 $currencyLabel,
             ]
         );
+    }
+
+    /**
+     * Transforms a raw dataset from the database driver to a list of application-level DTOs
+     *
+     * @param QueryResult $queryResult A set of raw data arrays from the async database driver
+     *
+     * @return Traversable<PriceInterface>|PriceInterface[]
+     */
+    private function hydrate(QueryResult $queryResult): iterable
+    {
+        foreach ($queryResult->resultRows as $resultRow) {
+            $hardwarePrice = new Price();
+            $hardwarePrice->setHardwareName($resultRow['hardware_name']);
+            $hardwarePrice->setSellerIdentifier($resultRow['seller_name']);
+            $hardwarePrice->setAmount((int) $resultRow['price_amount']);
+            // todo: extract a real precision from the row value
+            $hardwarePrice->setPrecision(0);
+            $hardwarePrice->setCurrency($resultRow['currency_label']);
+
+            yield $hardwarePrice;
+        }
     }
 }

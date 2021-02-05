@@ -1,8 +1,7 @@
 
 services:
-    app.hardware.price.retriever:
+    app.hardware.price.retriever.cpu:
         class: Sterlett\Hardware\Price\Retriever
         arguments:
-            # todo: switch to browsing provider (gen 3)
-            - '@app.hardware.price.provider.hardprice.fallback_provider.cpu'
-            - '@app.hardware.price.repository'
+            - '@app.hardware.price.provider.hardprice.browsing_provider.cpu'
+            - '@app.hardware.price.repository.cpu'

@@ -20,10 +20,7 @@ use Symfony\Component\Console\DependencyInjection\AddConsoleCommandPass;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-// todo: remove after gen 3 algo migration to the microservice scope
 define('PROJECT_DIR', realpath(__DIR__ . '/../'));
-define('PROJECT_CACHE_DIR', PROJECT_DIR . '/var/cache');
-
 define('PROJECT_MIGRATIONS_DIR', PROJECT_DIR . '/migrations');
 
 $parameterFilePath = __DIR__ . '/../config/parameters.yml';
@@ -42,37 +39,18 @@ $containerConfigurator->setDefinitionFilePaths(
         __DIR__ . '/../config/services/progress_trackers.yml',
         __DIR__ . '/../config/services/async/event_loop.yml',
         __DIR__ . '/../config/services/async/clients.yml',
-        __DIR__ . '/../config/services/async/threads.yml',
+        __DIR__ . '/../config/services/async/database_connections.yml',
         __DIR__ . '/../config/services/database_connections.yml',
-        __DIR__ . '/../config/services/selenium_webdriver.yml',
-        __DIR__ . '/../config/services/browser.yml',
         // hardware
         __DIR__ . '/../config/services/hardware/benchmark_collectors.yml',
+        __DIR__ . '/../config/services/hardware/price_repository.yml',
         __DIR__ . '/../config/services/hardware/price_calculators.yml',
         __DIR__ . '/../config/services/hardware/vbratio_source_binder.yml',
         __DIR__ . '/../config/services/hardware/vbratio_calculator.yml',
         // PassMark
         __DIR__ . '/../config/services/passmark/parsers.yml',
         // HardPrice
-        __DIR__ . '/../config/services/hardprice/csrf_token_parser.yml',
-        __DIR__ . '/../config/services/hardprice/authenticator.yml',
-        __DIR__ . '/../config/services/hardprice/item_requesters.yml',
-        __DIR__ . '/../config/services/hardprice/item_parser.yml',
-        __DIR__ . '/../config/services/hardprice/item_storages.yml',
-        __DIR__ . '/../config/services/hardprice/item_loaders.yml',
-        __DIR__ . '/../config/services/hardprice/price_requester.yml',
-        __DIR__ . '/../config/services/hardprice/price_extractor.yml',
-        __DIR__ . '/../config/services/hardprice/response_reducers.yml',
-        __DIR__ . '/../config/services/hardprice/store_mapper.yml',
         __DIR__ . '/../config/services/hardprice/price_parsers.yml',
-        __DIR__ . '/../config/services/hardprice/price_collectors.yml',
-        // HardPrice (gen 3)
-        __DIR__ . '/../config/services/hardprice/browser/divergent.yml',
-        __DIR__ . '/../config/services/hardprice/browser/site_navigator.yml',
-        __DIR__ . '/../config/services/hardprice/browser/item_reader.yml',
-        __DIR__ . '/../config/services/hardprice/browser/item_searcher.yml',
-        __DIR__ . '/../config/services/hardprice/browser/price_reader.yml',
-        __DIR__ . '/../config/services/hardprice/browser/price_accumulator.yml',
         // providers
         __DIR__ . '/../config/services/hardware/benchmark_providers.yml',
         __DIR__ . '/../config/services/hardware/price_providers.yml',
