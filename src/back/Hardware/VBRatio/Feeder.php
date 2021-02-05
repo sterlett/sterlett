@@ -142,8 +142,7 @@ class Feeder
         // reading a price sample to extract metadata for the whole set.
         $priceSample = $this->extractPriceSample($sourcePrices);
 
-        $priceAverage = (int) $this->priceCalculator->calculateAverage($sourcePrices, 0);
-
+        $priceAverage  = (int) $this->priceCalculator->calculateAverage($sourcePrices, 0);
         $priceCurrency = $priceSample->getCurrency();
 
         $ratioValue = $ratio->getValue();

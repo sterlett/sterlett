@@ -84,11 +84,14 @@ class CpuMarkAcceptanceListener
     {
         if ($data instanceof VBRatiosEmittedEvent) {
             $dataString = $data->getRatioData();
+
+            $this->hardwareMarkHandler->resetState();
         } else {
             $dataString = (string) $data;
+
+            // note: state reset is not available.
         }
 
-        // todo: clear previous data
         $this->hardwareMarkHandler->addCpuData($dataString);
     }
 }

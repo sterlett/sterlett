@@ -108,6 +108,16 @@ class HardwareMarkHandler implements HandlerInterface
     }
 
     /**
+     * Resets handler's state
+     *
+     * @return void
+     */
+    public function resetState(): void
+    {
+        $this->cpuData = '';
+    }
+
+    /**
      * Returns handler's action name to generate an appropriate response
      *
      * @param RequestInterface $request PSR-7 request message

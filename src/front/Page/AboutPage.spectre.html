@@ -1,4 +1,80 @@
 
-<div in:fly={{ y: -25, easing: expoOut }}>
-    About page content...
+<div in:fly={{ y: -50, easing: expoOut }}>
+    <p class="h4">{$format('About')}</p>
+
+    <p>
+        <u><a href="https://cpu-junkie.ru">www.cpu-junkie.ru</a></u> — микросервис, анализирующий соотношение
+        цена/производительность для компьютерных комплектующих, подгружая цены из магазинов г. Москвы в реальном
+        времени. С его помощью можно получить информацию, какой чип сейчас выгодно купить и где. <br /> <br />
+
+        Также его можно использовать для создания архива с ценами на железо и собственной аналитики (см.
+        <u><a href="https://github.com/sterlett/sterlett">GitHub</a></u>).
+    </p>
+
+    <p>&nbsp;</p>
+
+    <div class="accordion" in:fly={{ x: 50, delay: 300, easing: expoOut }}>
+        <input type="checkbox" id="faq-question-accordion-1" name="faq-question-accordion" hidden>
+
+        <label class="accordion-header c-hand" for="faq-question-accordion-1">
+            <i class="icon icon-arrow-right mr-1"></i>
+
+            <b>В</b>: Чем отличается от других сайтов с бенчмарками (включая
+            <u><a href="https://www.passmark.com">PassMark.com</a></u>)?
+        </label>
+
+        <div class="accordion-body">
+            <div class="text-secondary p-2">
+                Основное отличие — в формуле используются действующие цены в рублях из российских магазинов,
+                а не абстрактные N долларов. Таким образом, формируется рейтинг комплектующих с учётом плавающей региональной
+                наценки. <br /> <br />
+
+                Например, отдельные магазины могут увеличить цену на популярный чип за счёт повышенного спроса среди майнеров,
+                скачка курса валют или банального хайпа. Сервис помогает отслеживать такие ситуации в реальном времени и
+                показывает достойные альтернативы для покупки (а также конкретные магазины).
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion" in:fly={{ x: 50, delay: 400, easing: expoOut }}>
+        <input type="checkbox" id="faq-question-accordion-2" name="faq-question-accordion" hidden>
+
+        <label class="accordion-header c-hand" for="faq-question-accordion-2">
+            <i class="icon icon-arrow-right mr-1"></i>
+
+            <b>В</b>: Процессора, который меня интересует, нет в списке!
+        </label>
+
+        <div class="accordion-body">
+            <div class="p-2">
+                Если при этом сам список подгружается, скорее всего публичных офферов по нему нет в большинстве
+                известных магазинов Москвы. Другой вариант — Пассмарк еще не собрал достаточную статистику по этому
+                чипу. <br /> <br />
+
+                Возможен и баг в парсерах — разрешается
+                <u><a href="https://github.com/sterlett/sterlett/issues/new">создать issue</a></u> на GitHub.
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion" in:fly={{ x: 50, delay: 500, easing: expoOut }}>
+        <input type="checkbox" id="faq-question-accordion-3" name="faq-question-accordion" hidden>
+
+        <label class="accordion-header c-hand" for="faq-question-accordion-3">
+            <i class="icon icon-arrow-right mr-1"></i>
+
+            <b>В</b>: Есть ли публичный API с ценами на железо и бенчмарками?
+        </label>
+
+        <div class="accordion-body">
+            <div class="p-2">
+                См. <em>API</em> секцию. На данный момент можно получить список средних цен на процессоры (с
+                посчитанным рейтингом) через эндпоинт: <br /> <br />
+                <kbd>https://cpu-junkie.ru/api/cpu/list.json</kbd> <br /> <br />
+
+                Или поднять <u><a href="https://github.com/sterlett/sterlett#installation">свой инстанс</a></u>. Данные
+                актуализируются каждые 8 часов. Есть консольный интерфейс.
+            </div>
+        </div>
+    </div>
 </div>

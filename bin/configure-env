@@ -80,11 +80,11 @@ cat .env
 # creating docker-compose configuration
 if [[ ${CONFIGURATION_ENV} == "dev" ]]; then
     cp docker-compose.dev.yml.dist docker-compose.yml
-    printf "\nCreated: docker-compose.yml\n"
+    printf "\nCreated: .env docker-compose.yml\n"
 elif [[ ${CONFIGURATION_ENV} == "stack" ]]; then
     set -a
     source .env
     envsubst < docker-compose.stack.yml.dist > docker-compose.stack.yml
     set +a
-    printf "\nCreated: docker-compose.stack.yml\n"
+    printf "\nCreated: .env docker-compose.stack.yml\n"
 fi
