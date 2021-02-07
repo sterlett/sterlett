@@ -28,8 +28,13 @@ parameters:
     # Selenium Grid will be used by gen 3 (or "T-1000") scraping algorithms (for some websites with advanced bot
     # protection), as they emulate human-like behavior in the real browser instance (Google Chrome with XVFB server)
     # https://selenium.dev/documentation/en/grid
-    app.selenium.hub.host: '%env(string:SELENIUM_HUB_HOST)%'
-    app.selenium.hub.port: '%env(int:SELENIUM_HUB_PORT)%'
+    selenium.hub.host: '%env(string:SELENIUM_HUB_HOST)%'
+    selenium.hub.port: '%env(int:SELENIUM_HUB_PORT)%'
+    # Timeout for webdriver calls, in seconds (try to increase this value for low CPU/Mem environments, if you see
+    # driver errors). Consider to upgrade your server/container specs if it can't handle the default value (30.0)
+    selenium.command.timeout: 30.0
+    # Sets how long to wait for the various AJAX requests / socket responses (waitUntil condition checks)
+    selenium.ajax.timeout: 30.0
 
     # Benchmarks
     passmark.cpu.download_uri: 'https://www.cpubenchmark.net/high_end_cpus.html'
@@ -57,8 +62,9 @@ parameters:
     hardprice.requests_per_second: 0.1
     # Count of requests, which can be registered in the event loop at the same time (concurrent requests minimum: 1)
     hardprice.concurrent_requests: 1
-    # Adds up to 0.001..N additional time between requests (in seconds; chosen randomly on each iteration)
-    hardprice.requests_random_delay: 60.0
+    # Adds M..N additional time between requests for scraping actions (in seconds; chosen randomly on each iteration)
+    hardprice.requests_delay_min: 1.0
+    hardprice.requests_delay_max: 60.0
     # Store mappings
     # https://hardprice.ru/api/stores
     hardprice.stores:

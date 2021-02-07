@@ -49,8 +49,8 @@ class RepositoryProvider implements ProviderInterface
      */
     public function getPrices(): PromiseInterface
     {
-        $dateFrom = new DateTime('today');
-        $dateTo   = new DateTime('today 23:59:59');
+        $dateFrom = new DateTime('-1 day');
+        $dateTo   = new DateTime('now');
 
         $priceListPromise = $this->priceRepository
             // requesting data from the local storage.

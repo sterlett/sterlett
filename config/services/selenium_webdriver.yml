@@ -9,5 +9,10 @@ services:
         arguments:
             - '@app.event_loop'
             -   hub:
-                    host: '%app.selenium.hub.host%'
-                    port: '%app.selenium.hub.port%'
+                    host: '%selenium.hub.host%'
+                    port: '%selenium.hub.port%'
+                command:
+                    timeout: '%selenium.command.timeout%'
+                # configuration for the underlying react browser
+                browser:
+                    timeout: '%selenium.command.timeout%'

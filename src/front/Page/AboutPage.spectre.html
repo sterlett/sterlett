@@ -16,7 +16,7 @@
     <div class="accordion" in:fly={{ x: 50, delay: 300, easing: expoOut }}>
         <input type="checkbox" id="faq-question-accordion-1" name="faq-question-accordion" hidden>
 
-        <label class="accordion-header c-hand" for="faq-question-accordion-1">
+        <label class="accordion-header p-0 c-hand" for="faq-question-accordion-1">
             <i class="icon icon-arrow-right mr-1"></i>
 
             <b>В</b>: Чем отличается от других сайтов с бенчмарками (включая
@@ -26,10 +26,11 @@
         <div class="accordion-body">
             <div class="text-secondary p-2">
                 Основное отличие — в формуле используются действующие цены в рублях из российских магазинов,
-                а не абстрактные N долларов. Таким образом, формируется рейтинг комплектующих с учётом плавающей региональной
-                наценки. <br /> <br />
+                а не абстрактные N долларов. Таким образом, формируется рейтинг комплектующих с учётом плавающей
+                региональной наценки. Сервис старается учитывать только товары <strong>в наличии</strong>, поэтому шанс
+                увидеть в рейтинге мифическую или устаревшую модель минимален (но не исключается).<br /> <br />
 
-                Например, отдельные магазины могут увеличить цену на популярный чип за счёт повышенного спроса среди майнеров,
+                Отдельные магазины могут увеличить цену на популярный чип за счёт повышенного спроса среди майнеров,
                 скачка курса валют или банального хайпа. Сервис помогает отслеживать такие ситуации в реальном времени и
                 показывает достойные альтернативы для покупки (а также конкретные магазины).
             </div>
@@ -39,7 +40,7 @@
     <div class="accordion" in:fly={{ x: 50, delay: 400, easing: expoOut }}>
         <input type="checkbox" id="faq-question-accordion-2" name="faq-question-accordion" hidden>
 
-        <label class="accordion-header c-hand" for="faq-question-accordion-2">
+        <label class="accordion-header p-0 c-hand" for="faq-question-accordion-2">
             <i class="icon icon-arrow-right mr-1"></i>
 
             <b>В</b>: Процессора, который меня интересует, нет в списке!
@@ -48,8 +49,8 @@
         <div class="accordion-body">
             <div class="p-2">
                 Если при этом сам список подгружается, скорее всего публичных офферов по нему нет в большинстве
-                известных магазинов Москвы. Другой вариант — Пассмарк еще не собрал достаточную статистику по этому
-                чипу. <br /> <br />
+                известных магазинов Москвы (ИП и доски объявлений не учитываются). Другой вариант — Пассмарк еще не
+                собрал достаточную статистику по этому чипу. <br /> <br />
 
                 Возможен и баг в парсерах — разрешается
                 <u><a href="https://github.com/sterlett/sterlett/issues/new">создать issue</a></u> на GitHub.
@@ -60,7 +61,7 @@
     <div class="accordion" in:fly={{ x: 50, delay: 500, easing: expoOut }}>
         <input type="checkbox" id="faq-question-accordion-3" name="faq-question-accordion" hidden>
 
-        <label class="accordion-header c-hand" for="faq-question-accordion-3">
+        <label class="accordion-header p-0 c-hand" for="faq-question-accordion-3">
             <i class="icon icon-arrow-right mr-1"></i>
 
             <b>В</b>: Есть ли публичный API с ценами на железо и бенчмарками?
@@ -70,6 +71,7 @@
             <div class="p-2">
                 См. <em>API</em> секцию. На данный момент можно получить список средних цен на процессоры (с
                 посчитанным рейтингом) через эндпоинт: <br /> <br />
+
                 <kbd>https://cpu-junkie.ru/api/cpu/list.json</kbd> <br /> <br />
 
                 Или поднять <u><a href="https://github.com/sterlett/sterlett#installation">свой инстанс</a></u>. Данные

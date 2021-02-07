@@ -36,13 +36,22 @@ class ItemSearcher
     private SearchBarLocator $searchBarLocator;
 
     /**
+     * Timeout for waitUntil condition checks, which ensures all page data is loaded (default: 30.0)
+     *
+     * @var float
+     */
+    private float $ajaxTimeout;
+
+    /**
      * ItemSearcher constructor.
      *
      * @param SearchBarLocator $searchBarLocator Finds an element on the page, which is suited for item search
+     * @param float            $ajaxTimeout      Timeout for waitUntil condition checks
      */
-    public function __construct(SearchBarLocator $searchBarLocator)
+    public function __construct(SearchBarLocator $searchBarLocator, float $ajaxTimeout = 30.0)
     {
         $this->searchBarLocator = $searchBarLocator;
+        $this->ajaxTimeout      = max(0.1, $ajaxTimeout);
     }
 
     /**
@@ -92,7 +101,11 @@ class ItemSearcher
             ->then(
                 null,
                 function (Throwable $rejectionReason) {
-                    throw new RuntimeException('Unable to find (and open) an item page.', 0, $rejectionReason);
+                    throw new RuntimeException(
+                        'Unable to find (and open) an item page (item searcher).',
+                        0,
+                        $rejectionReason
+                    );
                 }
             )
         ;
@@ -230,7 +243,7 @@ class ItemSearcher
             );
         };
 
-        $becomeVisiblePromise = $webDriver->waitUntil($conditionMetCallback);
+        $becomeVisiblePromise = $webDriver->waitUntil($conditionMetCallback, $this->ajaxTimeout);
 
         $becomeVisiblePromise->then(
             function (array $linkIdentifier) use ($waitingDeferred) {
@@ -300,6 +313,18 @@ class ItemSearcher
                 return $webDriver->getElementIdentifier(
                     $sessionIdentifier,
                     '//table[contains(@class, "price-all")]//*[@data-store]'
+                );
+            },
+            $this->ajaxTimeout
+        );
+
+        $becomeAvailablePromise = $becomeAvailablePromise->then(
+            null,
+            function (Throwable $rejectionReason) {
+                throw new RuntimeException(
+                    'Unable to ensure page contents is fully loaded (AJAX timeout?).',
+                    0,
+                    $rejectionReason
                 );
             }
         );

@@ -25,7 +25,6 @@ use Sterlett\Bridge\React\EventLoop\TimeIssuerInterface;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Throwable;
-use UnexpectedValueException;
 
 /**
  * Delays all callbacks to maintain the configured APS (actions per second) count for the user-side service context.
@@ -104,25 +103,29 @@ class SequentialTimeIssuer implements TimeIssuerInterface
         ;
 
         $optionsResolver
-            ->define('actions_delay_random')
-            ->info('If set, each subsequent action (callback) will be delayed by additional 0.001..N seconds')
-            ->allowedTypes('bool', 'float')
-            ->default(false) // 10.0
+            ->define('actions_delay_min')
+            ->info('Minimum delay for each subsequent action (callback), in seconds')
+            ->allowedTypes('float')
+            ->default(0.001)
             ->normalize(
-                function (Options $options, $actionsDelayRandom) {
-                    if (false === $actionsDelayRandom) {
-                        return $actionsDelayRandom;
-                    }
+                function (Options $options, float $actionsDelayMin) {
+                    $actionsDelayMinNormalized = max(0.001, $actionsDelayMin);
 
-                    if (!is_float($actionsDelayRandom)) {
-                        throw new UnexpectedValueException(
-                            "SequentialTimeIssuer: 'actions_delay_random' must be a float number or false."
-                        );
-                    }
+                    return $actionsDelayMinNormalized;
+                }
+            )
+        ;
 
-                    $actionsDelayRandomNormalized = max(0.001, $actionsDelayRandom);
+        $optionsResolver
+            ->define('actions_delay_max')
+            ->info('Maximum delay for each subsequent action, in seconds')
+            ->allowedTypes('float')
+            ->default(0.001)
+            ->normalize(
+                function (Options $options, float $actionsDelayMax) {
+                    $actionsDelayMaxNormalized = max(0.001, $actionsDelayMax);
 
-                    return $actionsDelayRandomNormalized;
+                    return $actionsDelayMaxNormalized;
                 }
             )
         ;
@@ -177,12 +180,9 @@ class SequentialTimeIssuer implements TimeIssuerInterface
         $this->loop->addPeriodicTimer(
             $intervalInSeconds,
             function (TimerInterface $timerItself) {
-                // registering a timer with new interval if a random delay for callbacks is specified.
-                if (is_float($this->options['actions_delay_random'])) {
-                    $this->loop->cancelTimer($timerItself);
-
-                    $this->registerTimer();
-                }
+                // registering a timer with new interval.
+                $this->loop->cancelTimer($timerItself);
+                $this->registerTimer();
 
                 if ($this->_callbacksPending->isEmpty()) {
                     return;
@@ -217,12 +217,12 @@ class SequentialTimeIssuer implements TimeIssuerInterface
         // calculated interval for user-side code calls (based on the given APS count).
         $intervalCalculated = 1.0 / $this->options['actions_per_second'];
 
-        // applying random delay, if specified.
-        if (is_float($this->options['actions_delay_random'])) {
-            $delayRandom = 0.001 + ($this->options['actions_delay_random'] - 0.001) * (mt_rand() / mt_getrandmax());
+        // applying random delay.
+        $delayMin = $this->options['actions_delay_min'];
+        $delayMax = $this->options['actions_delay_max'];
 
-            $intervalCalculated += $delayRandom;
-        }
+        $delayRandom        = $delayMin + ($delayMax - $delayMin) * (mt_rand() / mt_getrandmax());
+        $intervalCalculated = $intervalCalculated + $delayRandom;
 
         $intervalNormalized = round($intervalCalculated, 3);
 

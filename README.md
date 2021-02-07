@@ -142,6 +142,9 @@ Example:
 
 ![console_api_benchmark_list_asciicast](.github/images/console-api-benchmark-list.gif)
 
+You can specify a minimum benchmark score for items to be shown in the table using `passmark.cpu.min_value` in 
+`parameters.yml`.
+
 ### Retrieving hardware prices
 
 Renders a table with hardware prices from the different sellers, which are used to suggest deals *.
