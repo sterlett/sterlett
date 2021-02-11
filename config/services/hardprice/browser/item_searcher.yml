@@ -5,6 +5,7 @@ services:
         arguments:
             - '@app.hardprice.browser.item_searcher.search_bar_locator'
             - '%selenium.ajax.timeout%'
+            - '%selenium.state.check_frequency%'
 
     app.hardprice.browser.item_searcher.search_bar_locator:
         class: Sterlett\HardPrice\Browser\ItemSearcher\SearchBarLocator

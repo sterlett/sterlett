@@ -15,7 +15,7 @@ services:
             - '@app.log.logger.stdout'
             - '@app.event_loop'
             - '@app.hardware.price.retriever.cpu'
-            - !!float 43200
+            - '%app.routine.price.retrieving_interval%'
 
     app.routine.hardware.vbratio.feeding_routine:
         class: Sterlett\Routine\Hardware\VBRatio\FeedingRoutine
@@ -23,4 +23,4 @@ services:
             - '@app.log.logger.stdout'
             - '@app.event_loop'
             - '@app.hardware.vbratio.feeder'
-            - !!float 14400
+            - '%app.routine.ratio.feed_interval%'

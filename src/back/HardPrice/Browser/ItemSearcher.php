@@ -3,7 +3,7 @@
 /*
  * This file is part of the Sterlett project <https://github.com/sterlett/sterlett>.
  *
- * (c) 2020 Pavel Petrov <itnelo@gmail.com>.
+ * (c) 2020-2021 Pavel Petrov <itnelo@gmail.com>.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Sterlett\HardPrice\Browser;
 
+use LogicException;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use RuntimeException;
@@ -36,22 +37,31 @@ class ItemSearcher
     private SearchBarLocator $searchBarLocator;
 
     /**
-     * Timeout for waitUntil condition checks, which ensures all page data is loaded (default: 30.0)
+     * Timeout for waitUntil condition checks, which ensures all page data is loaded
      *
      * @var float
      */
     private float $ajaxTimeout;
 
     /**
+     * Frequency for waitUntil checks
+     *
+     * @var float
+     */
+    private float $checkFrequency;
+
+    /**
      * ItemSearcher constructor.
      *
      * @param SearchBarLocator $searchBarLocator Finds an element on the page, which is suited for item search
-     * @param float            $ajaxTimeout      Timeout for waitUntil condition checks
+     * @param float            $ajaxTimeout      Timeout for waitUntil condition checks (e.g. 30.0)
+     * @param float            $checkFrequency   Frequency for waitUntil checks (e.g. 0.5)
      */
-    public function __construct(SearchBarLocator $searchBarLocator, float $ajaxTimeout = 30.0)
+    public function __construct(SearchBarLocator $searchBarLocator, float $ajaxTimeout, float $checkFrequency)
     {
         $this->searchBarLocator = $searchBarLocator;
-        $this->ajaxTimeout      = max(0.1, $ajaxTimeout);
+        $this->ajaxTimeout      = max(0.5, $ajaxTimeout);
+        $this->checkFrequency   = max(0.1, $checkFrequency);
     }
 
     /**
@@ -64,6 +74,8 @@ class ItemSearcher
      */
     public function searchItem(BrowserContext $browserContext, Item $item): PromiseInterface
     {
+        $webDriver = $browserContext->getWebDriver();
+
         $searchQueryPromise = $this
             ->prepareSearchBar($browserContext)
             // sending a search query.
@@ -96,6 +108,8 @@ class ItemSearcher
 
         $pageAccessPromise = $linkIdentifierPromise
             ->then(fn (array $linkIdentifier) => $this->doPageTransition($browserContext, $linkIdentifier))
+            // applying a delay.
+            ->then(fn () => $webDriver->wait(5.0))
             // ensure a page is fully loaded before we can analyse its contents.
             ->then(fn () => $this->ensurePageLoaded($browserContext))
             ->then(
@@ -231,7 +245,7 @@ class ItemSearcher
                         function (bool $isVisible) use ($linkIdentifier) {
                             if (!$isVisible) {
                                 // this will force WebDriver to retry visibility check operation.
-                                throw new RuntimeException();
+                                throw new LogicException();
                             }
 
                             // ok, the link becomes visible by this point.
@@ -243,7 +257,7 @@ class ItemSearcher
             );
         };
 
-        $becomeVisiblePromise = $webDriver->waitUntil($conditionMetCallback, $this->ajaxTimeout);
+        $becomeVisiblePromise = $webDriver->waitUntil($conditionMetCallback, $this->ajaxTimeout, $this->checkFrequency);
 
         $becomeVisiblePromise->then(
             function (array $linkIdentifier) use ($waitingDeferred) {
@@ -315,7 +329,8 @@ class ItemSearcher
                     '//table[contains(@class, "price-all")]//*[@data-store]'
                 );
             },
-            $this->ajaxTimeout
+            $this->ajaxTimeout,
+            $this->checkFrequency
         );
 
         $becomeAvailablePromise = $becomeAvailablePromise->then(

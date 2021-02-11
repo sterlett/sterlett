@@ -13,6 +13,12 @@ parameters:
     # example: '123.123.123.123:1234' (by default, similar to the ones used by generation 3 price provider)
     app.request.proxy_uri: '%env(string:SELENIUM_PROXY_HOST)%:%env(int:SELENIUM_PROXY_PORT)%'
 
+    # Background tasks
+    # Interval to execute price retrieving logic, in seconds (default: 43200.0; 12 hours)
+    app.routine.price.retrieving_interval: 43200.0
+    # Interval to update HTTP handler with new V/B ratio data, in seconds (default: 14400.0; 4 hours)
+    app.routine.ratio.feed_interval: 14400.0
+
     app.console.name: 'Sterlett'
     app.console.version: '0.x'
 
@@ -35,6 +41,12 @@ parameters:
     selenium.command.timeout: 30.0
     # Sets how long to wait for the various AJAX requests / socket responses (waitUntil condition checks)
     selenium.ajax.timeout: 30.0
+    # Defines how often to check element availability, AJAX results and other state data, in seconds
+    # (waitUntil condition checks). Increasing this value may help to eliminate some errors for environment with
+    # limited CPU/Mem resources (for example, if you encounter a "connection closed unexpectedly" error due to
+    # excessive load for a single webdriver replica). Default: 0.5; means 2 checks per second - it is OK, if a
+    # server/container has access to the decent amount of CPU cycles)
+    selenium.state.check_frequency: 0.5
 
     # Benchmarks
     passmark.cpu.download_uri: 'https://www.cpubenchmark.net/high_end_cpus.html'
@@ -63,7 +75,7 @@ parameters:
     # Count of requests, which can be registered in the event loop at the same time (concurrent requests minimum: 1)
     hardprice.concurrent_requests: 1
     # Adds M..N additional time between requests for scraping actions (in seconds; chosen randomly on each iteration)
-    hardprice.requests_delay_min: 1.0
+    hardprice.requests_delay_min: 20.0
     hardprice.requests_delay_max: 60.0
     # Store mappings
     # https://hardprice.ru/api/stores
