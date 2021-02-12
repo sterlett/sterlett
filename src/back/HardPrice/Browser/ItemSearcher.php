@@ -20,15 +20,28 @@ use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use RuntimeException;
 use Sterlett\Browser\Context as BrowserContext;
+use Sterlett\Browser\Refresher;
+use Sterlett\Browser\RetryAssistant;
 use Sterlett\Dto\Hardware\Item;
 use Sterlett\HardPrice\Browser\ItemSearcher\SearchBarLocator;
 use Throwable;
+use function React\Promise\resolve;
 
 /**
  * Performs actions in the remove browser to find a page with hardware item information
  */
 class ItemSearcher
 {
+    /**
+     * @var RetryAssistant
+     */
+    private RetryAssistant $retryAssistant;
+
+    /**
+     * @var Refresher
+     */
+    private Refresher $tabRefresher;
+
     /**
      * Finds an element on the page, which is suited for item search
      *
@@ -53,15 +66,25 @@ class ItemSearcher
     /**
      * ItemSearcher constructor.
      *
+     * @param RetryAssistant   $retryAssistant
+     * @param Refresher        $tabRefresher
      * @param SearchBarLocator $searchBarLocator Finds an element on the page, which is suited for item search
      * @param float            $ajaxTimeout      Timeout for waitUntil condition checks (e.g. 30.0)
      * @param float            $checkFrequency   Frequency for waitUntil checks (e.g. 0.5)
      */
-    public function __construct(SearchBarLocator $searchBarLocator, float $ajaxTimeout, float $checkFrequency)
-    {
+    public function __construct(
+        RetryAssistant $retryAssistant,
+        Refresher $tabRefresher,
+        SearchBarLocator $searchBarLocator,
+        float $ajaxTimeout,
+        float $checkFrequency
+    ) {
+        $this->retryAssistant   = $retryAssistant;
+        $this->tabRefresher     = $tabRefresher;
         $this->searchBarLocator = $searchBarLocator;
-        $this->ajaxTimeout      = max(0.5, $ajaxTimeout);
-        $this->checkFrequency   = max(0.1, $checkFrequency);
+
+        $this->ajaxTimeout    = max(0.5, $ajaxTimeout);
+        $this->checkFrequency = max(0.1, $checkFrequency);
     }
 
     /**
@@ -309,6 +332,43 @@ class ItemSearcher
         return $clickConfirmationPromise;
     }
 
+    private function ensurePageLoaded(BrowserContext $browserContext): PromiseInterface
+    {
+        // Retry logic, to handle "connection closed unexpectedly" while polling chromium state in some situations.
+        //
+        // [1132:1132:0212/133104.602176:VERBOSE1:script_context.cc(273)] Created context:
+        //   extension id:           (none)
+        //   frame:                  0xc420cd82700
+        //   URL:
+        //   context_type:           WEB_PAGE
+        //   effective extension id: (none)
+        //   effective context type: WEB_PAGE
+        // [1132:1132:0212/133104.624239:VERBOSE1:script_context.cc(273)] Created context:
+        //   extension id:           (none)
+        //   frame:                  (nil)
+        //   URL:
+        //   context_type:           UNSPECIFIED
+        //   effective extension id: (none)
+        //   effective context type: UNSPECIFIED
+        // [1132:1132:0212/133104.633487:VERBOSE1:dispatcher.cc(373)] Num tracked contexts: 1
+        // [1040:1040:0212/133104.876625:VERBOSE1:dispatcher.cc(553)] Num tracked contexts: 0
+
+        $becomeAvailablePromise = $this->retryAssistant->retry(
+            function (int $retryCountCurrent) use ($browserContext) {
+                if ($retryCountCurrent > 0) {
+                    // we need to refresh a tab, to clear its state, if this is not a first attempt.
+                    $freshTabPromise = $this->tabRefresher->refreshTab($browserContext);
+                } else {
+                    $freshTabPromise = resolve(null);
+                }
+
+                return $freshTabPromise->then(fn () => $this->ensurePageLoadedInternal($browserContext));
+            }
+        );
+
+        return $becomeAvailablePromise;
+    }
+
     /**
      * Returns a promise that will be resolved when the page becomes completely loaded in the remote browser instance
      * (including client-side scripts and other runtime assets)
@@ -317,7 +377,7 @@ class ItemSearcher
      *
      * @return PromiseInterface<null>
      */
-    private function ensurePageLoaded(BrowserContext $browserContext): PromiseInterface
+    private function ensurePageLoadedInternal(BrowserContext $browserContext): PromiseInterface
     {
         $webDriver         = $browserContext->getWebDriver();
         $sessionIdentifier = $browserContext->getHubSession();

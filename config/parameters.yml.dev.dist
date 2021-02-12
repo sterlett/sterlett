@@ -45,7 +45,7 @@ parameters:
     # (waitUntil condition checks). Increasing this value may help to eliminate some errors for environment with
     # limited CPU/Mem resources (for example, if you encounter a "connection closed unexpectedly" error due to
     # excessive load for a single webdriver replica). Default: 0.5; means 2 checks per second - it is OK, if a
-    # server/container has access to the decent amount of CPU cycles)
+    # server/container has access to the decent amount of CPU cycles
     selenium.state.check_frequency: 0.5
 
     # Benchmarks
@@ -75,7 +75,7 @@ parameters:
     # Count of requests, which can be registered in the event loop at the same time (concurrent requests minimum: 1)
     hardprice.concurrent_requests: 1
     # Adds M..N additional time between requests for scraping actions (in seconds; chosen randomly on each iteration)
-    hardprice.requests_delay_min: 20.0
+    hardprice.requests_delay_min: 30.0
     hardprice.requests_delay_max: 60.0
     # Store mappings
     # https://hardprice.ru/api/stores

@@ -13,6 +13,7 @@ cat > "${WRAPPER_PATH}" <<_EOF
 
 # Note: exec -a below is a bashism.
 exec -a "\$0" "${BASE_PATH}" \
+    --enable-logging --v=${CHROME_ARG_LOG_LEVEL} \
     --disable-dev-shm-usage \
     --disable-blink-features \
     --disable-blink-features=AutomationControlled \
@@ -28,5 +29,8 @@ _EOF
 # headless mode args:
 # --disable-gpu
 # --headless
+
+# chrome_debug.log args:
+# --enable-logging --v=1
 
 chmod +x "${WRAPPER_PATH}"

@@ -103,6 +103,7 @@ services:
             args:
                 HOST_UID: ${HOST_UID}
                 SELENIUM_NODE_CHROME_IMAGE_DIGEST: ${SELENIUM_NODE_CHROME_IMAGE_DIGEST}
+                CHROME_ARG_LOG_LEVEL: ${SELENIUM_NODE_CHROME_LOG_LEVEL}
                 CHROME_ARG_PROXY_SERVER: "${SELENIUM_PROXY_HOST}:${SELENIUM_PROXY_PORT}"
         networks:
             - back_bridge
