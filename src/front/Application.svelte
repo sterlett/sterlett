@@ -26,12 +26,21 @@
             component: pages.AboutPage,
         },
         {
-            title: $format('Not found'),
+            title: '',
             url: '',
             path: '',
             component: pages.NotFoundPage,
         },
     ];
+
+    const title = $format('sterlett/sterlett');
+    let pageTitle;
+
+    function onPageShown (event) {
+        const pageElement = event.detail.pageElement;
+
+        pageTitle = pageElement.dataset.title;
+    }
 </script>
 
 <template src="./Application.spectre.html"></template>

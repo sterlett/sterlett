@@ -3,7 +3,7 @@ services:
     app.hardprice.browser.item_searcher:
         class: Sterlett\HardPrice\Browser\ItemSearcher
         arguments:
-            - '@app.browser.retry_assistant'
+            - '@app.retry_assistant'
             - '@app.browser.refresher'
             - '@app.hardprice.browser.item_searcher.search_bar_locator'
             - '%selenium.ajax.timeout%'

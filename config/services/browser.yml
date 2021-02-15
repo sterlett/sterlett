@@ -6,9 +6,6 @@ services:
             - '@app.thread.hardprice_browsing'
             - '@app.selenium.webdriver'
 
-    app.browser.retry_assistant:
-        class: Sterlett\Browser\RetryAssistant
-
     app.browser.refresher:
         class: Sterlett\Browser\Refresher
 

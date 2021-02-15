@@ -1,6 +1,10 @@
 
 <!-- application component template -->
 
+<svelte:head>
+    <title>{title} {'string' === typeof pageTitle ? '• ' + pageTitle : ''}</title>
+</svelte:head>
+
 <div class="page grid-lg">
     <div class="columns text-center">
         <div class="column col-2 col-mx-auto">
@@ -21,7 +25,7 @@
             <div class="page__content">
                 <Router>
                     {#each routes as route}
-                    <Route path={route.path} component={route.component} />
+                    <Route path={route.path} component={route.component} on:app.event.page.shown={onPageShown} />
                     {/each}
                 </Router>
             </div>

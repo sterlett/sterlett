@@ -19,9 +19,9 @@ use LogicException;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use RuntimeException;
+use Sterlett\Bridge\React\Promise\RetryAssistant;
 use Sterlett\Browser\Context as BrowserContext;
 use Sterlett\Browser\Refresher;
-use Sterlett\Browser\RetryAssistant;
 use Sterlett\Dto\Hardware\Item;
 use Sterlett\HardPrice\Browser\ItemSearcher\SearchBarLocator;
 use Throwable;
@@ -33,11 +33,15 @@ use function React\Promise\resolve;
 class ItemSearcher
 {
     /**
+     * Will try to resolve a promise from the promisor callback, while the configured retry counter is valid
+     *
      * @var RetryAssistant
      */
     private RetryAssistant $retryAssistant;
 
     /**
+     * Resets state of the page from the currently active browser tab using a given context
+     *
      * @var Refresher
      */
     private Refresher $tabRefresher;
@@ -332,6 +336,14 @@ class ItemSearcher
         return $clickConfirmationPromise;
     }
 
+    /**
+     * Returns a promise that will be resolved when the page becomes completely loaded in the remote browser instance
+     * (including client-side scripts and other runtime assets)
+     *
+     * @param BrowserContext $browserContext Holds browser state and a driver reference to perform actions
+     *
+     * @return PromiseInterface<null>
+     */
     private function ensurePageLoaded(BrowserContext $browserContext): PromiseInterface
     {
         // Retry logic, to handle "connection closed unexpectedly" while polling chromium state in some situations.
@@ -370,8 +382,8 @@ class ItemSearcher
     }
 
     /**
-     * Returns a promise that will be resolved when the page becomes completely loaded in the remote browser instance
-     * (including client-side scripts and other runtime assets)
+     * An actual logic to ensure a valid page state, which is being protected by the retry assistant
+     * (multiple attempts available)
      *
      * @param BrowserContext $browserContext Holds browser state and a driver reference to perform actions
      *

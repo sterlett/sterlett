@@ -45,8 +45,10 @@ $containerConfigurator->setDefinitionFilePaths(
         __DIR__ . '/../config/services/async/routines.yml',
         __DIR__ . '/../config/services/async/event_dispatcher.yml',
         __DIR__ . '/../config/services/async/database_connections.yml',
+        // common
         __DIR__ . '/../config/services/shutdown.yml',
         __DIR__ . '/../config/services/event_listeners.yml',
+        __DIR__ . '/../config/services/retry_assistant.yml',
         // http
         __DIR__ . '/../config/services/request/uri_normalizers.yml',
         __DIR__ . '/../config/services/request/uri_matcher.yml',

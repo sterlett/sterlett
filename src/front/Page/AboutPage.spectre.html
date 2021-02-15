@@ -1,11 +1,11 @@
 
-<div in:fly={{ y: -50, easing: expoOut }}>
-    <p class="h4">{$format('About')}</p>
+<div bind:this={selfElement} data-title={title} in:fly={{ y: -50, easing: expoOut }}>
+    <p class="h4">{title}</p>
 
     <p>
         <u><a href="https://cpu-junkie.ru">www.cpu-junkie.ru</a></u> — микросервис, анализирующий соотношение
         цена/производительность для компьютерных комплектующих, подгружая цены из магазинов г. Москвы в реальном
-        времени. С его помощью можно получить информацию, какой чип сейчас выгодно купить и где. <br /> <br />
+        времени. С его помощью можно получить информацию, какой чип сейчас выгоднее всего купить и где. <br /> <br />
 
         Также его можно использовать для создания архива с ценами на железо и собственной аналитики (см.
         <u><a href="https://github.com/sterlett/sterlett">GitHub</a></u>).
@@ -64,12 +64,37 @@
         <label class="accordion-header p-0 c-hand" for="faq-question-accordion-3">
             <i class="icon icon-arrow-right mr-1"></i>
 
+            <b>В</b>: Откуда берётся информация по комплектующим?
+        </label>
+
+        <div class="accordion-body">
+            <div class="p-2">
+                Стоимость комплектующих отслеживается через веб-ресурс
+                <u><a href="https://hardprice.ru">www.hardprice.ru</a></u>. В перспективе могут быть добавлены
+                дополнительные источники, включая кастомизированные парсеры под конкретные сайты магазинов.
+                <br /> <br />
+
+                Провайдером бенчмарков выступает австралийская компания PassMark Software
+                (<u><a href="https://passmark.com">www.passmark.com</a></u>). <br /> <br />
+
+                Все интеграции являются неофициальными, сайт не аффилирован с какой-либо компанией, предоставляющей
+                данные для аналитики в открытом доступе.
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion" in:fly={{ x: 50, delay: 600, easing: expoOut }}>
+        <input type="checkbox" id="faq-question-accordion-4" name="faq-question-accordion" hidden>
+
+        <label class="accordion-header p-0 c-hand" for="faq-question-accordion-4">
+            <i class="icon icon-arrow-right mr-1"></i>
+
             <b>В</b>: Есть ли публичный API с ценами на железо и бенчмарками?
         </label>
 
         <div class="accordion-body">
             <div class="p-2">
-                См. <em>API</em> секцию. На данный момент можно получить список средних цен на процессоры (с
+                См. <em>API</em> секцию. На текущий момент можно получить список средних цен на процессоры (с
                 посчитанным рейтингом) через эндпоинт: <br /> <br />
 
                 <kbd>https://cpu-junkie.ru/api/cpu/list.json</kbd> <br /> <br />
