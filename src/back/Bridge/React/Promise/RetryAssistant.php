@@ -100,11 +100,11 @@ class RetryAssistant
             null,
             function (Throwable $rejectionReason) use ($promisorCallback, $retryCountCurrent, $retryCountMax) {
                 if ($retryCountCurrent < $retryCountMax) {
-                    ++$retryCountCurrent;
+                    $retryCountNew = $retryCountCurrent + 1;
 
                     // preventing further exception bubbling and resuming a normal "resolve" settlement,
                     // while we still have available "retries".
-                    return $this->doRetryAttempt($promisorCallback, $retryCountCurrent, $retryCountMax);
+                    return $this->doRetryAttempt($promisorCallback, $retryCountNew, $retryCountMax);
                 }
 
                 throw new RuntimeException(

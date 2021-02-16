@@ -70,8 +70,8 @@ class ItemSearcher
     /**
      * ItemSearcher constructor.
      *
-     * @param RetryAssistant   $retryAssistant
-     * @param Refresher        $tabRefresher
+     * @param RetryAssistant   $retryAssistant   Will try to resolve a promise, while the retry counter is valid
+     * @param Refresher        $tabRefresher     Resets state of the page from the currently active browser tab
      * @param SearchBarLocator $searchBarLocator Finds an element on the page, which is suited for item search
      * @param float            $ajaxTimeout      Timeout for waitUntil condition checks (e.g. 30.0)
      * @param float            $checkFrequency   Frequency for waitUntil checks (e.g. 0.5)
@@ -103,6 +103,68 @@ class ItemSearcher
     {
         $webDriver = $browserContext->getWebDriver();
 
+        $linkIdentifierPromise = $this->findItemLink($browserContext, $item);
+
+        $pageAccessPromise = $linkIdentifierPromise
+            // initiating a page transition.
+            ->then(fn (array $linkIdentifier) => $this->doPageTransition($browserContext, $linkIdentifier))
+            // applying a delay.
+            ->then(fn () => $webDriver->wait(5.0))
+            // ensure a page is fully loaded before we can analyse its contents.
+            ->then(fn () => $this->ensurePageLoaded($browserContext))
+            ->then(
+                null,
+                function (Throwable $rejectionReason) {
+                    throw new RuntimeException(
+                        'Unable to find (and open) an item page (item searcher).',
+                        0,
+                        $rejectionReason
+                    );
+                }
+            )
+        ;
+
+        return $pageAccessPromise;
+    }
+
+    /**
+     * Returns a promise that resolves to an array, representing an internal WebDriver handle for the link element
+     *
+     * @param BrowserContext $browserContext Holds browser state and a driver reference to perform actions
+     * @param Item           $item           A hardware item DTO with metadata for price retrieving
+     *
+     * @return PromiseInterface<array>
+     */
+    private function findItemLink(BrowserContext $browserContext, Item $item): PromiseInterface
+    {
+        // retry logic, to handle "connection closed unexpectedly" while polling chromium state in some situations.
+        $linkIdentifierPromise = $this->retryAssistant->retry(
+            function (int $retryCountCurrent) use ($browserContext, $item) {
+                if ($retryCountCurrent > 0) {
+                    $freshTabPromise = $this->tabRefresher->refreshTab($browserContext);
+                } else {
+                    $freshTabPromise = resolve(null);
+                }
+
+                return $freshTabPromise->then(fn () => $this->doFindItemLink($browserContext, $item));
+            }
+        );
+
+        return $linkIdentifierPromise;
+    }
+
+    /**
+     * Finds a link to the item page in current browser tab, to perform a natural (and trustful) transition between
+     * website pages. Returns a promise that will be resolved to an array, representing an internal WebDriver handle
+     * for the desired element.
+     *
+     * @param BrowserContext $browserContext Holds browser state and a driver reference to perform actions
+     * @param Item           $item           A hardware item DTO with metadata for price retrieving
+     *
+     * @return PromiseInterface<array>
+     */
+    private function doFindItemLink(BrowserContext $browserContext, Item $item): PromiseInterface
+    {
         $searchQueryPromise = $this
             ->prepareSearchBar($browserContext)
             // sending a search query.
@@ -123,7 +185,7 @@ class ItemSearcher
                     $webDriver           = $browserContext->getWebDriver();
                     $divergenceDelayTime = (float) random_int(3, 10);
 
-                    // note: an exception will not be bubbled to the parent context
+                    // note: an exception will not be bubbled to the parent context here
                     // (need an explicit rejection handler here, in case of more advanced logic).
                     return $webDriver
                         ->wait($divergenceDelayTime)
@@ -133,25 +195,7 @@ class ItemSearcher
             )
         ;
 
-        $pageAccessPromise = $linkIdentifierPromise
-            ->then(fn (array $linkIdentifier) => $this->doPageTransition($browserContext, $linkIdentifier))
-            // applying a delay.
-            ->then(fn () => $webDriver->wait(5.0))
-            // ensure a page is fully loaded before we can analyse its contents.
-            ->then(fn () => $this->ensurePageLoaded($browserContext))
-            ->then(
-                null,
-                function (Throwable $rejectionReason) {
-                    throw new RuntimeException(
-                        'Unable to find (and open) an item page (item searcher).',
-                        0,
-                        $rejectionReason
-                    );
-                }
-            )
-        ;
-
-        return $pageAccessPromise;
+        return $linkIdentifierPromise;
     }
 
     /**
@@ -346,7 +390,7 @@ class ItemSearcher
      */
     private function ensurePageLoaded(BrowserContext $browserContext): PromiseInterface
     {
-        // Retry logic, to handle "connection closed unexpectedly" while polling chromium state in some situations.
+        // retry logic, to handle "connection closed unexpectedly" while polling chromium state in some situations.
         //
         // [1132:1132:0212/133104.602176:VERBOSE1:script_context.cc(273)] Created context:
         //   extension id:           (none)
