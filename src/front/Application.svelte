@@ -20,6 +20,18 @@
             component: pages.CpuListPage,
         },
         {
+            title: $format('HTTP API'),
+            url: '/http',
+            path: '/http',
+            component: pages.ApiHttpPage,
+        },
+        {
+            title: $format('Console API'),
+            url: '/console',
+            path: '/console',
+            component: pages.ApiConsolePage,
+        },
+        {
             title: $format('About'),
             url: '/about',
             path: 'about',

@@ -1,0 +1,60 @@
+
+<div bind:this={selfElement} data-title={title} in:fly={{ y: -50, easing: expoOut }}>
+    <p class="h4">{title}</p>
+
+    <div class="content__title">
+        Адреса ресурсов
+    </div>
+
+    Процессоры: <kbd class="ml-2 p-2">https://cpu-junkie.ru/api/cpu/list.json</kbd> <br /> <br />
+
+    <div class="content__title">
+        Формат ответа
+    </div>
+
+    Элемент возвращаемого списка имеет формат:
+
+    <pre class="code" data-lang="JSON">
+        <code>
+{`{
+    "name": "AMD Ryzen Threadripper 3970X",
+    "image": "",
+    "prices": [
+        {
+            "type": "average",
+            "value": 185485,
+            "currency": "RUB",
+            "precision": 0
+        }
+    ],
+    "vb_ratio": "34.62",
+    "benchmarks": [
+        {
+            "name": "PassMark",
+            "value": 64223
+        }
+    ]
+}`}
+        </code>
+    </pre>
+
+    <code>prices[0].type</code> — строка, название агрегирующей функции или код магазина, пример: <code>regard</code>,
+    <code>citilink</code>, <code>oldi</code>. <br />
+    <code>prices[0].value</code> — целое число, нормализованное значение стоимости (до применения точности). <br />
+    <code>prices[0].currency</code> — строка, код валюты. <br />
+    <code>prices[0].precision</code> — целое число, определяет положение запятой в значении цены, устанавливая точность
+    денежной суммы. Например, данную запись:
+
+    <pre class="code" data-lang="JSON">
+        <code>
+{`{
+    "type": "regard",
+    "value": 7580021,
+    "currency": "RUB",
+    "precision": 2
+}`}
+        </code>
+    </pre>
+
+    следует читать как "75800,21 RUB".
+</div>

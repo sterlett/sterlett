@@ -14,8 +14,8 @@ parameters:
     app.request.proxy_uri: '%env(string:SELENIUM_PROXY_HOST)%:%env(int:SELENIUM_PROXY_PORT)%'
 
     # Background tasks
-    # Interval to execute price retrieving logic, in seconds (default: 43200.0; 12 hours)
-    app.routine.price.retrieving_interval: 43200.0
+    # Interval to execute price retrieving logic, in seconds (default: 36000.0; 10 hours)
+    app.routine.price.retrieving_interval: 36000.0
     # Interval to update HTTP handler with new V/B ratio data, in seconds (default: 14400.0; 4 hours)
     app.routine.ratio.feed_interval: 14400.0
 

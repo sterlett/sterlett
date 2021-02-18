@@ -185,8 +185,6 @@ class ItemSearcher
                     $webDriver           = $browserContext->getWebDriver();
                     $divergenceDelayTime = (float) random_int(3, 10);
 
-                    // note: an exception will not be bubbled to the parent context here
-                    // (need an explicit rejection handler here, in case of more advanced logic).
                     return $webDriver
                         ->wait($divergenceDelayTime)
                         ->then(fn () => $linkIdentifier)

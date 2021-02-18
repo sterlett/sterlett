@@ -1,0 +1,47 @@
+
+<div bind:this={selfElement} data-title={title} in:fly={{ y: -50, easing: expoOut }}>
+    <p class="h4">{title}</p>
+
+    <p>
+        Для использования возможностей командной строки необходимо загрузить и собрать свой экземпляр приложения
+        по <u><a href="https://github.com/sterlett/sterlett#installation">данной</a></u> инструкции.
+    </p>
+
+    <div class="content__title">
+        Расчёт рейтинга комплектующих
+    </div>
+
+    Выводит таблицу с соотношением цена/производительность для доступных комплектующих:
+
+    <pre class="kbd-multiline">
+$ docker-compose run --rm --no-deps app bin/console ratio:calculate
+    </pre>
+
+    Опции: <br /> <br />
+
+    <code>--source=live</code> — искать свежую информацию через интернет (по умолчанию).<br />
+    <code>--source=database</code> — переключить на локальное хранилище (будут использованы наиболее актуальные данные,
+    собранные существующим процессом в ходе работы). <br /> <br />
+
+    <div class="content__title">
+        Получение бенчмарков
+    </div>
+
+    Выводит отдельную таблицу с бенчмарками:
+
+    <pre class="kbd-multiline">
+$ docker-compose run --rm --no-deps app bin/console benchmark:list
+    </pre>
+
+    <br />
+
+    <div class="content__title">
+        Просмотр цен
+    </div>
+
+    Выводит таблицу с ценами на комплектующие (fallback):
+
+    <pre class="kbd-multiline">
+$ docker-compose run --rm --no-deps app bin/console price:list
+    </pre>
+</div>
