@@ -3,7 +3,7 @@
 /*
  * This file is part of the Sterlett project <https://github.com/sterlett/sterlett>.
  *
- * (c) 2020 Pavel Petrov <itnelo@gmail.com>.
+ * (c) 2020-2021 Pavel Petrov <itnelo@gmail.com>.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -20,7 +20,7 @@ use React\Promise\PromiseInterface;
 use RuntimeException;
 use Sterlett\Browser\Cleaner as BrowserCleaner;
 use Sterlett\Browser\Context as BrowserContext;
-use Sterlett\Browser\Opener as BrowserOpener;
+use Sterlett\Browser\OpenerInterface as BrowserOpenerInterface;
 use Sterlett\HardPrice\Browser\ItemReader;
 use Sterlett\HardPrice\Browser\PriceAccumulator;
 use Sterlett\HardPrice\Browser\SiteNavigator;
@@ -37,9 +37,9 @@ class BrowsingProvider implements ProviderInterface
     /**
      * Opens a remote browser and starts a new browsing session to find hardware prices on the website
      *
-     * @var BrowserOpener
+     * @var BrowserOpenerInterface
      */
-    private BrowserOpener $browserOpener;
+    private BrowserOpenerInterface $browserOpener;
 
     /**
      * Stops a remote browser session and cleans all related resources
@@ -72,14 +72,14 @@ class BrowsingProvider implements ProviderInterface
     /**
      * BrowsingProvider constructor.
      *
-     * @param BrowserOpener    $browserOpener    Opens a remote browser and starts a new browsing session
-     * @param BrowserCleaner   $browserCleaner   Stops a remote browser session and cleans all related resources
-     * @param SiteNavigator    $siteNavigator    Opens HardPrice website in the remote browser tab
-     * @param ItemReader       $itemReader       Opens a page with hardware items in the remove browser tab
-     * @param PriceAccumulator $priceAccumulator Starts price accumulating routine for hardware items
+     * @param BrowserOpenerInterface $browserOpener    Opens a remote browser and starts a new browsing session
+     * @param BrowserCleaner         $browserCleaner   Stops a remote browser session and cleans all related resources
+     * @param SiteNavigator          $siteNavigator    Opens HardPrice website in the remote browser tab
+     * @param ItemReader             $itemReader       Opens a page with hardware items in the remove browser tab
+     * @param PriceAccumulator       $priceAccumulator Starts price accumulating routine for hardware items
      */
     public function __construct(
-        BrowserOpener $browserOpener,
+        BrowserOpenerInterface $browserOpener,
         BrowserCleaner $browserCleaner,
         SiteNavigator $siteNavigator,
         ItemReader $itemReader,
