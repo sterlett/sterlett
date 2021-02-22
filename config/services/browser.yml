@@ -21,6 +21,8 @@ services:
         arguments:
             - '@app.thread.hardprice_browsing'
             - '@app.selenium.webdriver'
+            -   cleaner:
+                    is_enabled: '%app.browser.enable_cleaner%'
 
     app.browser.session.resumer:
         class: Sterlett\Browser\Session\Resumer

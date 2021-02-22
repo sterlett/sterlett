@@ -140,8 +140,14 @@ class ItemSearcher
         // retry logic, to handle "connection closed unexpectedly" while polling chromium state in some situations.
         $linkIdentifierPromise = $this->retryAssistant->retry(
             function (int $retryCountCurrent) use ($browserContext, $item) {
+                $webDriver = $browserContext->getWebDriver();
+
                 if ($retryCountCurrent > 0) {
-                    $freshTabPromise = $this->tabRefresher->refreshTab($browserContext);
+                    $freshTabPromise = $this->tabRefresher
+                        ->refreshTab($browserContext)
+                        // applying a delay.
+                        ->then(fn () => $webDriver->wait(5.0))
+                    ;
                 } else {
                     $freshTabPromise = resolve(null);
                 }
@@ -409,9 +415,15 @@ class ItemSearcher
 
         $becomeAvailablePromise = $this->retryAssistant->retry(
             function (int $retryCountCurrent) use ($browserContext) {
+                $webDriver = $browserContext->getWebDriver();
+
                 if ($retryCountCurrent > 0) {
                     // we need to refresh a tab, to clear its state, if this is not a first attempt.
-                    $freshTabPromise = $this->tabRefresher->refreshTab($browserContext);
+                    $freshTabPromise = $this->tabRefresher
+                        ->refreshTab($browserContext)
+                        // applying a delay.
+                        ->then(fn () => $webDriver->wait(5.0))
+                    ;
                 } else {
                     $freshTabPromise = resolve(null);
                 }

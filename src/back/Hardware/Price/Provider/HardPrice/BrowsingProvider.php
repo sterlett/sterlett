@@ -261,16 +261,13 @@ class BrowsingProvider implements ProviderInterface
         // we only close browsing session and cleaning up the browser at this stage.
         // it is OK to not clean after each reject, because we can still reuse the same session (browser tabs, etc.)
         // again with no consequences (except excessive mem peaks at some point, which may be affordable).
-        $cleanupPromise = $this->browserCleaner->cleanBrowser($browserContext);
 
-        $cleanupPromise->then(
-            function () {
-                // todo: log successful cleanup
-            },
-            function (Throwable $rejectionReason) {
-                // todo: log cleanup error
-            }
-        );
+        $browserOptions   = $browserContext->getOptions();
+        $isCleanerEnabled = $browserOptions['cleaner']['is_enabled'];
+
+        if ($isCleanerEnabled) {
+            $this->browserCleaner->cleanBrowser($browserContext);
+        }
 
         $retrievingDeferred->resolve($hardwarePrices);
     }

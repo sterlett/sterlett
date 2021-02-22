@@ -40,15 +40,29 @@ class Builder
     private WebDriverInterface $webDriver;
 
     /**
+     * Options for the browsing context
+     *
+     * @var array
+     *
+     * @see BrowserContext::setOptions
+     */
+    private array $browserOptions;
+
+    /**
      * Builder constructor.
      *
      * @param TimeIssuerInterface $browsingThread Allocates execution time in the centralized event loop
      * @param WebDriverInterface  $webDriver      Manipulates a remote browser instance
+     * @param array               $browserOptions Options for the browsing context
      */
-    public function __construct(TimeIssuerInterface $browsingThread, WebDriverInterface $webDriver)
-    {
+    public function __construct(
+        TimeIssuerInterface $browsingThread,
+        WebDriverInterface $webDriver,
+        array $browserOptions
+    ) {
         $this->browsingThread = $browsingThread;
         $this->webDriver      = $webDriver;
+        $this->browserOptions = $browserOptions;
     }
 
     /**
@@ -61,6 +75,7 @@ class Builder
         $context = new BrowserContext();
         $context->setBrowsingThread($this->browsingThread);
         $context->setWebDriver($this->webDriver);
+        $context->setOptions($this->browserOptions);
 
         return $context;
     }

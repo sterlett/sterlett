@@ -31,6 +31,12 @@ parameters:
     app.database.prices.uri: '%env(string:DATABASE_USER_NAME)%:%env(string:DATABASE_USER_PASSWORD)%@%env(string:DATABASE_HOST)%:%env(int:DATABASE_PORT)%/%env(string:DATABASE_NAME)%'
     app.database.table_name.price: 'hardware_price'
 
+    # This will force the microservice to send a session quit command to the Selenium Grid each time a scraping session
+    # is successfully complete (gen 3 algo only); pros: keeping low memory footprint on idle, cons: not so stable and
+    # clean approach, when we have to maintain a "trustful" activity on the website. Restarting a browser may cause
+    # extra requests / identity updates and other undesirable actions (default: false)
+    app.browser.enable_cleaner: false
+
     # Selenium Grid will be used by gen 3 (or "T-1000") scraping algorithms (for some websites with advanced bot
     # protection), as they emulate human-like behavior in the real browser instance (Google Chrome with XVFB server)
     # https://selenium.dev/documentation/en/grid
