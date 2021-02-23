@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace Sterlett\Event\Listener;
 
+use React\Promise\Deferred;
 use RuntimeException;
 use Sterlett\Bridge\Symfony\Component\EventDispatcher\DeferredEventInterface;
 use Sterlett\Event\VBRatiosEmittedEvent;
@@ -60,7 +61,12 @@ class CpuMarkAcceptanceListener
         }
 
         // for deferred psr-14 events.
-        $dispatchingDeferred = $data->getDeferred();
+        $dispatchingDeferred = $data->takeDeferred();
+
+        // propagation status check.
+        if (!$dispatchingDeferred instanceof Deferred) {
+            return;
+        }
 
         try {
             $this->feedHandler($data);

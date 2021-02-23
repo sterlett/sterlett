@@ -13,8 +13,12 @@ services:
         arguments:
             - '@app.event_loop'
             - '@app.bridge.symfony.event_dispatcher.tick_callback_builder'
+            - '@app.bridge.symfony.event_dispatcher.dispatch_promise_resolver'
 
     app.bridge.symfony.event_dispatcher.tick_callback_builder:
         class: Sterlett\Bridge\Symfony\Component\EventDispatcher\TickCallbackBuilder
         arguments:
             - '@app.log.logger.stdout'
+
+    app.bridge.symfony.event_dispatcher.dispatch_promise_resolver:
+        class: Sterlett\Bridge\Symfony\Component\EventDispatcher\DispatchPromiseResolver

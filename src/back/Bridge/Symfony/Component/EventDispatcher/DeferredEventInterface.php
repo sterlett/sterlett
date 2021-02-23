@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace Sterlett\Bridge\Symfony\Component\EventDispatcher;
 
 use React\Promise\Deferred;
+use React\Promise\PromiseInterface;
 
 /**
  * Marks the event as a deferred one, i.e. will be processed by the future tick queue
@@ -23,9 +24,26 @@ use React\Promise\Deferred;
 interface DeferredEventInterface
 {
     /**
-     * Returns a deferred object, associated with this event instance
+     * Returns a promise, which being resolved, will forward a value from the responsible listener or event
+     * dispatcher. NULL will be returned in case, when the event is already dispatched.
      *
-     * @return Deferred
+     * @return PromiseInterface<mixed>|null
      */
-    public function getDeferred(): Deferred;
+    public function getPromise(): ?PromiseInterface;
+
+    /**
+     * Returns a deferred object, associated with this event instance, or a NULL if it is already resolved/rejected
+     * (this behavior part is similar to the "propagation stopped" flag).
+     *
+     * The caller MUST explicitly resolve or reject a promise using this interface. By calling this method it takes
+     * full responsibility for the further result/error forwarding. if no such responsible listeners are present, the
+     * event dispatcher itself will take care of it and will forward a NULL value to the onFulfilled callback.
+     *
+     * This method MUST return a NULL value, if a deferred object is "taken" at least once.
+     *
+     * @return Deferred|null
+     *
+     * @see DeferredEventTrait
+     */
+    public function takeDeferred(): ?Deferred;
 }

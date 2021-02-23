@@ -3,7 +3,7 @@
 /*
  * This file is part of the Sterlett project <https://github.com/sterlett/sterlett>.
  *
- * (c) 2020 Pavel Petrov <itnelo@gmail.com>.
+ * (c) 2020-2021 Pavel Petrov <itnelo@gmail.com>.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -48,15 +48,27 @@ class TickScheduler implements TickSchedulerInterface
     private TickCallbackBuilder $callbackBuilder;
 
     /**
+     * Forwards a result value of the event dispatch promise, if there are no listeners to do it explicitly
+     *
+     * @var DispatchPromiseResolver
+     */
+    private DispatchPromiseResolver $dispatchPromiseResolver;
+
+    /**
      * TickScheduler constructor.
      *
-     * @param LoopInterface       $loop            Event loop
-     * @param TickCallbackBuilder $callbackBuilder Builds callbacks with listener calls for React's future tick queue
+     * @param LoopInterface           $loop                    Event loop
+     * @param TickCallbackBuilder     $callbackBuilder         Builds callbacks with listener calls for the tick queue
+     * @param DispatchPromiseResolver $dispatchPromiseResolver Forwards a result value of the event dispatch promise
      */
-    public function __construct(LoopInterface $loop, TickCallbackBuilder $callbackBuilder)
-    {
-        $this->loop            = $loop;
-        $this->callbackBuilder = $callbackBuilder;
+    public function __construct(
+        LoopInterface $loop,
+        TickCallbackBuilder $callbackBuilder,
+        DispatchPromiseResolver $dispatchPromiseResolver
+    ) {
+        $this->loop                    = $loop;
+        $this->callbackBuilder         = $callbackBuilder;
+        $this->dispatchPromiseResolver = $dispatchPromiseResolver;
     }
 
     /**
@@ -74,6 +86,13 @@ class TickScheduler implements TickSchedulerInterface
 
             $this->loop->futureTick($tickCallback);
         }
+
+        if (!$event instanceof DeferredEventInterface) {
+            return;
+        }
+
+        // resolving a dispatch promise.
+        $this->loop->futureTick(fn () => $this->dispatchPromiseResolver->resolveDispatchPromise($event));
     }
 
     /**

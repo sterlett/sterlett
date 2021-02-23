@@ -5,4 +5,5 @@ services:
         public: true
         arguments:
             - '@app.log.logger.stdout'
+            - '@app.event.dispatcher'
             - '@app.event_loop'

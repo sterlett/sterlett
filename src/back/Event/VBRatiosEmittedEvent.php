@@ -17,6 +17,7 @@ namespace Sterlett\Event;
 
 use React\Promise\Deferred;
 use Sterlett\Bridge\Symfony\Component\EventDispatcher\DeferredEventInterface;
+use Sterlett\Bridge\Symfony\Component\EventDispatcher\DeferredEventTrait;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
@@ -24,6 +25,8 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class VBRatiosEmittedEvent extends Event implements DeferredEventInterface
 {
+    use DeferredEventTrait;
+
     /**
      * Event name
      *
@@ -37,13 +40,6 @@ class VBRatiosEmittedEvent extends Event implements DeferredEventInterface
      * @var string
      */
     private string $ratioData;
-
-    /**
-     * An associated deferred object for non-blocking dispatch
-     *
-     * @var Deferred
-     */
-    private Deferred $_deferred;
 
     /**
      * VBRatiosEmittedEvent constructor.
@@ -74,13 +70,5 @@ class VBRatiosEmittedEvent extends Event implements DeferredEventInterface
     public function getRatioData(): string
     {
         return $this->ratioData;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getDeferred(): Deferred
-    {
-        return $this->_deferred;
     }
 }

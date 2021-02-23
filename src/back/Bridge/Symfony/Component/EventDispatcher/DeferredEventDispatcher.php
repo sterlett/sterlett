@@ -16,7 +16,8 @@ declare(strict_types=1);
 namespace Sterlett\Bridge\Symfony\Component\EventDispatcher;
 
 use InvalidArgumentException;
-use React\Promise\PromiseInterface;
+use React\Promise\Deferred;
+use RuntimeException;
 use Symfony\Component\EventDispatcher\EventDispatcher as BaseEventDispatcher;
 
 /**
@@ -69,8 +70,24 @@ class DeferredEventDispatcher extends BaseEventDispatcher
             );
         }
 
-        /** @var DeferredEventInterface $event */
-        $event = parent::dispatch($event, $eventName);
+        if ($this->hasListeners($eventName)) {
+            /** @var DeferredEventInterface $event */
+            $event = parent::dispatch($event, $eventName);
+
+            return $event;
+        }
+
+        // trying to reject immediately if there are no listeners.
+        $dispatchingDeferred = $event->takeDeferred();
+
+        if (!$dispatchingDeferred instanceof Deferred) {
+            return $event;
+        }
+
+        $noListenersMessage = sprintf("Unable to dispatch a '%s' event: no listeners.", $eventName);
+        $reason             = new RuntimeException($noListenersMessage);
+
+        $dispatchingDeferred->reject($reason);
 
         return $event;
     }
