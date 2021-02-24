@@ -1,7 +1,13 @@
 
 services:
     app.browser.opener.hardprice:
-        alias: 'app.browser.opener.new_session_opener.hardprice'
+        alias: 'app.browser.opener.reusing_opener.hardprice'
+
+    app.browser.opener.reusing_opener.hardprice:
+        class: Sterlett\Browser\Opener\ReusingOpener
+        arguments:
+            - '@app.browser.opener.existing_session_opener.hardprice'
+            - '@app.browser.opener.new_session_opener.hardprice'
 
     app.browser.opener.existing_session_opener.hardprice:
         class: Sterlett\Browser\Opener\ExistingSessionOpener
