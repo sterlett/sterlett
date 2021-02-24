@@ -21,6 +21,7 @@ use IteratorIterator;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\StoppableEventInterface;
 use React\EventLoop\LoopInterface;
+use React\Promise\PromiseInterface;
 use Traversable;
 
 /**
@@ -85,7 +86,7 @@ class DeferredTickScheduler implements TickSchedulerInterface
 
         $listenerIterator->rewind();
 
-        $this->scheduleListenerCallsRecursive($eventDispatcher, $listenerIterator, $eventName, $event);
+        $this->scheduleListenerCallsRecursive($eventDispatcher, $listenerIterator, [], $eventName, $event);
     }
 
     /**
@@ -93,6 +94,7 @@ class DeferredTickScheduler implements TickSchedulerInterface
      *
      * @param EventDispatcherInterface $eventDispatcher  Dispatcher that triggered the event
      * @param Iterator                 $listenerIterator Provides access to the chain of listeners
+     * @param array                    $listenerPromises For async listeners, to properly resolve dispatch promise
      * @param string                   $eventName        Name of the event to dispatch
      * @param object                   $event            The event object for the event listener
      *
@@ -101,13 +103,14 @@ class DeferredTickScheduler implements TickSchedulerInterface
     private function scheduleListenerCallsRecursive(
         EventDispatcherInterface $eventDispatcher,
         Iterator $listenerIterator,
+        array $listenerPromises,
         string $eventName,
         object $event
     ): void {
         if (!$listenerIterator->valid()) {
             if ($event instanceof DeferredEventInterface) {
                 // resolving a dispatch promise.
-                $this->dispatchPromiseResolver->resolveDispatchPromise($event);
+                $this->dispatchPromiseResolver->resolveDispatchPromise($event, $listenerPromises);
             }
 
             return;
@@ -117,10 +120,22 @@ class DeferredTickScheduler implements TickSchedulerInterface
 
         $tickCallback = $this->callbackBuilder->makeTickCallback($eventDispatcher, $listener, $eventName, $event);
 
+        // todo: extract a dto for the tick context that will hold all data
         $this->loop->futureTick(
-            function () use ($tickCallback, $eventDispatcher, $listenerIterator, $eventName, $event) {
+            function () use (
+                $tickCallback,
+                $eventDispatcher,
+                $listenerIterator,
+                $listenerPromises,
+                $eventName,
+                $event
+            ) {
                 // callback for the current tick queue flush.
-                $tickCallback();
+                $promiseOrNull = $tickCallback();
+
+                if ($promiseOrNull instanceof PromiseInterface) {
+                    $listenerPromises[] = $promiseOrNull;
+                }
 
                 if ($event instanceof StoppableEventInterface && $event->isPropagationStopped()) {
                     return;
@@ -130,7 +145,13 @@ class DeferredTickScheduler implements TickSchedulerInterface
 
                 // next callback doesn't participate in the current tick queue flush, so the whole event dispatching
                 // routine doesn't slow down other activities, e.g. HTTP requests handling and periodic timers.
-                $this->scheduleListenerCallsRecursive($eventDispatcher, $listenerIterator, $eventName, $event);
+                $this->scheduleListenerCallsRecursive(
+                    $eventDispatcher,
+                    $listenerIterator,
+                    $listenerPromises,
+                    $eventName,
+                    $event
+                );
             }
         );
     }

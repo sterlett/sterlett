@@ -18,6 +18,7 @@ namespace Sterlett\Bridge\Symfony\Component\EventDispatcher;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\StoppableEventInterface;
 use React\EventLoop\LoopInterface;
+use React\Promise\PromiseInterface;
 
 /**
  * Provides a simple and straightforward way to make services observe application-level events in the ReactPHP
@@ -80,19 +81,33 @@ class TickScheduler implements TickSchedulerInterface
         string $eventName,
         object $event
     ): void {
+        $listenerPromises = [];
+
         foreach ($listeners as $listener) {
             $tickCallback = $this->callbackBuilder->makeTickCallback($eventDispatcher, $listener, $eventName, $event);
             $tickCallback = $this->addPropagationStopCondition($tickCallback, $event);
 
-            $this->loop->futureTick($tickCallback);
+            $this->loop->futureTick(
+                function () use (&$listenerPromises, $tickCallback) {
+                    $promiseOrNull = $tickCallback();
+
+                    if (!$promiseOrNull instanceof PromiseInterface) {
+                        return;
+                    }
+
+                    $listenerPromises[] = $promiseOrNull;
+                }
+            );
         }
 
         if (!$event instanceof DeferredEventInterface) {
             return;
         }
 
-        // resolving a dispatch promise.
-        $this->loop->futureTick(fn () => $this->dispatchPromiseResolver->resolveDispatchPromise($event));
+        // resolving a dispatcher's promise.
+        $this->loop->futureTick(
+            fn () => $this->dispatchPromiseResolver->resolveDispatchPromise($event, $listenerPromises)
+        );
     }
 
     /**
@@ -106,11 +121,15 @@ class TickScheduler implements TickSchedulerInterface
     private function addPropagationStopCondition(callable $tickCallback, object $event): callable
     {
         return function () use ($tickCallback, $event) {
-            if ($event instanceof StoppableEventInterface && $event->isPropagationStopped()) {
-                return;
+            $isPropagationStopped = $event instanceof StoppableEventInterface && $event->isPropagationStopped();
+
+            if ($isPropagationStopped) {
+                return null;
             }
 
-            $tickCallback();
+            $promiseOrNull = $tickCallback();
+
+            return $promiseOrNull;
         };
     }
 }

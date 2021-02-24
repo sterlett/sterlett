@@ -3,7 +3,7 @@
 /*
  * This file is part of the Sterlett project <https://github.com/sterlett/sterlett>.
  *
- * (c) 2020 Pavel Petrov <itnelo@gmail.com>.
+ * (c) 2020-2021 Pavel Petrov <itnelo@gmail.com>.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -21,6 +21,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use React\EventLoop\StreamSelectLoop;
 use stdClass;
+use Sterlett\Bridge\Symfony\Component\EventDispatcher\DispatchPromiseResolver;
 use Sterlett\Bridge\Symfony\Component\EventDispatcher\TickCallbackBuilder;
 use Sterlett\Bridge\Symfony\Component\EventDispatcher\TickScheduler;
 use Symfony\Contracts\EventDispatcher\Event;
@@ -61,15 +62,18 @@ final class TickSchedulerTest extends TestCase
     {
         $this->loop = new StreamSelectLoop();
 
-        $loggerStub      = $this->createStub(LoggerInterface::class);
-        $callbackBuilder = new TickCallbackBuilder($loggerStub);
+        $loggerStub              = $this->createStub(LoggerInterface::class);
+        $callbackBuilder         = new TickCallbackBuilder($loggerStub);
+        $dispatchPromiseResolver = new DispatchPromiseResolver();
 
-        $this->tickScheduler = new TickScheduler($this->loop, $callbackBuilder);
+        $this->tickScheduler = new TickScheduler(
+            $this->loop,
+            $callbackBuilder,
+            $dispatchPromiseResolver
+        );
 
         $this->dispatcherStub = $this->createStub(EventDispatcherInterface::class);
     }
-
-
 
     /**
      * Tests listener calls execution and checks that event contains expected result data

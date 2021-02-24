@@ -18,14 +18,17 @@ namespace Sterlett\Hardware\Price\Provider\HardPrice;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use RuntimeException;
+use Sterlett\Bridge\Symfony\Component\EventDispatcher\DeferredEventDispatcher;
 use Sterlett\Browser\Cleaner as BrowserCleaner;
 use Sterlett\Browser\Context as BrowserContext;
 use Sterlett\Browser\OpenerInterface as BrowserOpenerInterface;
+use Sterlett\Event\ShutdownStartedEvent;
 use Sterlett\HardPrice\Browser\ItemReader;
 use Sterlett\HardPrice\Browser\PriceAccumulator;
 use Sterlett\HardPrice\Browser\SiteNavigator;
 use Sterlett\Hardware\Price\ProviderInterface;
 use Throwable;
+use function React\Promise\resolve;
 
 /**
  * Gen 3 algorithm for price data retrieving from the HardPrice website.
@@ -34,6 +37,13 @@ use Throwable;
  */
 class BrowsingProvider implements ProviderInterface
 {
+    /**
+     * Dispatches application-level events using future tick queue of the event loop
+     *
+     * @var DeferredEventDispatcher
+     */
+    private DeferredEventDispatcher $eventDispatcher;
+
     /**
      * Opens a remote browser and starts a new browsing session to find hardware prices on the website
      *
@@ -72,19 +82,22 @@ class BrowsingProvider implements ProviderInterface
     /**
      * BrowsingProvider constructor.
      *
-     * @param BrowserOpenerInterface $browserOpener    Opens a remote browser and starts a new browsing session
-     * @param BrowserCleaner         $browserCleaner   Stops a remote browser session and cleans all related resources
-     * @param SiteNavigator          $siteNavigator    Opens HardPrice website in the remote browser tab
-     * @param ItemReader             $itemReader       Opens a page with hardware items in the remove browser tab
-     * @param PriceAccumulator       $priceAccumulator Starts price accumulating routine for hardware items
+     * @param DeferredEventDispatcher $eventDispatcher  Dispatches application-level events using the future tick queue
+     * @param BrowserOpenerInterface  $browserOpener    Opens a remote browser and starts a new browsing session
+     * @param BrowserCleaner          $browserCleaner   Stops a remote browser session and cleans all related resources
+     * @param SiteNavigator           $siteNavigator    Opens HardPrice website in the remote browser tab
+     * @param ItemReader              $itemReader       Opens a page with hardware items in the remove browser tab
+     * @param PriceAccumulator        $priceAccumulator Starts price accumulating routine for hardware items
      */
     public function __construct(
+        DeferredEventDispatcher $eventDispatcher,
         BrowserOpenerInterface $browserOpener,
         BrowserCleaner $browserCleaner,
         SiteNavigator $siteNavigator,
         ItemReader $itemReader,
         PriceAccumulator $priceAccumulator
     ) {
+        $this->eventDispatcher  = $eventDispatcher;
         $this->browserOpener    = $browserOpener;
         $this->browserCleaner   = $browserCleaner;
         $this->siteNavigator    = $siteNavigator;
@@ -136,7 +149,7 @@ class BrowsingProvider implements ProviderInterface
      *
      * @return void
      */
-    public function onBrowserReady(Deferred $retrievingDeferred, BrowserContext $browserContext): void
+    private function onBrowserReady(Deferred $retrievingDeferred, BrowserContext $browserContext): void
     {
         // stage 2: navigating to the website.
         $tabIdentifiers = $browserContext->getTabIdentifiers();
@@ -147,6 +160,14 @@ class BrowsingProvider implements ProviderInterface
 
             return;
         }
+
+        // registering a callback to gracefully remove driver session on application shutdown.
+        $this->eventDispatcher->addListener(
+            ShutdownStartedEvent::NAME,
+            function () use ($browserContext) {
+                return $this->releaseDriver($browserContext);
+            }
+        );
 
         // will run a navigation query otherwise.
         $navigationPromise = $this->siteNavigator->navigate($browserContext);
@@ -181,7 +202,7 @@ class BrowsingProvider implements ProviderInterface
      *
      * @return void
      */
-    public function onSiteNavigation(Deferred $retrievingDeferred, BrowserContext $browserContext): void
+    private function onSiteNavigation(Deferred $retrievingDeferred, BrowserContext $browserContext): void
     {
         // stage 3: searching hardware items.
         $itemListPromise = $this->itemReader->readItems($browserContext);
@@ -217,7 +238,7 @@ class BrowsingProvider implements ProviderInterface
      *
      * @return void
      */
-    public function onItemsFound(
+    private function onItemsFound(
         Deferred $retrievingDeferred,
         BrowserContext $browserContext,
         iterable $hardwareItems
@@ -252,7 +273,7 @@ class BrowsingProvider implements ProviderInterface
      *
      * @return void
      */
-    public function onPricesAccumulated(
+    private function onPricesAccumulated(
         Deferred $retrievingDeferred,
         BrowserContext $browserContext,
         iterable $hardwarePrices
@@ -261,14 +282,36 @@ class BrowsingProvider implements ProviderInterface
         // we only close browsing session and cleaning up the browser at this stage.
         // it is OK to not clean after each reject, because we can still reuse the same session (browser tabs, etc.)
         // again with no consequences (except excessive mem peaks at some point, which may be affordable).
+        // See browser context option 'cleaner.is_enabled' to find more information.
 
+        $this
+            // releasing driver resources.
+            ->releaseDriver($browserContext)
+            // forwarding a result of the price retrieving operation (always: for both resolved/rejected cases).
+            ->then(
+                fn () => $retrievingDeferred->resolve($hardwarePrices),
+                fn () => $retrievingDeferred->resolve($hardwarePrices)
+            )
+        ;
+    }
+
+    /**
+     * Executes cleanup operations for the webdriver (and other utilized services). Returns a promise that will be
+     * resolved when the related services are freed.
+     *
+     * @param BrowserContext $browserContext Holds browser state and a driver reference to perform actions
+     *
+     * @return PromiseInterface<null>|null
+     */
+    private function releaseDriver(BrowserContext $browserContext): ?PromiseInterface
+    {
         $browserOptions   = $browserContext->getOptions();
         $isCleanerEnabled = $browserOptions['cleaner']['is_enabled'];
 
-        if ($isCleanerEnabled) {
-            $this->browserCleaner->cleanBrowser($browserContext);
+        if (!$isCleanerEnabled) {
+            return resolve(null);
         }
 
-        $retrievingDeferred->resolve($hardwarePrices);
+        return $this->browserCleaner->cleanBrowser($browserContext);
     }
 }
