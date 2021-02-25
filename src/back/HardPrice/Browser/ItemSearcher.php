@@ -463,7 +463,7 @@ class ItemSearcher
             null,
             function (Throwable $rejectionReason) {
                 throw new RuntimeException(
-                    'Unable to ensure page contents is fully loaded (AJAX timeout?).',
+                    'Unable to ensure page contents is fully loaded (AJAX timeout / empty data).',
                     0,
                     $rejectionReason
                 );

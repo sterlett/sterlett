@@ -59,6 +59,12 @@ class Parser
                 continue;
             }
 
+            $inStock = isset($dataRecord['in_stock']) ? (int) $dataRecord['in_stock'] : 0;
+
+            if (1 !== $inStock) {
+                continue;
+            }
+
             $externalIdNormalized = isset($dataRecord['id']) ? (int) $dataRecord['id'] : null;
 
             if (null === $externalIdNormalized) {
