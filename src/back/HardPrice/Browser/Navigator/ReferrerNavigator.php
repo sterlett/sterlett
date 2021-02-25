@@ -13,19 +13,20 @@
 
 declare(strict_types=1);
 
-namespace Sterlett\HardPrice\Browser;
+namespace Sterlett\HardPrice\Browser\Navigator;
 
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 use RuntimeException;
 use Sterlett\Browser\Context as BrowserContext;
 use Sterlett\Browser\Tab\Actualizer as TabActualizer;
+use Sterlett\HardPrice\Browser\NavigatorInterface;
 use Throwable;
 
 /**
- * Opens the HardPrice website in the remote browser tab
+ * Opens website in the remote browser tab using a website-referrer (e.g. search engine or a catalogue)
  */
-class SiteNavigator
+class ReferrerNavigator implements NavigatorInterface
 {
     /**
      * Updates a list with available browser tabs (window handles) for the browser context
@@ -35,21 +36,35 @@ class SiteNavigator
     private TabActualizer $tabActualizer;
 
     /**
-     * SiteNavigator constructor.
+     * URL to the website-referrer
      *
-     * @param TabActualizer $tabActualizer Updates a list with available browser tabs (window handles)
+     * @var string
      */
-    public function __construct(TabActualizer $tabActualizer)
+    private string $referrerUri;
+
+    /**
+     * A link to click on the website-referrer
+     *
+     * @var string
+     */
+    private string $referrerLinkXPath;
+
+    /**
+     * ReferrerNavigator constructor.
+     *
+     * @param TabActualizer $tabActualizer     Updates a list with available browser tabs (window handles)
+     * @param string        $referrerUri       URL to the website-referrer
+     * @param string        $referrerLinkXPath A link to click on the website-referrer
+     */
+    public function __construct(TabActualizer $tabActualizer, string $referrerUri, string $referrerLinkXPath)
     {
-        $this->tabActualizer = $tabActualizer;
+        $this->tabActualizer     = $tabActualizer;
+        $this->referrerUri       = $referrerUri;
+        $this->referrerLinkXPath = $referrerLinkXPath;
     }
 
     /**
-     * Returns a promise that will be resolved when the website becomes open in the remote browser
-     *
-     * @param BrowserContext $browserContext Holds browser state and a driver reference to perform actions
-     *
-     * @return PromiseInterface<null>
+     * {@inheritDoc}
      */
     public function navigate(BrowserContext $browserContext): PromiseInterface
     {
@@ -58,16 +73,16 @@ class SiteNavigator
 
         $navigationDeferred = new Deferred();
 
-        $searchEnginePromise = $browsingThread
+        $referrerPromise = $browsingThread
             // acquiring a time frame in the shared event loop.
             ->getTime()
-            // opening a search engine to make a trustworthy referrer transition.
-            ->then(fn () => $this->openSearchEngine($browserContext))
-            // applying a delay before we will access search results.
+            // opening a website-referrer to make a trustworthy transition.
+            ->then(fn () => $this->openReferrer($browserContext))
+            // applying a delay before we will access a referrer link.
             ->then(fn () => $webDriver->wait(5.0))
         ;
 
-        $siteAccessPromise = $searchEnginePromise
+        $siteAccessPromise = $referrerPromise
             ->then(fn () => $this->accessSiteByLink($browserContext))
         ;
 
@@ -96,27 +111,24 @@ class SiteNavigator
     }
 
     /**
-     * Sends a command to open a search engine in the current browser tab
+     * Sends a command to open a website-referrer in the current browser tab
      *
      * @param BrowserContext $browserContext Holds browser state and a driver reference to perform actions
      *
      * @return PromiseInterface<null>
      */
-    private function openSearchEngine(BrowserContext $browserContext): PromiseInterface
+    private function openReferrer(BrowserContext $browserContext): PromiseInterface
     {
         $webDriver         = $browserContext->getWebDriver();
         $sessionIdentifier = $browserContext->getHubSession();
 
-        $searchEnginePromise = $webDriver->openUri(
-            $sessionIdentifier,
-            'https://google.ru/search?q=hardprice+процессоры'
-        );
+        $referrerPromise = $webDriver->openUri($sessionIdentifier, $this->referrerUri);
 
-        return $searchEnginePromise;
+        return $referrerPromise;
     }
 
     /**
-     * Finds a link to the target website in the search engine results and clicks it
+     * Finds a link to the target website in the website-referrer results and clicks it
      *
      * @param BrowserContext $browserContext Holds browser state and a driver reference to perform actions
      *
@@ -129,7 +141,7 @@ class SiteNavigator
 
         $siteAccessPromise = $webDriver
             // acquiring starting point coordinates for mouse move action.
-            ->getElementIdentifier($sessionIdentifier, '//span[contains(., "category › cpu")]')
+            ->getElementIdentifier($sessionIdentifier, $this->referrerLinkXPath)
             // moving mouse (an internal pointer) to the link.
             ->then(
                 function (array $linkIdentifier) use ($webDriver, $sessionIdentifier) {

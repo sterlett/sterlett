@@ -24,8 +24,8 @@ use Sterlett\Browser\Context as BrowserContext;
 use Sterlett\Browser\OpenerInterface as BrowserOpenerInterface;
 use Sterlett\Event\ShutdownStartedEvent;
 use Sterlett\HardPrice\Browser\ItemReader;
+use Sterlett\HardPrice\Browser\NavigatorInterface as NavigatorInterface;
 use Sterlett\HardPrice\Browser\PriceAccumulator;
-use Sterlett\HardPrice\Browser\SiteNavigator;
 use Sterlett\Hardware\Price\ProviderInterface;
 use Throwable;
 use function React\Promise\resolve;
@@ -61,9 +61,9 @@ class BrowsingProvider implements ProviderInterface
     /**
      * Opens HardPrice website in the remote browser tab
      *
-     * @var SiteNavigator
+     * @var NavigatorInterface
      */
-    private SiteNavigator $siteNavigator;
+    private NavigatorInterface $siteNavigator;
 
     /**
      * Opens a page with hardware items in the remove browser and saves them for browsing context
@@ -85,7 +85,7 @@ class BrowsingProvider implements ProviderInterface
      * @param DeferredEventDispatcher $eventDispatcher  Dispatches application-level events using the future tick queue
      * @param BrowserOpenerInterface  $browserOpener    Opens a remote browser and starts a new browsing session
      * @param BrowserCleaner          $browserCleaner   Stops a remote browser session and cleans all related resources
-     * @param SiteNavigator           $siteNavigator    Opens HardPrice website in the remote browser tab
+     * @param NavigatorInterface      $siteNavigator    Opens HardPrice website in the remote browser tab
      * @param ItemReader              $itemReader       Opens a page with hardware items in the remove browser tab
      * @param PriceAccumulator        $priceAccumulator Starts price accumulating routine for hardware items
      */
@@ -93,7 +93,7 @@ class BrowsingProvider implements ProviderInterface
         DeferredEventDispatcher $eventDispatcher,
         BrowserOpenerInterface $browserOpener,
         BrowserCleaner $browserCleaner,
-        SiteNavigator $siteNavigator,
+        NavigatorInterface $siteNavigator,
         ItemReader $itemReader,
         PriceAccumulator $priceAccumulator
     ) {

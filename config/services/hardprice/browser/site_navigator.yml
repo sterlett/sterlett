@@ -1,6 +1,0 @@
-
-services:
-    app.hardprice.browser.site_navigator:
-        class: Sterlett\HardPrice\Browser\SiteNavigator
-        arguments:
-            - '@app.browser.tab.actualizer'

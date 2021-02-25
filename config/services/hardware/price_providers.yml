@@ -49,7 +49,7 @@ services:
             - '@app.event.dispatcher'
             - '@app.browser.opener.hardprice'
             - '@app.browser.cleaner'
-            - '@app.hardprice.browser.site_navigator'
+            - '@app.hardprice.browser.navigator'
             - '@app.hardprice.browser.item_reader'
             - '@app.hardprice.browser.price_accumulator'
     # ---
