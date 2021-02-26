@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace Sterlett\Hardware\Price\Provider;
 
-use DateTime;
 use React\Promise\PromiseInterface;
 use Sterlett\Hardware\Price\ProviderInterface;
 use Sterlett\Hardware\Price\Repository as PriceRepository;
@@ -49,14 +48,11 @@ class RepositoryProvider implements ProviderInterface
      */
     public function getPrices(): PromiseInterface
     {
-        $dateFrom = new DateTime('-1 day');
-        $dateTo   = new DateTime('now');
-
         $priceListPromise = $this->priceRepository
-            // requesting data from the local storage.
-            ->findByCreatedAt($dateFrom, $dateTo)
+            // requesting data from the local storage (the most recent records).
+            ->findByCreatedAtMax()
             // an additional pass to aggregate price records by hardware name (to maintain a provider contract).
-            ->then(fn (iterable $hardwarePrices) => $this->aggregateByItemName($hardwarePrices))
+            ->then(fn (array $priceListWithDate) => $this->aggregateByItemName($priceListWithDate[0]))
         ;
 
         return $priceListPromise;
@@ -85,6 +81,8 @@ class RepositoryProvider implements ProviderInterface
             $priceListByItemName[$hardwareName] = [$hardwarePrice];
         }
 
-        return array_values($priceListByItemName);
+        $priceList = array_values($priceListByItemName);
+
+        return $priceList;
     }
 }

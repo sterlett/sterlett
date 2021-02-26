@@ -24,7 +24,7 @@ use Sterlett\Browser\Context as BrowserContext;
 use Sterlett\Browser\OpenerInterface as BrowserOpenerInterface;
 use Sterlett\Event\ShutdownStartedEvent;
 use Sterlett\HardPrice\Browser\ItemReader;
-use Sterlett\HardPrice\Browser\NavigatorInterface as NavigatorInterface;
+use Sterlett\HardPrice\Browser\NavigatorInterface;
 use Sterlett\HardPrice\Browser\PriceAccumulator;
 use Sterlett\Hardware\Price\ProviderInterface;
 use Throwable;

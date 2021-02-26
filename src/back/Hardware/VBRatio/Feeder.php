@@ -119,8 +119,7 @@ class Feeder
 
         $this->eventDispatcher->dispatch($ratioListEmittedEvent, VBRatiosEmittedEvent::NAME);
 
-        $dispatchingDeferred     = $ratioListEmittedEvent->getDeferred();
-        $eventPropagationPromise = $dispatchingDeferred->promise();
+        $eventPropagationPromise = $ratioListEmittedEvent->getPromise();
 
         return $eventPropagationPromise;
     }

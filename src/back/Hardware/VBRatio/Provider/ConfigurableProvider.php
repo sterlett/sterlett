@@ -110,7 +110,11 @@ class ConfigurableProvider implements ProviderInterface
         $ratioListPromise = $ratioListPromise->then(
             null,
             function (Throwable $rejectionReason) {
-                throw new RuntimeException('Unable to fulfill the V/B ratio collection.', 0, $rejectionReason);
+                throw new RuntimeException(
+                    'Unable to fulfill the V/B ratio collection (configurable ratio provider).',
+                    0,
+                    $rejectionReason
+                );
             }
         );
 

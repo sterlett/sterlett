@@ -101,7 +101,7 @@ class BuffererMiddleware implements ResponseMiddlewareInterface
                 }
             },
             function (Throwable $rejectionReason) use ($bufferingDeferred) {
-                $reason = new RuntimeException('Unable to buffer response.', 0, $rejectionReason);
+                $reason = new RuntimeException('Unable to buffer a response.', 0, $rejectionReason);
 
                 $bufferingDeferred->reject($reason);
             }
@@ -139,7 +139,7 @@ class BuffererMiddleware implements ResponseMiddlewareInterface
             'error',
             function (Throwable $rejectionReason) use ($bufferingDeferred) {
                 $reason = new RuntimeException(
-                    'Unable to buffer response (streaming error).',
+                    'Unable to buffer a response (streaming error).',
                     0,
                     $rejectionReason
                 );

@@ -17,6 +17,7 @@ namespace Sterlett\Routine\Hardware\VBRatio;
 
 use Psr\Log\LoggerInterface;
 use React\EventLoop\LoopInterface;
+use RuntimeException;
 use Sterlett\Hardware\VBRatio\Feeder as VBRatioFeeder;
 use Sterlett\RoutineInterface;
 use Throwable;
@@ -102,7 +103,15 @@ class FeedingRoutine implements RoutineInterface
                     $this->loop->addTimer($this->attemptInterval, fn () => $this->runInternal());
                 },
                 function (Throwable $rejectionReason) {
-                    $this->logger->error('V/B ratio feed task has failed.', ['reason' => $rejectionReason]);
+                    $reasonNext = new RuntimeException('', 0, $rejectionReason);
+
+                    while ($reasonNext = $reasonNext->getPrevious()) {
+                        $exceptionMessage = $reasonNext->getMessage();
+
+                        $this->logger->error($exceptionMessage);
+                    }
+
+                    $this->logger->critical('V/B ratio feed task has failed.', ['reason' => $rejectionReason]);
 
                     $this->loop->addTimer($this->attemptInterval, fn () => $this->runInternal());
                 }
