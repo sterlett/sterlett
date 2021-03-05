@@ -3,7 +3,7 @@
 /*
  * This file is part of the Sterlett project <https://github.com/sterlett/sterlett>.
  *
- * (c) 2020 Pavel Petrov <itnelo@gmail.com>.
+ * (c) 2020-2021 Pavel Petrov <itnelo@gmail.com>.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -15,6 +15,9 @@ declare(strict_types=1);
 
 namespace Sterlett\Bridge\Symfony\Component\EventDispatcher;
 
+use InvalidArgumentException;
+use React\Promise\Deferred;
+use RuntimeException;
 use Symfony\Component\EventDispatcher\EventDispatcher as BaseEventDispatcher;
 
 /**
@@ -52,6 +55,41 @@ class DeferredEventDispatcher extends BaseEventDispatcher
         parent::__construct();
 
         $this->tickScheduler = $tickScheduler;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return DeferredEventInterface
+     */
+    public function dispatch(object $event, string $eventName = null): DeferredEventInterface
+    {
+        if (!$event instanceof DeferredEventInterface) {
+            throw new InvalidArgumentException(
+                'Event should implement the DeferredEventInterface to be handled by the deferred event dispatcher.'
+            );
+        }
+
+        if ($this->hasListeners($eventName)) {
+            /** @var DeferredEventInterface $event */
+            $event = parent::dispatch($event, $eventName);
+
+            return $event;
+        }
+
+        // trying to reject immediately if there are no listeners.
+        $dispatchingDeferred = $event->takeDeferred();
+
+        if (!$dispatchingDeferred instanceof Deferred) {
+            return $event;
+        }
+
+        $noListenersMessage = sprintf("Unable to dispatch a '%s' event: no listeners.", $eventName);
+        $reason             = new RuntimeException($noListenersMessage);
+
+        $dispatchingDeferred->reject($reason);
+
+        return $event;
     }
 
     /**

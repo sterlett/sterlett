@@ -44,9 +44,9 @@ final class VBRatio implements VBRatioInterface
     /**
      * V/B rating value
      *
-     * @var float|null
+     * @var string|null
      */
-    private ?float $value;
+    private ?string $value;
 
     /**
      * VBRatio constructor.
@@ -61,7 +61,7 @@ final class VBRatio implements VBRatioInterface
     /**
      * {@inheritDoc}
      */
-    public function getSourcePrices(): iterable
+    public function getSourcePrices(): array
     {
         return $this->sourcePrices;
     }
@@ -105,9 +105,9 @@ final class VBRatio implements VBRatioInterface
     /**
      * {@inheritDoc}
      */
-    public function getValue(): float
+    public function getValue(): string
     {
-        if (!is_float($this->value)) {
+        if (!is_string($this->value)) {
             throw new LogicException('Value for the V/B ratio DTO must be set explicitly.');
         }
 
@@ -117,11 +117,11 @@ final class VBRatio implements VBRatioInterface
     /**
      * Sets V/B rating value for the calculation DTO
      *
-     * @param float $value Calculated V/B ratio value
+     * @param string $value Calculated V/B ratio value
      *
      * @return void
      */
-    public function setValue(float $value): void
+    public function setValue(string $value): void
     {
         $this->value = $value;
     }

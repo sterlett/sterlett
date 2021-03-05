@@ -33,6 +33,10 @@ export default {
                         replacement: 'src/front/Deserialization',
                     },
                     {
+                        find: '@Event',
+                        replacement: 'src/front/Event',
+                    },
+                    {
                         find: '@Hardware',
                         replacement: 'src/front/Hardware',
                     },

@@ -3,7 +3,7 @@
 /*
  * This file is part of the Sterlett project <https://github.com/sterlett/sterlett>.
  *
- * (c) 2020 Pavel Petrov <itnelo@gmail.com>.
+ * (c) 2020-2021 Pavel Petrov <itnelo@gmail.com>.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -18,6 +18,7 @@ namespace Sterlett\Browser;
 use Itnelo\React\WebDriver\WebDriverInterface;
 use LogicException;
 use Sterlett\Bridge\React\EventLoop\TimeIssuerInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * A shared storage that holds state of browsing process (gen 3 algorithm)
@@ -53,6 +54,13 @@ class Context
     private array $tabIdentifiers;
 
     /**
+     * Options to tune browsing behavior
+     *
+     * @var array
+     */
+    private array $_options;
+
+    /**
      * Context constructor.
      */
     public function __construct()
@@ -61,6 +69,8 @@ class Context
         $this->webDriver      = null;
         $this->hubSession     = null;
         $this->tabIdentifiers = [];
+
+        $this->_options = [];
     }
 
     /**
@@ -161,5 +171,42 @@ class Context
     public function setTabIdentifiers(array $tabIdentifiers): void
     {
         $this->tabIdentifiers = $tabIdentifiers;
+    }
+
+    /**
+     * Returns options for the browsing session
+     *
+     * @return array
+     */
+    public function getOptions(): array
+    {
+        return $this->_options;
+    }
+
+    /**
+     * Sets options for the browsing session
+     *
+     * @param array $options Options for the browsing session
+     *
+     * @return void
+     */
+    public function setOptions(array $options): void
+    {
+        $optionsResolver = new OptionsResolver();
+
+        $optionsResolver
+            ->define('cleaner')
+            ->default(
+                function (OptionsResolver $cleanerOptionsResolver) {
+                    $cleanerOptionsResolver
+                        ->define('is_enabled')
+                        ->allowedTypes('boolean')
+                        ->default(false)
+                    ;
+                }
+            )
+        ;
+
+        $this->_options = $optionsResolver->resolve($options);
     }
 }

@@ -1,5 +1,8 @@
 {
     "HARDWARE": "ЖЕЛЕЗО",
     "CPUs": "Процессоры",
-    "About": "О проекте"
+    "HTTP API": "HTTP API",
+    "Console API": "Консоль",
+    "About": "О проекте",
+    "Not Found": "404"
 }

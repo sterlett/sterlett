@@ -89,7 +89,8 @@ $ docker-compose run --rm --no-deps app composer install
 $ docker-compose run --rm --no-deps app npm clean-install --no-optional
 ```
 
-Apply migrations:
+Apply migrations (note: you may need to wait for a few minutes during the first-time database initialization, before
+you can actually execute this command):
 
 ```
 $ docker-compose run --rm app bin/console migrations:migrate --no-interaction -vv latest
@@ -105,7 +106,7 @@ Now you can launch a microservice at [http://localhost:6638](http://localhost:66
 command-line interface, see below):
 
 ```
-$ docker-compose start
+$ docker-compose up -d
 ```
 
 ## Console API
@@ -140,6 +141,9 @@ $ docker-compose run --rm --no-deps app bin/console benchmark:list
 Example:
 
 ![console_api_benchmark_list_asciicast](.github/images/console-api-benchmark-list.gif)
+
+You can specify a minimum benchmark score for items to be shown in the table using `passmark.cpu.min_value` in 
+`parameters.yml`.
 
 ### Retrieving hardware prices
 

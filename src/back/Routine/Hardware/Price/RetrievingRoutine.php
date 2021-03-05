@@ -17,6 +17,7 @@ namespace Sterlett\Routine\Hardware\Price;
 
 use Psr\Log\LoggerInterface;
 use React\EventLoop\LoopInterface;
+use RuntimeException;
 use Sterlett\Hardware\Price\Retriever as PriceRetriever;
 use Sterlett\RoutineInterface;
 use Throwable;
@@ -101,14 +102,24 @@ class RetrievingRoutine implements RoutineInterface
                     // rescheduling, to perform a next attempt.
                     $this->loop->addTimer($this->attemptInterval, fn () => $this->runInternal());
                 },
+                // capturing & unwrapping the async stack trace, in case of error.
                 function (Throwable $rejectionReason) {
-                    $this->logger->error('Price retrieving task has failed.', ['reason' => $rejectionReason]);
+                    $reasonNext = new RuntimeException('', 0, $rejectionReason);
+
+                    while ($reasonNext = $reasonNext->getPrevious()) {
+                        $exceptionMessage = $reasonNext->getMessage();
+
+                        $this->logger->error($exceptionMessage);
+                    }
+
+                    $this->logger->critical('Price retrieving task has failed.');
 
                     $this->loop->addTimer($this->attemptInterval, fn () => $this->runInternal());
                 }
             );
         } catch (Throwable $exception) {
             // todo: enhance the context
+
             $this->logger->critical('Unable to schedule a background task: price retrieving.');
         }
     }

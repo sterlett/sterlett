@@ -1,5 +1,8 @@
 {
     "HARDWARE": "HARDWARE",
     "CPUs": "CPUs",
-    "About": "About"
+    "HTTP API": "HTTP API",
+    "Console API": "Console API",
+    "About": "About",
+    "Not Found": "404"
 }

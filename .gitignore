@@ -21,7 +21,7 @@ var/cache/selenium-node-chrome/profiles/*
 !var/cache/selenium-node-chrome/profiles/.gitkeep
 
 public/build/*
-!public/build/.gitkeep
+!public/build/images
 
 .env
 docker-compose.yml

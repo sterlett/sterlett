@@ -1,3 +1,4 @@
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
@@ -6,11 +7,70 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
 ### Changed
 
 - No description yet.
 
+## [0.4.0] - 2021-03-05
+
+This release makes it possible to use a browsing provider (based on the
+[async PHP WebDriver](https://github.com/itnelo/reactphp-webdriver)) for the price retrieving routine (stability
+improvements) and adds a `--source=database` option for the `ratio:calculate` command to perform semi-offline
+calculations (benchmark data from the live providers is still needed by this point).
+
+The tool gets its demo website [www.cpu-junkie.ru](http://cpu-junkie.ru) (the first version @0.4.0).
+
+### Added
+
+- Symfony Bridge: `DeferredEventInterface`, patch for the default event dispatcher to enable async mode (candidate for
+extracting).
+- `VBRatio\Feeder` service and `VBRatiosEmittedEvent` to transfer calculated price/benchmark data to the async HTTP
+handlers.
+- New background tasks: a `VBRatio\FeedingRoutine` to execute V/B ratios transfer logic using the centralized event
+loop.
+- Option `--source` has been added for the `ratio:calculate` command and acts as a switch between modes: `live`
+(a fresh dataset from the third-party web resources) and `database` (a local cache of the existing process).
+- `RepositoryProvider` (price records) to support `--source=database` option of the calculation command.
+- `Price\Repository`: executing fetch queries asynchronously w/ result sets hydration.
+- Configurable parameters to manage WebDriver behavior, depending on the available CPU cycles. Each of them may
+decrease the overall load (CPU/Mem) for a single browser node:
+	- `selenium.command.timeout` — how long to wait for the WebDriver's response, before termination (default: 30.0
+	sec).
+	- `selenium.ajax.timeout` — to regulate available time for ajax results rendering / waitUntil condition checks
+	(default: 30.0 sec).
+	- `selenium.state.check_frequency` — sets an interval for the waitUntil calls; for example, it affects element
+	visibility checks (default: 0.5 sec).
+	- `app.browser.enable_cleaner` — if set as "true", the WebDriver session will be closed on each successful data
+	retrieving operation, so the system will not have to deal with the higher memory footprint. But such behavior
+	causes extra requests to the third-party web sources and it could compromise the scraping routine (default: false).
+- It is now possible to change the lower bound of random delays for scraping iterations
+(parameter `hardprice.requests_delay_min`).
+- Configurable V-logging level for the Chrome executable (environment variable `SELENIUM_NODE_CHROME_LOG_LEVEL`;
+will enable/disable `chrome_debug.log`).
+- Front: accepting data from the HTTP handler, table sorting & column formatters (Svelte).
+- Front — pages: HTTP API, Console API, About (ru-RU locale).
+- Front — miscellaneous: +GitHub button, layout adjustments.
+
+### Changed
+
+- Refactoring for the service, which will open a remote browser to perform scraping actions. Extracting
+`Browser\OpenerInterface` with `ExistingSessionOpener` and `NewSessionOpener` implementations. Now, the existing
+WebDriver session will be picked up by default (if available).
+- Refactoring for the website navigation service (extracting `Browser\NavigatorInterface`). `ReferrerNavigator`
+implementation will open a website by clicking a configured link on the website-referrer (currently available
+referrers: Google search engine, VKontakte social media).
+
+### Fixed
+
+- Retry logic for the browser components to bypass the "connection closed unexpectedly" error in some situations (gen 3 price retrieving).
+- Ignoring some hardware items with "out-of-stock" marks (price parser).
+
 ## [0.3.0] - 2021-02-01
+
+This release introduces a `ratio:calculate` console command — to render a table with numerical scores for each
+available hardware item and measure its customer appeal in terms of price/performance (using regional prices).
+The microservice is starting to persist hardware prices in the local storage on-the-fly (a background routine).
 
 ### Added
 
@@ -38,11 +98,10 @@ schema provider for diffing without ORM layer (using [doctrine/migrations](https
 
 - Various fixes and adjustments for `.travis.yml`, `README.md` and other metafiles.
 
-This release introduces a `ratio:calculate` console command — to render a table with numerical scores for each
-available hardware item and measure its customer appeal in terms of price/performance (using regional prices).
-The microservice is starting to persist hardware prices in the local storage on-the-fly (a background routine).
-
 ## [0.2.0] (mvp) - 2020-12-25
+
+This release introduces 2 console commands, `benchmark:list` — to download and render a list of hardware benchmark
+results for the CPU category, `price:list` — prints a table with hardware prices (regions: RU/CIS; CPU category).
 
 ### Added
 
@@ -88,9 +147,6 @@ Symfony components — from 5.1 to 5.2+. Adopting Xdebug [3.x](https://xdebug.or
 
 - Rate limiting for incoming requests to the microservice' public endpoint (HAProxy).
 
-This release introduces 2 console commands, `benchmark:list` — to download and render a list of hardware benchmark
-results for the CPU category, `price:list` — prints a table with hardware prices (regions: RU/CIS; CPU category).
-
 ## [0.1.0] (road to mvp) - 2020-09-22
 
 ### Added
@@ -118,7 +174,8 @@ frontend files.
 
 \* — [igorw/evenement](https://github.com/igorw/evenement), the way how ReactPHP components communicate with each other.
 
-[Unreleased]: https://github.com/sterlett/sterlett/compare/0.3.0...0.x
+[Unreleased]: https://github.com/sterlett/sterlett/compare/0.4.0...0.x
+[0.4.0]: https://github.com/sterlett/sterlett/compare/0.3.0..0.4.0
 [0.3.0]: https://github.com/sterlett/sterlett/compare/0.2.0..0.3.0
 [0.2.0]: https://github.com/sterlett/sterlett/compare/0.1.0..0.2.0
 [0.1.0]: https://github.com/sterlett/sterlett/releases/tag/0.1.0

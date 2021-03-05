@@ -12,12 +12,11 @@ services:
             - !!str w
             - '@app.event_loop'
 
-    # todo: a part of the prototype, replace this stub with db-related approach
-    react.stream.readable_resource_stream.file_cpus_json:
-        class: React\Stream\ReadableResourceStream
-        factory: ['Sterlett\Bridge\React\Stream\FileFactory', getReadableFile]
-        autowire: true
-        arguments:
-            - 'tmp-data/cpus.json'
-            - !!str r
-            - '@app.event_loop'
+#    react.stream.readable_resource_stream.file_cpus_json:
+#        class: React\Stream\ReadableResourceStream
+#        factory: ['Sterlett\Bridge\React\Stream\FileFactory', getReadableFile]
+#        autowire: true
+#        arguments:
+#            - 'tmp-data/cpus.json'
+#            - !!str r
+#            - '@app.event_loop'

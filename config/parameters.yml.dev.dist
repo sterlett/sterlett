@@ -13,6 +13,12 @@ parameters:
     # example: '123.123.123.123:1234' (by default, similar to the ones used by generation 3 price provider)
     app.request.proxy_uri: '%env(string:SELENIUM_PROXY_HOST)%:%env(int:SELENIUM_PROXY_PORT)%'
 
+    # Background tasks
+    # Interval to execute price retrieving logic, in seconds (default: 36000.0; 10 hours)
+    app.routine.price.retrieving_interval: 36000.0
+    # Interval to update HTTP handler with new V/B ratio data, in seconds (default: 14400.0; 4 hours)
+    app.routine.ratio.feed_interval: 14400.0
+
     app.console.name: 'Sterlett'
     app.console.version: '0.3.0'
 
@@ -25,11 +31,28 @@ parameters:
     app.database.prices.uri: '%env(string:DATABASE_USER_NAME)%:%env(string:DATABASE_USER_PASSWORD)%@%env(string:DATABASE_HOST)%:%env(int:DATABASE_PORT)%/%env(string:DATABASE_NAME)%'
     app.database.table_name.price: 'hardware_price'
 
+    # This will force the microservice to send a session quit command to the Selenium Grid each time a scraping session
+    # is successfully complete (gen 3 algo only); pros: keeping low memory footprint on idle, cons: not so stable and
+    # clean approach, when we have to maintain a "trustful" activity on the website. Restarting a browser may cause
+    # extra requests / identity updates and other undesirable actions (default: false)
+    app.browser.enable_cleaner: false
+
     # Selenium Grid will be used by gen 3 (or "T-1000") scraping algorithms (for some websites with advanced bot
     # protection), as they emulate human-like behavior in the real browser instance (Google Chrome with XVFB server)
     # https://selenium.dev/documentation/en/grid
-    app.selenium.hub.host: '%env(string:SELENIUM_HUB_HOST)%'
-    app.selenium.hub.port: '%env(int:SELENIUM_HUB_PORT)%'
+    selenium.hub.host: '%env(string:SELENIUM_HUB_HOST)%'
+    selenium.hub.port: '%env(int:SELENIUM_HUB_PORT)%'
+    # Timeout for webdriver calls, in seconds (try to increase this value for low CPU/Mem environments, if you see
+    # driver errors). Consider to upgrade your server/container specs if it can't handle the default value (30.0)
+    selenium.command.timeout: 30.0
+    # Sets how long to wait for the various AJAX requests / socket responses (waitUntil condition checks)
+    selenium.ajax.timeout: 30.0
+    # Defines how often to check element availability, AJAX results and other state data, in seconds
+    # (waitUntil condition checks). Increasing this value may help to eliminate some errors for environment with
+    # limited CPU/Mem resources (for example, if you encounter a "connection closed unexpectedly" error due to
+    # excessive load for a single webdriver replica). Default: 0.5; means 2 checks per second - it is OK, if a
+    # server/container has access to the decent amount of CPU cycles
+    selenium.state.check_frequency: 0.5
 
     # Benchmarks
     passmark.cpu.download_uri: 'https://www.cpubenchmark.net/high_end_cpus.html'
@@ -57,8 +80,9 @@ parameters:
     hardprice.requests_per_second: 0.1
     # Count of requests, which can be registered in the event loop at the same time (concurrent requests minimum: 1)
     hardprice.concurrent_requests: 1
-    # Adds up to 0.001..N additional time between requests (in seconds; chosen randomly on each iteration)
-    hardprice.requests_random_delay: 60.0
+    # Adds M..N additional time between requests for scraping actions (in seconds; chosen randomly on each iteration)
+    hardprice.requests_delay_min: 30.0
+    hardprice.requests_delay_max: 60.0
     # Store mappings
     # https://hardprice.ru/api/stores
     hardprice.stores:

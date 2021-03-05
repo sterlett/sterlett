@@ -55,7 +55,10 @@ class SortingProvider implements BlockingProviderInterface
         usort(
             $ratioArray,
             function (VBRatioInterface $left, VBRatioInterface $right) {
-                return $right->getValue() <=> $left->getValue();
+                $leftValue  = (float) $left->getValue();
+                $rightValue = (float) $right->getValue();
+
+                return $rightValue <=> $leftValue;
             }
         );
 

@@ -15,8 +15,8 @@
 declare(strict_types=1);
 
 use Sterlett\Application;
-use Sterlett\Bridge\Evenement\DependencyInjection\Compiler\RegisterListenersPass as RegisterEvenementListenersPass;
 use Sterlett\Bridge\Symfony\Component\DependencyInjection\Configurator\YamlConfigurator;
+use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -35,30 +35,58 @@ $containerConfigurator->setParameterFilePath($parameterFilePath);
 $containerConfigurator->setDefinitionFilePaths(
     [
         __DIR__ . '/../config/services.yml',
+        // async
         __DIR__ . '/../config/services/async/loggers.yml',
         __DIR__ . '/../config/services/async/event_loop.yml',
         __DIR__ . '/../config/services/async/server.yml',
         __DIR__ . '/../config/services/async/clients.yml',
         __DIR__ . '/../config/services/async/streams.yml',
+        __DIR__ . '/../config/services/async/threads.yml',
         __DIR__ . '/../config/services/async/routines.yml',
+        __DIR__ . '/../config/services/async/event_dispatcher.yml',
         __DIR__ . '/../config/services/async/database_connections.yml',
+        // common
         __DIR__ . '/../config/services/shutdown.yml',
         __DIR__ . '/../config/services/event_listeners.yml',
+        __DIR__ . '/../config/services/retry_assistant.yml',
+        // http
         __DIR__ . '/../config/services/request/uri_normalizers.yml',
         __DIR__ . '/../config/services/request/uri_matcher.yml',
         __DIR__ . '/../config/services/request/handler.yml',
+        // browser
+        __DIR__ . '/../config/services/selenium_webdriver.yml',
+        __DIR__ . '/../config/services/browser.yml',
+        // PassMark
+        __DIR__ . '/../config/services/passmark/parsers.yml',
         // HardPrice
+        __DIR__ . '/../config/services/hardprice/item_parser.yml',
         __DIR__ . '/../config/services/hardprice/price_parsers.yml',
+        __DIR__ . '/../config/services/hardprice/store_mapper.yml',
+        // HardPrice (gen 3)
+        __DIR__ . '/../config/services/hardprice/browser/divergent.yml',
+        __DIR__ . '/../config/services/hardprice/browser/navigator.yml',
+        __DIR__ . '/../config/services/hardprice/browser/item_reader.yml',
+        __DIR__ . '/../config/services/hardprice/browser/item_searcher.yml',
+        __DIR__ . '/../config/services/hardprice/browser/price_reader.yml',
+        __DIR__ . '/../config/services/hardprice/browser/price_accumulator.yml',
         // hardware
+        __DIR__ . '/../config/services/hardware/benchmark_collectors.yml',
         __DIR__ . '/../config/services/hardware/price_repository.yml',
         __DIR__ . '/../config/services/hardware/price_providers.yml',
         __DIR__ . '/../config/services/hardware/price_retriever.yml',
+        __DIR__ . '/../config/services/hardware/price_calculators.yml',
+        __DIR__ . '/../config/services/hardware/benchmark_providers.yml',
+        __DIR__ . '/../config/services/hardware/vbratio_source_binder.yml',
+        __DIR__ . '/../config/services/hardware/vbratio_calculator.yml',
+        __DIR__ . '/../config/services/hardware/vbratio_providers.yml',
+        __DIR__ . '/../config/services/hardware/vbratio_feeder.yml',
     ]
 );
 $containerConfigurator->setDefinitionDefaultsFilePath(__DIR__ . '/../config/services.yml');
 
 $container = $containerConfigurator->getContainerBuilder();
-$container->addCompilerPass(new RegisterEvenementListenersPass());
+$container->addCompilerPass(new RegisterListenersPass('event_dispatcher', 'psr14.event_listener'));
+//$container->addCompilerPass(new RegisterEvenementListenersPass());
 
 // we are starting an async web server with some concurrent code
 // so we don't need any container caching logic for this case.

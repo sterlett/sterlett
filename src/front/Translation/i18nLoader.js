@@ -3,6 +3,13 @@ import { addMessages as translationAdd } from 'svelte-i18n';
 import { init as translationInit } from 'svelte-i18n';
 import { getLocaleFromNavigator } from 'svelte-i18n';
 
+// Application
+import ApplicationEnUs from '@_translations/en-US/Application.json';
+import ApplicationRuRu from '@_translations/ru-RU/Application.json';
+
+translationAdd('en-US', ApplicationEnUs);
+translationAdd('ru-RU', ApplicationRuRu);
+
 // Navigation/Menu
 import NavigationMenuEnUs from '@_translations/en-US/Navigation/Menu.json';
 import NavigationMenuRuRu from '@_translations/ru-RU/Navigation/Menu.json';

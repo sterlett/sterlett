@@ -2,7 +2,8 @@
     "Name": "Name",
     "Image": " ",
     "Price": "Price",
-    "Benchmarks": "Benchmarks",
+    "Benchmarks": "PassMark",
     "V/B ratio": "V/B ratio",
-    "No CPUs.": "No CPUs."
+    "No CPUs.": "No CPUs.",
+    "Unable to fetch CPU list.": "Unable to fetch CPU list."
 }

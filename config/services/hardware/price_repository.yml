@@ -1,6 +1,6 @@
 
 services:
-    app.hardware.price.repository:
+    app.hardware.price.repository.cpu:
         class: Sterlett\Hardware\Price\Repository
         arguments:
             - '@app.database.connection.prices'

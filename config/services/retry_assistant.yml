@@ -1,0 +1,7 @@
+
+services:
+    app.retry_assistant:
+        alias: 'app.bridge.react.promise.retry_assistant'
+
+    app.bridge.react.promise.retry_assistant:
+        class: Sterlett\Bridge\React\Promise\RetryAssistant

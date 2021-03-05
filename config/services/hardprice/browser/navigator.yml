@@ -1,0 +1,18 @@
+
+services:
+    app.hardprice.browser.navigator:
+        alias: 'app.hardprice.browser.navigator.vk'
+
+    app.hardprice.browser.navigator.vk:
+        class: Sterlett\HardPrice\Browser\Navigator\ReferrerNavigator
+        arguments:
+            - '@app.browser.tab.actualizer'
+            - 'https://vk.com/hardprice'
+            - '//div[contains(@class, "page_info_wrap")]//a[contains(@href, "hardprice.ru")]'
+
+    app.hardprice.browser.navigator.google:
+        class: Sterlett\HardPrice\Browser\Navigator\ReferrerNavigator
+        arguments:
+            - '@app.browser.tab.actualizer'
+            - 'https://google.ru/search?q=hardprice+процессоры'
+            - '//span[contains(., "category › cpu")]'

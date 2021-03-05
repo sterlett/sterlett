@@ -3,7 +3,7 @@
 /*
  * This file is part of the Sterlett project <https://github.com/sterlett/sterlett>.
  *
- * (c) 2020 Pavel Petrov <itnelo@gmail.com>.
+ * (c) 2020-2021 Pavel Petrov <itnelo@gmail.com>.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -22,6 +22,7 @@ use Psr\Log\LoggerInterface;
 use React\EventLoop\StreamSelectLoop;
 use stdClass;
 use Sterlett\Bridge\Symfony\Component\EventDispatcher\DeferredTickScheduler;
+use Sterlett\Bridge\Symfony\Component\EventDispatcher\DispatchPromiseResolver;
 use Sterlett\Bridge\Symfony\Component\EventDispatcher\TickCallbackBuilder;
 use Symfony\Contracts\EventDispatcher\Event;
 
@@ -43,14 +44,14 @@ final class DeferredTickSchedulerTest extends TestCase
      * @var DeferredTickScheduler
      */
     private DeferredTickScheduler $deferredTickScheduler;
-    
+
     /**
      * Dispatcher stub
      *
      * @var EventDispatcherInterface
      */
     private EventDispatcherInterface $dispatcherStub;
-    
+
     /**
      * {@inheritDoc}
      */
@@ -58,10 +59,15 @@ final class DeferredTickSchedulerTest extends TestCase
     {
         $this->loop = new StreamSelectLoop();
 
-        $loggerStub      = $this->createStub(LoggerInterface::class);
-        $callbackBuilder = new TickCallbackBuilder($loggerStub);
+        $loggerStub              = $this->createStub(LoggerInterface::class);
+        $callbackBuilder         = new TickCallbackBuilder($loggerStub);
+        $dispatchPromiseResolver = new DispatchPromiseResolver();
 
-        $this->deferredTickScheduler = new DeferredTickScheduler($this->loop, $callbackBuilder);
+        $this->deferredTickScheduler = new DeferredTickScheduler(
+            $this->loop,
+            $callbackBuilder,
+            $dispatchPromiseResolver
+        );
 
         $this->dispatcherStub = $this->createStub(EventDispatcherInterface::class);
     }

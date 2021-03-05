@@ -1,0 +1,9 @@
+
+@import 'spectre.css/src/typography';
+
+.kbd-multiline {
+    @extend kbd;
+
+    display: block;
+    padding: $unit-1 * 2;
+}

@@ -1,0 +1,24 @@
+
+services:
+    app.event.dispatcher:
+        alias: 'app.bridge.symfony.event_dispatcher.deferred_event_dispatcher'
+
+    app.bridge.symfony.event_dispatcher.deferred_event_dispatcher:
+        class: Sterlett\Bridge\Symfony\Component\EventDispatcher\DeferredEventDispatcher
+        arguments:
+            - '@app.bridge.symfony.event_dispatcher.deferred_tick_scheduler'
+
+    app.bridge.symfony.event_dispatcher.deferred_tick_scheduler:
+        class: Sterlett\Bridge\Symfony\Component\EventDispatcher\DeferredTickScheduler
+        arguments:
+            - '@app.event_loop'
+            - '@app.bridge.symfony.event_dispatcher.tick_callback_builder'
+            - '@app.bridge.symfony.event_dispatcher.dispatch_promise_resolver'
+
+    app.bridge.symfony.event_dispatcher.tick_callback_builder:
+        class: Sterlett\Bridge\Symfony\Component\EventDispatcher\TickCallbackBuilder
+        arguments:
+            - '@app.log.logger.stdout'
+
+    app.bridge.symfony.event_dispatcher.dispatch_promise_resolver:
+        class: Sterlett\Bridge\Symfony\Component\EventDispatcher\DispatchPromiseResolver

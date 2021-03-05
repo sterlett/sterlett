@@ -4,9 +4,13 @@
     {#if header?.length}
     <thead in:fly={{ y: -50, easing: expoOut }}>
         <tr>
-            {#each header as headerName}
-            <th>
+            {#each header as headerName, headerIndex}
+            <th on:click={onHeaderClick} class="c-hand" nowrap>
                 {headerName}
+
+                {#if headerIndex === sortState.headerIndex}
+                    {-1 === sortState.sortModifier ? '▾' : '▴'}
+                {/if}
             </th>
             {/each}
         </tr>
@@ -17,7 +21,9 @@
         {#each items as item}
         <tr>
             <td>
+                {#if item?.image.length}
                 <img src={item.image} alt={item.name} />
+                {/if}
             </td>
 
             <td>
@@ -25,12 +31,12 @@
             </td>
 
             <td>
-                {item.vbRatio}
+                {@html ratioFormatter(item.vbRatio)}
             </td>
 
             <td>
                 {#each item.benchmarks as benchmark}
-                {benchmark.name}: {benchmark.value}
+                    {@html benchmarkValueFormatter(benchmark.value)}
                 {/each}
             </td>
 
@@ -42,5 +48,5 @@
     </tbody>
 </table>
 {:else}
-{emptyMessage}
+    {emptyMessage}
 {/if}
