@@ -177,7 +177,7 @@ This one is currently at the development stage :honeybee:.
 :honey_pot: Data persistence \
 :honey_pot: Console API: CPU list \
 :black_square_button: Console API: Day/Week deals \
-:black_square_button: Microservice: CPU list browsing
+:honey_pot: Microservice: CPU list browsing
 
 ## See also
 
