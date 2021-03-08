@@ -9,14 +9,14 @@
     <div class="columns text-center">
         <div class="column col-2 col-mx-auto">
             <pre>
-                sterlett @0.4.0
+                sterlett @0.5.0
             </pre>
         </div>
     </div>
 
     <div class="page__space columns">
         <div class="column col-3 col-md-12">
-            <Menu {routes} />
+            <Menu items={menuItems} />
         </div>
 
         <div class="column-break show-md" />
@@ -24,8 +24,8 @@
         <div class="column col-9 col-md-12">
             <div class="page__content">
                 <Router>
-                    {#each routes as route}
-                    <Route path={route.path} component={route.component} on:app.event.page.shown={onPageShown} />
+                    {#each menuItems as menuItem}
+                    <Route path={menuItem.path} component={menuItem.component} on:app.event.page.shown={onPageShown} />
                     {/each}
                 </Router>
             </div>

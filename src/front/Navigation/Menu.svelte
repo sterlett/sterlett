@@ -4,8 +4,9 @@
 <script type="text/javascript">
     import { format } from 'svelte-i18n';
     import { Router, Link } from 'svelte-routing';
+    import MenuDivider from './Menu/Divider.svelte';
 
-    export let routes = [];
+    export let items = [];
 
     function onLinkUpdate(linkProperties) {
         return linkProperties.isCurrent ? {class: 'active'} : {};

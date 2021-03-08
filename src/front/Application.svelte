@@ -10,14 +10,22 @@
 
     import { pages } from './Navigation/RouteBook.svelte';
     import Menu from './Navigation/Menu.svelte';
+    import MenuDivider from './Navigation/Menu/Divider.svelte';
     import { Router, Route } from 'svelte-routing';
 
-    const routes = [
+    const menuItems = [
+        {
+            title: $format('HARDWARE'),
+            component: MenuDivider,
+        },
         {
             title: $format('CPUs'),
             url: '/',
             path: '/',
             component: pages.CpuListPage,
+        },
+        {
+            component: MenuDivider,
         },
         {
             title: $format('HTTP API'),
@@ -32,15 +40,15 @@
             component: pages.ApiConsolePage,
         },
         {
+            component: MenuDivider,
+        },
+        {
             title: $format('About'),
             url: '/about',
             path: 'about',
             component: pages.AboutPage,
         },
         {
-            title: '',
-            url: '',
-            path: '',
             component: pages.NotFoundPage,
         },
     ];

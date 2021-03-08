@@ -3,15 +3,17 @@
 
 <Router>
     <ul class="menu">
-        <li class="divider" data-content={$format('HARDWARE')} />
-
-        {#each routes as route}
-            {#if route.url?.length > 0}
-            <li class="menu-item">
-                <Link to={route.url} getProps={onLinkUpdate}>
-                    {route.title}
-                </Link>
-            </li>
+        {#each items as item}
+            {#if item.component === MenuDivider}
+                <MenuDivider label={item.title} />
+            {:else}
+                {#if item.url?.length > 0}
+                <li class="menu-item">
+                    <Link to={item.url} getProps={onLinkUpdate}>
+                    {item.title}
+                    </Link>
+                </li>
+                {/if}
             {/if}
         {/each}
     </ul>
