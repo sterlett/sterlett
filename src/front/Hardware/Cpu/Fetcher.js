@@ -1,5 +1,5 @@
 
-import Cpu from '@Hardware/Cpu.js';
+import Cpu from '@Hardware/Cpu';
 
 /**
  * URI of the list with CPU entities

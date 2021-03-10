@@ -24,6 +24,8 @@ export default {
         nodeResolve(
             {
                 dedupe: ['svelte'],
+                // brings the possibility to omit file extensions for the component's imports
+                extensions: ['.svelte'],
             },
         ),
 
@@ -35,27 +37,27 @@ export default {
                 entries: [
                     {
                         find: '@.',
-                        replacement: 'src/front',
+                        replacement: process.cwd() + '/src/front',
                     },
                     {
                         find: '@Deserialization',
-                        replacement: 'src/front/Deserialization',
+                        replacement: '@./Deserialization',
                     },
                     {
                         find: '@Hardware',
-                        replacement: 'src/front/Hardware',
+                        replacement: '@./Hardware',
                     },
                     {
                         find: '@Page',
-                        replacement: 'src/front/Page',
+                        replacement: '@./Page',
                     },
                     {
                         find: '@Translation',
-                        replacement: 'src/front/Translation',
+                        replacement: '@./Translation',
                     },
                     {
                         find: '@_translations',
-                        replacement: 'src/front/_translations',
+                        replacement: '@./_translations',
                     },
                 ],
             },
@@ -86,7 +88,6 @@ export default {
                 // 3. Disable CSS completely in our app (css: false, emitCss: false).
                 emitCss: true,
 
-                // an explicit scss plugin will be used instead, to compile assets (@0.5.0+)
                 preprocess: sveltePreprocess(
                     {
                         scss: {
@@ -94,8 +95,6 @@ export default {
                                 @import 'spectre.css/src/variables';
                                 @import 'spectre.css/src/mixins';
                             `,
-
-                            sourceMapRoot: 'src/front/',
                         },
                     },
                 ),
@@ -129,10 +128,12 @@ export default {
         // so we just tell the bundler here to create a file for our styles "as is", after they are being emitted
         // by the Svelte plugin (emitCss: true)
         // see: https://github.com/sveltejs/rollup-plugin-svelte/blob/master/CHANGELOG.md#700
-        postcss({
-            extract: true,      // will create 'app.css'
-            sourceMap: !isBuildProduction ? "inline" : false,
-        })
+        postcss(
+            {
+                extract: true,      // will create 'app.css'
+                sourceMap: !isBuildProduction ? 'inline' : false,
+            },
+        ),
 
         // a backup way to process CSS output (rollup-plugin-css-only) - no sourcemaps
         // cssOnly({ output: 'app.css' }),

@@ -2,8 +2,8 @@
 <script type="text/javascript">
     import { onMount } from 'svelte';
     import { format } from 'svelte-i18n';
-    import { fetchCpuList } from './Fetcher.js';
-    import Table from '@Hardware/Representation/Table.svelte';
+    import { fetchCpuList } from './Fetcher';
+    import Table from '@Hardware/Representation/Table';
 
     const tableHeader = [
         $format('Name'),

@@ -5,7 +5,7 @@
     import { fly } from 'svelte/transition';
     import { expoOut } from 'svelte/easing';
 
-    import { APPLICATION_PAGE_TITLE } from '@./Context.js';
+    import { APPLICATION_PAGE_TITLE } from '@./Context';
     import { getContext } from 'svelte';
 
     export let location;

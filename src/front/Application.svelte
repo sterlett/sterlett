@@ -2,19 +2,19 @@
 <!-- defines a common skeleton for the site pages and core client-side logic -->
 
 <script type="text/javascript">
-    import '@Translation/i18nLoader.js';
+    import '@Translation/i18nLoader';
     import { format } from 'svelte-i18n';
 
     import { fly } from 'svelte/transition';
     import { expoOut } from 'svelte/easing';
 
-    import { APPLICATION_PAGE_TITLE } from '@./Context.js';
+    import { APPLICATION_PAGE_TITLE } from '@./Context';
     import { setContext } from 'svelte';
     import { writable } from 'svelte/store';
 
-    import { pages } from './Navigation/RouteBook.svelte';
-    import Menu from './Navigation/Menu.svelte';
-    import MenuDivider from './Navigation/Menu/Divider.svelte';
+    import { pages } from './Navigation/RouteBook';
+    import Menu from './Navigation/Menu';
+    import MenuDivider from './Navigation/Menu/Divider';
     import { Router, Route } from 'svelte-routing';
 
     const menuItems = [

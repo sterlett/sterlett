@@ -2,10 +2,10 @@
 <script type="text/javascript">
     import { format } from 'svelte-i18n';
 
-    import { APPLICATION_PAGE_TITLE } from '@./Context.js';
+    import { APPLICATION_PAGE_TITLE } from '@./Context';
     import { getContext } from 'svelte';
 
-    import CpuViewer from '@Hardware/Cpu/Viewer.svelte';
+    import CpuViewer from '@Hardware/Cpu/Viewer';
 
     export let location;
 

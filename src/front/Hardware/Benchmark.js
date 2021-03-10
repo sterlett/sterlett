@@ -1,5 +1,5 @@
 
-import DeserializableObject from '@Deserialization/DeserializableObject.js';
+import DeserializableObject from '@Deserialization/DeserializableObject';
 
 /**
  * Holds data about hardware item efficiency

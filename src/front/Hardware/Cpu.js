@@ -2,9 +2,9 @@
 // represents entity from the "CPU" hardware category
 // defined using ES5-style class notation, with some ES6 features (i.e. arrow functions)
 
-import DeserializableObject from '@Deserialization/DeserializableObject.js';
-import Price from '@Hardware/Price.js';
-import Benchmark from '@Hardware/Benchmark.js';
+import DeserializableObject from '@Deserialization/DeserializableObject';
+import Price from '@Hardware/Price';
+import Benchmark from '@Hardware/Benchmark';
 
 /**
  * A map of prices, keyed by price types (per-item, average, etc.)

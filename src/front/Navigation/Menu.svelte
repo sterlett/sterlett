@@ -4,7 +4,7 @@
 <script type="text/javascript">
     import { format } from 'svelte-i18n';
     import { Router, Link } from 'svelte-routing';
-    import MenuDivider from './Menu/Divider.svelte';
+    import MenuDivider from './Menu/Divider';
 
     export let items = [];
 
