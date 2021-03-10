@@ -6,7 +6,6 @@
     import Table from '@Hardware/Representation/Table.svelte';
 
     const tableHeader = [
-        $format('Image'),
         $format('Name'),
         $format('V/B ratio'),
         $format('Benchmarks'),
@@ -16,18 +15,26 @@
     const tableEmptyMessage = $format('No CPUs.');
     const tableIsStriped = true;
 
-    const tableSortDefaultHeaderIndex = 2;
+    const tableSortDefaultHeaderIndex = 1;
     const tableSortDefaultModifier = -1;
 
     const resolveComparisonValue = function (item, headerIndex) {
-        if (1 === headerIndex) {
+        if (0 === headerIndex) {
             return item?.name;
-        } else if (2 === headerIndex) {
+        } else if (1 === headerIndex) {
             return parseFloat(item?.vbRatio);
-        } else if (3 === headerIndex) {
+        } else if (2 === headerIndex) {
             return parseFloat(item?.['benchmarks']?.[0]?.['value']);
         } else {
-            return parseFloat(item?.prices?.average);
+            const priceAverage = item.prices?.average?.toString();
+
+            if ("string" !== typeof priceAverage) {
+                return 0;
+            }
+
+            const priceAverageForComp = priceAverage.replace(/[^\d\.]/g, "");
+
+            return parseFloat(priceAverageForComp);
         }
     };
 

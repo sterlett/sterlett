@@ -5,7 +5,7 @@
     <thead in:fly={{ y: -50, easing: expoOut }}>
         <tr>
             {#each header as headerName, headerIndex}
-            <th on:click={onHeaderClick} class="c-hand" nowrap>
+            <th on:click={onHeaderClick} class="c-hand" class:active={headerIndex === sortState.headerIndex} nowrap>
                 {headerName}
 
                 {#if headerIndex === sortState.headerIndex}
@@ -24,9 +24,7 @@
                 {#if item?.image.length}
                 <img src={item.image} alt={item.name} />
                 {/if}
-            </td>
 
-            <td>
                 {item.name}
             </td>
 

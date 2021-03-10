@@ -2,21 +2,17 @@
 <script type="text/javascript">
     import { format } from 'svelte-i18n';
 
-    import { onMount } from 'svelte';
-    import { dispatchPageShownEvent } from '@Page/ShowTrigger.js';
+    import { APPLICATION_PAGE_TITLE } from '@./Context.js';
+    import { getContext } from 'svelte';
 
     import CpuViewer from '@Hardware/Cpu/Viewer.svelte';
 
     export let location;
 
-    let selfElement;
     const title = $format('CPUs');
 
-    onMount(
-        function () {
-            dispatchPageShownEvent(selfElement);
-        },
-    );
+    const pageTitleStore = getContext(APPLICATION_PAGE_TITLE);
+    pageTitleStore.set(title);
 </script>
 
 <template src="./ListPage.spectre.html"></template>

@@ -8,6 +8,10 @@
     import { fly } from 'svelte/transition';
     import { expoOut } from 'svelte/easing';
 
+    import { APPLICATION_PAGE_TITLE } from '@./Context.js';
+    import { setContext } from 'svelte';
+    import { writable } from 'svelte/store';
+
     import { pages } from './Navigation/RouteBook.svelte';
     import Menu from './Navigation/Menu.svelte';
     import MenuDivider from './Navigation/Menu/Divider.svelte';
@@ -54,13 +58,9 @@
     ];
 
     const title = $format('sterlett/sterlett');
-    let pageTitle;
 
-    function onPageShown (event) {
-        const pageElement = event.detail.pageElement;
-
-        pageTitle = pageElement.dataset.title;
-    }
+    let pageTitleStore = writable('');
+    setContext(APPLICATION_PAGE_TITLE, pageTitleStore);
 </script>
 
 <template src="./Application.spectre.html"></template>

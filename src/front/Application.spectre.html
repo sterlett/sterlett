@@ -2,7 +2,7 @@
 <!-- application component template -->
 
 <svelte:head>
-    <title>{title} {'string' === typeof pageTitle ? '• ' + pageTitle : ''}</title>
+    <title>{title} {$pageTitleStore.length > 0 ? '• ' + $pageTitleStore : ''}</title>
 </svelte:head>
 
 <div class="page grid-lg">
@@ -25,20 +25,21 @@
             <div class="page__content">
                 <Router>
                     {#each menuItems as menuItem}
-                    <Route path={menuItem.path} component={menuItem.component} on:app.event.page.shown={onPageShown} />
+                        {#if menuItem.component !== MenuDivider}
+                            <Route
+                                path={menuItem.path}
+                                component={menuItem.component}
+                            />
+                            <!--
+                                it is not possible to forward an event through the third-party Svelte component (3.25.0), see:
+                                https://stackoverflow.com/questions/66550828/how-to-forward-an-event-through-the-third-party-svelte-component
+
+                                "on:app.event.page.shown" is not working by this point (stores are used instead)
+                            -->
+                        {/if}
                     {/each}
                 </Router>
             </div>
         </div>
-    </div>
-
-    <div class="github-ribbon-block hide-xs">
-        <a href="https://github.com/sterlett/sterlett">
-            <img src="/build/images/github/fork_me.png"
-                 title="github.com/sterlett/sterlett"
-                 alt="Fork me on GitHub"
-                 data-recalc-dims="1"
-            />
-        </a>
     </div>
 </div>

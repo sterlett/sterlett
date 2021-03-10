@@ -1,8 +1,38 @@
 
 @import 'spectre.css/src/tables';
 
-table {
+.table {
+    th {
+        border-bottom-width: $border-width;
+    }
+
+    th.active {
+        background-color: $secondary-color;
+    }
+
     img {
         max-height: $unit-1 * 15;
+    }
+}
+
+// formatting a table as a set of blocks, to fit the screen in case of small viewpoints
+@media (max-width: $size-sm) {
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    thead, tbody tr {
+        // rebuilding a table row to the "container" form
+        border: {
+            top: $border-width solid $border-color;
+        }
+    }
+
+    tbody tr {
+        margin-top: $unit-1 * 5;
+    }
+
+    tbody td {
+        min-height: $unit-1 * 12;
     }
 }

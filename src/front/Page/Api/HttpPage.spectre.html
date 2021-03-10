@@ -1,12 +1,14 @@
 
-<div bind:this={selfElement} data-title={title} in:fly={{ y: -50, easing: expoOut }}>
+<div in:fly={{ y: -50, easing: expoOut }}>
     <p class="h4">{title}</p>
 
     <div class="content__title">
         Адреса ресурсов
     </div>
 
-    Процессоры: <kbd class="ml-2 p-2">https://cpu-junkie.ru/api/cpu/list.json</kbd> <br /> <br />
+    Процессоры:
+
+    <div class="kbd-multiline mt-2">https://cpu-junkie.ru/api/cpu/list.json</div> <br /> <br />
 
     <div class="content__title">
         Формат ответа
