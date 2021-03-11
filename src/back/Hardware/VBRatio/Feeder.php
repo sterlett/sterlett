@@ -141,6 +141,8 @@ class Feeder
         // reading a price sample to extract metadata for the whole set.
         $priceSample = $this->extractPriceSample($sourcePrices);
 
+        $imageUri = $priceSample->getHardwareImage();
+
         $priceAverage  = (int) $this->priceCalculator->calculateAverage($sourcePrices, 0);
         $priceCurrency = $priceSample->getCurrency();
 
@@ -148,7 +150,7 @@ class Feeder
 
         $ratioPacked = [
             'name'       => $hardwareName,
-            'image'      => '',
+            'image'      => $imageUri,
             'prices'     => [
                 [
                     'type'      => 'average',

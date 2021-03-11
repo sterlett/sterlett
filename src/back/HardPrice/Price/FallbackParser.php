@@ -3,7 +3,7 @@
 /*
  * This file is part of the Sterlett project <https://github.com/sterlett/sterlett>.
  *
- * (c) 2020 Pavel Petrov <itnelo@gmail.com>.
+ * (c) 2020-2021 Pavel Petrov <itnelo@gmail.com>.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -78,6 +78,7 @@ class FallbackParser
 
             $itemIdentifier = (int) $this->propertyAccessor->getValue($dataRecord, 'id');
             $itemName       = (string) $this->propertyAccessor->getValue($dataRecord, 'title');
+            $itemImageUri   = (string) $this->propertyAccessor->getValue($dataRecord, 'image');
 
             $itemPrices = [];
 
@@ -110,6 +111,7 @@ class FallbackParser
 
                 $itemPrice = new Price();
                 $itemPrice->setHardwareName($itemName);
+                $itemPrice->setHardwareImage($itemImageUri);
                 $itemPrice->setSellerIdentifier($storeIdentifier);
                 $itemPrice->setAmount($itemPriceAmount);
                 $itemPrice->setPrecision(0);

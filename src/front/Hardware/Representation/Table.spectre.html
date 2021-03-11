@@ -21,11 +21,17 @@
         {#each items as item}
         <tr>
             <td>
-                {#if item?.image.length}
-                <img src={item.image} alt={item.name} />
-                {/if}
+                <div class="columns flex-centered">
+                    {#if item?.image.length > 0}
+                    <div class="column col-auto">
+                        <img src={item.image} alt={item.name} />
+                    </div>
+                    {/if}
 
-                {item.name}
+                    <div class="column">
+                        {item.name}
+                    </div>
+                </div>
             </td>
 
             <td>

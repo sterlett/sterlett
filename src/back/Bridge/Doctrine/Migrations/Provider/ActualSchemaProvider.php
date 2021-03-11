@@ -78,6 +78,15 @@ class ActualSchemaProvider implements SchemaProviderInterface
             ]
         );
         $priceTable->addColumn(
+            'hardware_image_uri',
+            Types::STRING,
+            [
+                'notnull' => true,
+                'length'  => 255,
+                'comment' => 'Hardware image URI',
+            ]
+        );
+        $priceTable->addColumn(
             'seller_name',
             Types::STRING,
             [

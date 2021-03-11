@@ -3,7 +3,7 @@
 /*
  * This file is part of the Sterlett project <https://github.com/sterlett/sterlett>.
  *
- * (c) 2020 Pavel Petrov <itnelo@gmail.com>.
+ * (c) 2020-2021 Pavel Petrov <itnelo@gmail.com>.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -56,6 +56,7 @@ final class SequentialCollectorTest extends TestCase
 
         $hardwareItem = new Item();
         $hardwareItem->setName('hardware item 1');
+        $hardwareItem->setImageUri('http://lorempixel.com/800/600/cats/');
 
         $itemStorageMock = $this->createMock(ItemStorageInterface::class);
         $itemStorageMock

@@ -132,6 +132,7 @@ SQL;
         $statementSelect = <<<SQL
             SELECT DISTINCT
                 hp.`hardware_name`,
+                hp.`hardware_image_uri`,
                 hp.`seller_name`,
                 hp.`price_amount`,
                 hp.`currency_label`
@@ -177,14 +178,15 @@ SQL;
     {
         $statementInsert = <<<SQL
             INSERT INTO
-                `{$this->_tableNamePurified}` (`hardware_name`, `seller_name`, `price_amount`, `currency_label`)
+                `{$this->_tableNamePurified}` (`hardware_name`, `hardware_image_uri`, `seller_name`, `price_amount`, `currency_label`)
             VALUES
-                (?, ?, ?, ?)
+                (?, ?, ?, ?, ?)
             ;
 SQL;
 
-        $hardwareName = $hardwarePrice->getHardwareName();
-        $sellerName   = $hardwarePrice->getSellerIdentifier();
+        $hardwareName     = $hardwarePrice->getHardwareName();
+        $hardwareImageUri = $hardwarePrice->getHardwareImage();
+        $sellerName       = $hardwarePrice->getSellerIdentifier();
 
         $priceAmount    = $hardwarePrice->getAmount();
         $pricePrecision = $hardwarePrice->getPrecision();
@@ -221,6 +223,7 @@ SQL;
         foreach ($queryResult->resultRows as $resultRow) {
             $hardwarePrice = new Price();
             $hardwarePrice->setHardwareName($resultRow['hardware_name']);
+            $hardwarePrice->setHardwareImage($resultRow['hardware_image_uri']);
             $hardwarePrice->setSellerIdentifier($resultRow['seller_name']);
             $hardwarePrice->setAmount((int) $resultRow['price_amount']);
             // todo: extract a real precision from the row value
