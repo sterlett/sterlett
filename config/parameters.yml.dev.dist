@@ -29,7 +29,9 @@ parameters:
     app.database.migrations.port: '%env(int:DATABASE_PORT)%'
     app.database.migrations.name: '%env(string:DATABASE_NAME)%'
     app.database.prices.uri: '%env(string:DATABASE_USER_NAME)%:%env(string:DATABASE_USER_PASSWORD)%@%env(string:DATABASE_HOST)%:%env(int:DATABASE_PORT)%/%env(string:DATABASE_NAME)%'
-    app.database.table_name.price: 'hardware_price'
+    app.database.table_name.price.cpu: 'hardware_price_cpu'
+    app.database.table_name.benchmark.passmark: 'hardware_benchmark_passmark'
+    app.database.table_name.ratio: 'hardware_ratio'
 
     # This will force the microservice to send a session quit command to the Selenium Grid each time a scraping session
     # is successfully complete (gen 3 algo only); pros: keeping low memory footprint on idle, cons: not so stable and

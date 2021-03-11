@@ -74,7 +74,9 @@ services:
     app.bridge.doctrine.migrations.schema_provider_configurator.hardware_prices:
         class: Sterlett\Bridge\Doctrine\Migrations\SchemaProviderConfigurator
         arguments:
-            - '%app.database.table_name.price%'
+            - '%app.database.table_name.price.cpu%'
+            - '%app.database.table_name.benchmark.passmark%'
+            - '%app.database.table_name.ratio%'
 
     app.bridge.doctrine.migrations.configuration.array:
         class: Doctrine\Migrations\Configuration\Migration\ConfigurationArray

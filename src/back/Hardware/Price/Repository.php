@@ -15,17 +15,12 @@ declare(strict_types=1);
 
 namespace Sterlett\Hardware\Price;
 
-use DateTime;
 use DateTimeInterface;
 use InvalidArgumentException;
 use React\MySQL\ConnectionInterface;
-use React\MySQL\QueryResult;
 use React\Promise\PromiseInterface;
-use RuntimeException;
 use Sterlett\Dto\Hardware\Price;
-use Sterlett\Hardware\PriceInterface;
-use Throwable;
-use Traversable;
+use Sterlett\Repository\Query\FindBy\CreatedAtQuery;
 
 /**
  * A storage with price records for the hardware items
@@ -40,6 +35,13 @@ class Repository
     private ConnectionInterface $databaseConnection;
 
     /**
+     * Encapsulates a query logic to find data records by 'created_at' field
+     *
+     * @var CreatedAtQuery
+     */
+    private CreatedAtQuery $createdAtQuery;
+
+    /**
      * Table name from which hardware price records will be loaded
      *
      * @var string
@@ -50,11 +52,16 @@ class Repository
      * Repository constructor.
      *
      * @param ConnectionInterface $databaseConnection Manages database connection state and sends async queries
+     * @param CreatedAtQuery      $createdAtQuery     Encapsulates a query logic to find data records by 'created_at'
      * @param string              $priceTableName     Table name from which hardware price records will be loaded
      */
-    public function __construct(ConnectionInterface $databaseConnection, string $priceTableName)
-    {
+    public function __construct(
+        ConnectionInterface $databaseConnection,
+        CreatedAtQuery $createdAtQuery,
+        string $priceTableName
+    ) {
         $this->databaseConnection = $databaseConnection;
+        $this->createdAtQuery     = $createdAtQuery;
 
         if (1 !== preg_match('/^[a-z0-9_]+$/', $priceTableName)) {
             throw new InvalidArgumentException('Invalid price table name (repository).');
@@ -71,50 +78,7 @@ class Repository
      */
     public function findByCreatedAtMax(): PromiseInterface
     {
-        $statementSelectCreatedAtMax = <<<SQL
-            SELECT
-                DATE(MAX(created_at)) AS 'created_at'
-            FROM
-                `{$this->_tableNamePurified}`
-            ;
-SQL;
-
-        $priceListWithDatePromise = $this->databaseConnection
-            // requesting a record date for the select condition.
-            ->query($statementSelectCreatedAtMax)
-            // hydrating the result value.
-            ->then(
-                function (QueryResult $queryResult) {
-                    $dateFromString = $queryResult->resultRows[0]['created_at'] ?? null;
-
-                    if (!is_string($dateFromString)) {
-                        return null;
-                    }
-
-                    $dateFrom = new DateTime($dateFromString);
-
-                    return $dateFrom;
-                }
-            )
-            // executing a common fetch query using the resolved date.
-            ->then(
-                function (?DateTimeInterface $dateFrom) {
-                    if (!$dateFrom instanceof DateTimeInterface) {
-                        return [[], null];
-                    }
-
-                    $dateTo = new DateTime();
-
-                    return $this
-                        ->findByCreatedAt($dateFrom, $dateTo)
-                        // enhancing a resolve value to include both the records and the max date available.
-                        ->then(fn (iterable $hardwarePrices) => [$hardwarePrices, $dateFrom])
-                    ;
-                }
-            )
-        ;
-
-        return $priceListWithDatePromise;
+        return $this->createdAtQuery->executeWithMaxDate($this->_tableNamePurified);
     }
 
     /**
@@ -129,42 +93,7 @@ SQL;
      */
     public function findByCreatedAt(DateTimeInterface $dateFrom, DateTimeInterface $dateTo): PromiseInterface
     {
-        $statementSelect = <<<SQL
-            SELECT DISTINCT
-                hp.`hardware_name`,
-                hp.`hardware_image_uri`,
-                hp.`seller_name`,
-                hp.`price_amount`,
-                hp.`currency_label`
-            FROM
-                `{$this->_tableNamePurified}` hp
-            WHERE
-                hp.`created_at` BETWEEN ? AND ?
-            ;
-SQL;
-
-        $dateFromString = $dateFrom->format('Y-m-d H:i:s');
-        $dateToString   = $dateTo->format('Y-m-d H:i:s');
-
-        $priceListPromise = $this->databaseConnection
-            // selecting records from the local storage.
-            ->query($statementSelect, [$dateFromString, $dateToString])
-            // hydrating, to make a DTO set, based on the given raw data.
-            ->then(fn (QueryResult $queryResult) => $this->hydrate($queryResult))
-        ;
-
-        $priceListPromise = $priceListPromise->then(
-            null,
-            function (Throwable $rejectionReason) {
-                throw new RuntimeException(
-                    'Unable to find price records in the local storage (price repository).',
-                    0,
-                    $rejectionReason
-                );
-            }
-        );
-
-        return $priceListPromise;
+        return $this->createdAtQuery->execute($this->_tableNamePurified, $dateFrom, $dateTo);
     }
 
     /**
@@ -178,7 +107,13 @@ SQL;
     {
         $statementInsert = <<<SQL
             INSERT INTO
-                `{$this->_tableNamePurified}` (`hardware_name`, `hardware_image_uri`, `seller_name`, `price_amount`, `currency_label`)
+                `{$this->_tableNamePurified}` (
+                    `hardware_name`, 
+                    `hardware_image_uri`,
+                    `seller_name`,
+                    `price_amount`,
+                    `currency_label`
+                )
             VALUES
                 (?, ?, ?, ?, ?)
             ;
@@ -204,33 +139,11 @@ SQL;
             $statementInsert,
             [
                 $hardwareName,
+                $hardwareImageUri,
                 $sellerName,
                 $amountDenormalized,
                 $currencyLabel,
             ]
         );
-    }
-
-    /**
-     * Transforms a raw dataset from the database driver to a list of application-level DTOs
-     *
-     * @param QueryResult $queryResult A set of raw data arrays from the async database driver
-     *
-     * @return Traversable<PriceInterface>|PriceInterface[]
-     */
-    private function hydrate(QueryResult $queryResult): iterable
-    {
-        foreach ($queryResult->resultRows as $resultRow) {
-            $hardwarePrice = new Price();
-            $hardwarePrice->setHardwareName($resultRow['hardware_name']);
-            $hardwarePrice->setHardwareImage($resultRow['hardware_image_uri']);
-            $hardwarePrice->setSellerIdentifier($resultRow['seller_name']);
-            $hardwarePrice->setAmount((int) $resultRow['price_amount']);
-            // todo: extract a real precision from the row value
-            $hardwarePrice->setPrecision(0);
-            $hardwarePrice->setCurrency($resultRow['currency_label']);
-
-            yield $hardwarePrice;
-        }
     }
 }

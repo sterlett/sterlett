@@ -30,16 +30,34 @@ class ActualSchemaProvider implements SchemaProviderInterface
      *
      * @var string
      */
-    private string $priceTableName;
+    private string $tablePriceCpuName;
+
+    /**
+     * Name for the table with PassMark rating values
+     *
+     * @var string
+     */
+    private string $tableBenchmarkPassMarkName;
+
+    /**
+     * Name for the table with V/B ratio values
+     *
+     * @var string
+     */
+    private string $tableRatioName;
 
     /**
      * ActualSchemaProvider constructor.
      *
-     * @param string $priceTableName Name for the table with hardware price records
+     * @param string $tablePriceCpuName          Name for the table with hardware price records (CPU category)
+     * @param string $tableBenchmarkPassMarkName Name for the table with PassMark rating values
+     * @param string $tableRatioName             Name for the table with V/B ratio values
      */
-    public function __construct(string $priceTableName)
+    public function __construct(string $tablePriceCpuName, string $tableBenchmarkPassMarkName, string $tableRatioName)
     {
-        $this->priceTableName = $priceTableName;
+        $this->tablePriceCpuName          = $tablePriceCpuName;
+        $this->tableBenchmarkPassMarkName = $tableBenchmarkPassMarkName;
+        $this->tableRatioName             = $tableRatioName;
     }
 
     /**
@@ -58,8 +76,8 @@ class ActualSchemaProvider implements SchemaProviderInterface
         $schema = new Schema([], [], $schemaConfig);
 
         // hardware prices.
-        $priceTable = $schema->createTable($this->priceTableName);
-        $priceTable->addColumn(
+        $priceCpuTable = $schema->createTable($this->tablePriceCpuName);
+        $priceCpuTable->addColumn(
             'id',
             Types::INTEGER,
             [
@@ -68,7 +86,7 @@ class ActualSchemaProvider implements SchemaProviderInterface
                 'comment'       => 'Identifier for the price record',
             ]
         );
-        $priceTable->addColumn(
+        $priceCpuTable->addColumn(
             'hardware_name',
             Types::STRING,
             [
@@ -77,7 +95,7 @@ class ActualSchemaProvider implements SchemaProviderInterface
                 'comment' => 'Hardware item name, e.g. Ryzen 9',
             ]
         );
-        $priceTable->addColumn(
+        $priceCpuTable->addColumn(
             'hardware_image_uri',
             Types::STRING,
             [
@@ -86,7 +104,7 @@ class ActualSchemaProvider implements SchemaProviderInterface
                 'comment' => 'Hardware image URI',
             ]
         );
-        $priceTable->addColumn(
+        $priceCpuTable->addColumn(
             'seller_name',
             Types::STRING,
             [
@@ -95,7 +113,7 @@ class ActualSchemaProvider implements SchemaProviderInterface
                 'comment' => "Seller's company identifier, e.g. citilink",
             ]
         );
-        $priceTable->addColumn(
+        $priceCpuTable->addColumn(
             'price_amount',
             Types::DECIMAL,
             [
@@ -105,7 +123,7 @@ class ActualSchemaProvider implements SchemaProviderInterface
                 'comment'   => 'Price amount, which seller wants for a single item, e.g. 17850.3511',
             ]
         );
-        $priceTable->addColumn(
+        $priceCpuTable->addColumn(
             'currency_label',
             Types::STRING,
             [
@@ -115,7 +133,7 @@ class ActualSchemaProvider implements SchemaProviderInterface
                 'comment' => 'Currency label, e.g. RUB',
             ]
         );
-        $priceTable->addColumn(
+        $priceCpuTable->addColumn(
             'created_at',
             Types::DATETIME_IMMUTABLE,
             [
@@ -125,11 +143,97 @@ class ActualSchemaProvider implements SchemaProviderInterface
             ]
         );
 
-        $priceTable->setPrimaryKey(['id']);
-        $priceTable->setComment('Contains price records for the hardware items');
+        $priceCpuTable->setPrimaryKey(['id']);
+        $priceCpuTable->setComment('Contains price records for the hardware items');
 
-        $indexCreatedAtName = $this->priceTableName . '_created_at_ix';
-        $priceTable->addIndex(['created_at'], $indexCreatedAtName);
+        $indexCreatedAtName = $this->tablePriceCpuName . '_created_at_ix';
+        $priceCpuTable->addIndex(['created_at'], $indexCreatedAtName);
+
+        // hardware benchmarks.
+        $benchmarkPassMarkTable = $schema->createTable($this->tableBenchmarkPassMarkName);
+        $benchmarkPassMarkTable->addColumn(
+            'id',
+            Types::INTEGER,
+            [
+                'notnull'       => true,
+                'autoincrement' => true,
+                'comment'       => 'Identifier for the benchmark record',
+            ]
+        );
+        $benchmarkPassMarkTable->addColumn(
+            'hardware_name',
+            Types::STRING,
+            [
+                'notnull' => true,
+                'length'  => 255,
+                'comment' => 'Hardware item name, e.g. Ryzen 9',
+            ]
+        );
+        $benchmarkPassMarkTable->addColumn(
+            'value',
+            Types::DECIMAL,
+            [
+                'notnull'   => true,
+                'precision' => 13,
+                'scale'     => 2,
+                'comment'   => 'Benchmark rating value, e.g. 17850.35',
+            ]
+        );
+        $benchmarkPassMarkTable->addColumn(
+            'created_at',
+            Types::DATETIME_IMMUTABLE,
+            [
+                'notnull' => true,
+                'default' => 'CURRENT_TIMESTAMP',
+                'comment' => 'Date and time when the benchmark record was found ',
+            ]
+        );
+
+        $benchmarkPassMarkTable->setPrimaryKey(['id']);
+        $benchmarkPassMarkTable->setComment('Hardware benchmark record (PassMark)');
+
+        // hardware V/B (Price/Performance) ratio.
+        $ratioTable = $schema->createTable($this->tableRatioName);
+        $ratioTable->addColumn(
+            'id',
+            Types::INTEGER,
+            [
+                'notnull'       => true,
+                'autoincrement' => true,
+                'comment'       => 'Identifier for the Price/Performance calculation record',
+            ]
+        );
+        $ratioTable->addColumn(
+            'hardware_name',
+            Types::STRING,
+            [
+                'notnull' => true,
+                'length'  => 255,
+                'comment' => 'Hardware item name, e.g. Ryzen 9',
+            ]
+        );
+        $ratioTable->addColumn(
+            'value',
+            Types::DECIMAL,
+            [
+                'notnull'   => true,
+                'precision' => 13,
+                'scale'     => 2,
+                'comment'   => 'Value for the Price/Performance ratio record, e.g. 17850.35',
+            ]
+        );
+        $ratioTable->addColumn(
+            'created_at',
+            Types::DATETIME_IMMUTABLE,
+            [
+                'notnull' => true,
+                'default' => 'CURRENT_TIMESTAMP',
+                'comment' => 'Date and time when the ratio record has been calculated ',
+            ]
+        );
+
+        $ratioTable->setPrimaryKey(['id']);
+        $ratioTable->setComment('V/B (Price/Performance) ratio record');
 
         return $schema;
     }
