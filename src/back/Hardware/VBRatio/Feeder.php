@@ -92,8 +92,11 @@ class Feeder
      */
     private function transferRatios(iterable $ratios): PromiseInterface
     {
+        // downcasting to an array to ensure an each partial listener can rewind it.
+        $ratiosRewindable = [...$ratios];
+
         $ratioListEmittedEvent = new VBRatiosEmittedEvent();
-        $ratioListEmittedEvent->setRatios($ratios);
+        $ratioListEmittedEvent->setRatios($ratiosRewindable);
 
         $this->eventDispatcher->dispatch($ratioListEmittedEvent, VBRatiosEmittedEvent::NAME);
 

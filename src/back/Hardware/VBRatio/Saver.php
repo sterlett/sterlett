@@ -16,18 +16,44 @@ declare(strict_types=1);
 namespace Sterlett\Hardware\VBRatio;
 
 use React\Promise\PromiseInterface;
-use RuntimeException;
-use function React\Promise\reject;
+use function React\Promise\resolve;
 
 /**
  * Saves V/B ratio data in the local storage
  */
 class Saver
 {
+    /**
+     * A storage with V/B ratio records for the hardware items
+     *
+     * @var Repository
+     */
+    private Repository $ratioRepository;
+
+    /**
+     * Saver constructor.
+     *
+     * @param Repository $ratioRepository A storage with V/B ratio records for the hardware items
+     */
+    public function __construct(Repository $ratioRepository)
+    {
+        $this->ratioRepository = $ratioRepository;
+    }
+
+    /**
+     * Saves V/B ratio records in the local storage using a repository service
+     *
+     * @param iterable $ratios V/B ratio records
+     *
+     * @return PromiseInterface<null>
+     */
     public function saveRatios(iterable $ratios): PromiseInterface
     {
-        // todo
+        // todo: forward promises (promise all)
+        foreach ($ratios as $ratio) {
+            $this->ratioRepository->save($ratio);
+        }
 
-        return reject(new RuntimeException('todo'));
+        return resolve(null);
     }
 }

@@ -2,3 +2,5 @@
 services:
     app.hardware.vbratio.saver:
         class: Sterlett\Hardware\VBRatio\Saver
+        arguments:
+            - '@app.hardware.vbratio.repository'

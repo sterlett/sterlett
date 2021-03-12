@@ -76,6 +76,7 @@ $containerConfigurator->setDefinitionFilePaths(
         __DIR__ . '/../config/services/hardware/price_retriever.yml',
         __DIR__ . '/../config/services/hardware/price_calculators.yml',
         __DIR__ . '/../config/services/hardware/benchmark_providers.yml',
+        __DIR__ . '/../config/services/hardware/vbratio_repository.yml',
         __DIR__ . '/../config/services/hardware/vbratio_source_binder.yml',
         __DIR__ . '/../config/services/hardware/vbratio_calculator.yml',
         __DIR__ . '/../config/services/hardware/vbratio_providers.yml',
