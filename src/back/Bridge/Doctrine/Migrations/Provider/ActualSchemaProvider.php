@@ -144,10 +144,11 @@ class ActualSchemaProvider implements SchemaProviderInterface
         );
 
         $priceCpuTable->setPrimaryKey(['id']);
-        $priceCpuTable->setComment('Contains price records for the hardware items');
 
         $indexCreatedAtName = $this->tablePriceCpuName . '_created_at_ix';
         $priceCpuTable->addIndex(['created_at'], $indexCreatedAtName);
+
+        $priceCpuTable->setComment('Contains price records for the hardware items');
 
         // hardware benchmarks.
         $benchmarkPassMarkTable = $schema->createTable($this->tableBenchmarkPassMarkName);
@@ -234,6 +235,43 @@ class ActualSchemaProvider implements SchemaProviderInterface
 
         $ratioTable->setPrimaryKey(['id']);
         $ratioTable->setComment('V/B (Price/Performance) ratio record');
+
+        // price-benchmark bindings.
+        $bindingsTable = $schema->createTable('hardware_benchmark_hardware_price');
+        $bindingsTable->addColumn(
+            'id',
+            Types::INTEGER,
+            [
+                'notnull'       => true,
+                'autoincrement' => true,
+                'comment'       => 'Identifier for the price-benchmark binding record',
+            ]
+        );
+        $bindingsTable->addColumn(
+            'benchmark_hardware_name',
+            Types::STRING,
+            [
+                'notnull' => true,
+                'length'  => 255,
+                'comment' => 'Hardware item name from the benchmark record',
+            ]
+        );
+        $bindingsTable->addColumn(
+            'price_hardware_name',
+            Types::STRING,
+            [
+                'notnull' => true,
+                'length'  => 255,
+                'comment' => 'Hardware item name from the price record',
+            ]
+        );
+
+        $bindingsTable->setPrimaryKey(['id']);
+
+        $indexUniqueBindingName = 'benchmark_hardware_name_price_hardware_name_uq';
+        $bindingsTable->addUniqueIndex(['benchmark_hardware_name', 'price_hardware_name'], $indexUniqueBindingName);
+
+        $bindingsTable->setComment('Price-benchmark binding record');
 
         return $schema;
     }

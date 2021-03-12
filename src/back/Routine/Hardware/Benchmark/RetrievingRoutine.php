@@ -80,7 +80,7 @@ class RetrievingRoutine implements RoutineInterface
      */
     public function run(): void
     {
-        $this->loop->futureTick(fn() => $this->runInternal());
+        $this->loop->futureTick(fn () => $this->runInternal());
     }
 
     /**
@@ -100,7 +100,7 @@ class RetrievingRoutine implements RoutineInterface
                     $this->logger->info('Benchmark retrieving task is complete.');
 
                     // rescheduling, to perform a next attempt.
-                    $this->loop->addTimer($this->attemptInterval, fn() => $this->runInternal());
+                    $this->loop->addTimer($this->attemptInterval, fn () => $this->runInternal());
                 },
                 // capturing & unwrapping the async stack trace, in case of error.
                 function (Throwable $rejectionReason) {
@@ -114,7 +114,7 @@ class RetrievingRoutine implements RoutineInterface
 
                     $this->logger->critical('Benchmark retrieving task has failed.');
 
-                    $this->loop->addTimer($this->attemptInterval, fn() => $this->runInternal());
+                    $this->loop->addTimer($this->attemptInterval, fn () => $this->runInternal());
                 }
             );
         } catch (Throwable $exception) {

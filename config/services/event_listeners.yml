@@ -47,7 +47,7 @@ services:
 #                event: 'data'
 #                method: 'onCpuMarkReceived'
 
-    # V/B ratios -> feed an HTTP handler -> save in the local storage
+    # V/B ratios -> feed an HTTP handler -> save in the local storage -> extract & persist price-benchmark bindings
     app.event.listener.cpu_mark_acceptance_listener:
         class: Sterlett\Event\Listener\CpuMarkAcceptanceListener
         arguments:
@@ -68,3 +68,13 @@ services:
                 event: !php/const Sterlett\Event\VBRatiosEmittedEvent::NAME
                 method: 'onVBRatiosReceived'
                 priority: 90
+
+    app.event.listener.ratio_bindings_update_listener:
+        class: Sterlett\Event\Listener\VBRatioBindingsUpdateListener
+        arguments:
+            - '@app.hardware.vbratio.bindings_updater'
+        tags:
+            -   name: 'psr14.event_listener'
+                event: !php/const Sterlett\Event\VBRatiosEmittedEvent::NAME
+                method: 'onVBRatiosReceived'
+                priority: 80

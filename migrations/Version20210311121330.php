@@ -29,6 +29,14 @@ final class Version20210311121330 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->addSql('RENAME TABLE hardware_price TO hardware_price_cpu');
+        $this->addSql("
+            ALTER TABLE
+                hardware_price_cpu
+            RENAME INDEX
+                hardware_price_created_at_ix
+            TO
+                hardware_price_cpu_created_at_ix
+        ");
 
         $this->addSql("
             CREATE TABLE hardware_benchmark_passmark (
@@ -62,7 +70,16 @@ final class Version20210311121330 extends AbstractMigration
      */
     public function down(Schema $schema): void
     {
+        $this->addSql("
+            ALTER TABLE
+                hardware_price_cpu
+            RENAME INDEX
+                hardware_price_cpu_created_at_ix
+            TO
+                hardware_price_created_at_ix
+        ");
         $this->addSql('RENAME TABLE hardware_price_cpu TO hardware_price');
+
         $this->addSql('DROP TABLE hardware_benchmark_passmark');
         $this->addSql('DROP TABLE hardware_ratio');
     }

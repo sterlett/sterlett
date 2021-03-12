@@ -66,16 +66,9 @@ class VBRatioSaveListener
 
         $saveConfirmationPromise = $this->ratioSaver->saveRatios($ratios);
 
-        // taking dispatch responsibility from the event dispatcher.
-        $dispatchingDeferred = $event->takeDeferred();
-
         $saveConfirmationPromise->then(
-            // this will force the dispatching chain to wait for all async queries to complete.
-            function () use ($dispatchingDeferred) {
-                $dispatchingDeferred->resolve(null);
-            },
-            function (Throwable $rejectionReason) use ($dispatchingDeferred) {
-                $dispatchingDeferred->reject($rejectionReason);
+            function (Throwable $rejectionReason) {
+                // todo: handle reject
             }
         );
     }

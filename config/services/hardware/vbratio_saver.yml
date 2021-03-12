@@ -4,3 +4,8 @@ services:
         class: Sterlett\Hardware\VBRatio\Saver
         arguments:
             - '@app.hardware.vbratio.repository'
+
+    app.hardware.vbratio.bindings_updater:
+        class: Sterlett\Hardware\VBRatio\BindingsUpdater
+        arguments:
+            - '@app.hardware.vbratio.repository'

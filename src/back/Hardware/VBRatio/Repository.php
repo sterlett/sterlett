@@ -17,6 +17,8 @@ namespace Sterlett\Hardware\VBRatio;
 
 use InvalidArgumentException;
 use React\MySQL\ConnectionInterface;
+use React\MySQL\QueryResult;
+use React\Promise\PromiseInterface;
 use RuntimeException;
 use Sterlett\Dto\Hardware\VBRatio;
 use Sterlett\Hardware\PriceInterface;
@@ -77,6 +79,35 @@ class Repository
             ;
 SQL;
 
+        $sourceBenchmark = $ratio->getSourceBenchmark();
+
+        $hardwareName = $sourceBenchmark->getHardwareName();
+        $ratioValue   = $ratio->getValue();
+
+        // todo: handle promise
+        $this->databaseConnection->query($statementInsert, [$hardwareName, $ratioValue]);
+    }
+
+    /**
+     * Persists bindings from the given V/B ratio record
+     *
+     * @param VBRatio $ratio A V/B ratio object
+     *
+     * @return void
+     */
+    public function saveBindings(VBRatio $ratio): void
+    {
+        $statementInsert = <<<SQL
+            INSERT IGNORE INTO
+                `hardware_benchmark_hardware_price` (
+                    `benchmark_hardware_name`, 
+                    `price_hardware_name`
+                )
+            VALUES
+                (?, ?)
+            ;
+SQL;
+
         $hardwarePrices = $ratio->getSourcePrices();
         $priceSample    = $hardwarePrices[0] ?? null;
 
@@ -84,10 +115,29 @@ SQL;
             throw new RuntimeException('Invalid V/B ratio record: no price data.');
         }
 
-        $hardwareName = $priceSample->getHardwareName();
-        $ratioValue   = $ratio->getValue();
+        $sourceBenchmark = $ratio->getSourceBenchmark();
+
+        $hardwareNameBenchmark = $sourceBenchmark->getHardwareName();
+        $hardwareNamePrice     = $priceSample->getHardwareName();
 
         // todo: handle promise
-        $this->databaseConnection->query($statementInsert, [$hardwareName, $ratioValue]);
+        $this->databaseConnection->query($statementInsert, [$hardwareNameBenchmark, $hardwareNamePrice]);
+    }
+
+    /**
+     * Removes all active price-benchmark bindings from the local storage. Returns a promise that resolve to a boolean,
+     * representing an operation status
+     *
+     * @return PromiseInterface<bool>
+     */
+    public function removeBindings(): PromiseInterface
+    {
+        $statementDelete = <<<SQL
+            DELETE FROM `hardware_benchmark_hardware_price`;
+SQL;
+
+        $queryResultPromise = $this->databaseConnection->query($statementDelete);
+
+        return $queryResultPromise->then(fn (QueryResult $queryResult) => $queryResult->affectedRows !== 0);
     }
 }
