@@ -1,0 +1,7 @@
+
+services:
+    app.hardware.benchmark.repository.passmark:
+        class: Sterlett\Hardware\Benchmark\Repository
+        arguments:
+            - '@app.database.connection.prices'
+            - '%app.database.table_name.benchmark.passmark%'
