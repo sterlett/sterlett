@@ -47,11 +47,24 @@ services:
 #                event: 'data'
 #                method: 'onCpuMarkReceived'
 
+    # V/B ratios -> feed an HTTP handler -> save in the local storage
     app.event.listener.cpu_mark_acceptance_listener:
         class: Sterlett\Event\Listener\CpuMarkAcceptanceListener
         arguments:
             - '@app.request.handler.hardware_mark_handler'
+            - '@app.hardware.vbratio.packer'
         tags:
             -   name: 'psr14.event_listener'
                 event: !php/const Sterlett\Event\VBRatiosEmittedEvent::NAME
-                method: 'onCpuMarkReceived'
+                method: 'onVBRatiosReceived'
+                priority: 100
+
+    app.event.listener.ratio_save_listener:
+        class: Sterlett\Event\Listener\VBRatioSaveListener
+        arguments:
+            - '@app.hardware.vbratio.saver'
+        tags:
+            -   name: 'psr14.event_listener'
+                event: !php/const Sterlett\Event\VBRatiosEmittedEvent::NAME
+                method: 'onVBRatiosReceived'
+                priority: 90

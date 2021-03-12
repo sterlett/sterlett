@@ -26,7 +26,7 @@ final class Version20210311121330 extends AbstractMigration
     /**
      * {@inheritDoc}
      */
-    public function up(Schema $schema) : void
+    public function up(Schema $schema): void
     {
         $this->addSql('RENAME TABLE hardware_price TO hardware_price_cpu');
 
@@ -60,7 +60,7 @@ final class Version20210311121330 extends AbstractMigration
     /**
      * {@inheritDoc}
      */
-    public function down(Schema $schema) : void
+    public function down(Schema $schema): void
     {
         $this->addSql('RENAME TABLE hardware_price_cpu TO hardware_price');
         $this->addSql('DROP TABLE hardware_benchmark_passmark');

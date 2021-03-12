@@ -80,6 +80,8 @@ $containerConfigurator->setDefinitionFilePaths(
         __DIR__ . '/../config/services/hardware/vbratio_calculator.yml',
         __DIR__ . '/../config/services/hardware/vbratio_providers.yml',
         __DIR__ . '/../config/services/hardware/vbratio_feeder.yml',
+        __DIR__ . '/../config/services/hardware/vbratio_packer.yml',
+        __DIR__ . '/../config/services/hardware/vbratio_saver.yml',
     ]
 );
 $containerConfigurator->setDefinitionDefaultsFilePath(__DIR__ . '/../config/services.yml');

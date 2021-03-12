@@ -1,0 +1,6 @@
+
+services:
+    app.hardware.vbratio.packer:
+        class: Sterlett\Hardware\VBRatio\Packer
+        arguments:
+            - '@app.hardware.price.simple_average_calculator'

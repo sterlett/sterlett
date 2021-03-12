@@ -26,7 +26,7 @@ final class Version20210310143917 extends AbstractMigration
     /**
      * {@inheritDoc}
      */
-    public function up(Schema $schema) : void
+    public function up(Schema $schema): void
     {
         $this->addSql("
             ALTER TABLE
@@ -40,7 +40,7 @@ final class Version20210310143917 extends AbstractMigration
     /**
      * {@inheritDoc}
      */
-    public function down(Schema $schema) : void
+    public function down(Schema $schema): void
     {
         $this->addSql('ALTER TABLE hardware_price DROP hardware_image_uri');
     }

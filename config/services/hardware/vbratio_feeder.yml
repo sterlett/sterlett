@@ -7,5 +7,4 @@ services:
         class: Sterlett\Hardware\VBRatio\Feeder
         arguments:
             - '@app.hardware.vbratio.provider.configurable_provider.database.cpu'
-            - '@app.hardware.price.simple_average_calculator'
             - '@app.event.dispatcher'

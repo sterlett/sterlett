@@ -2,7 +2,7 @@
 <!-- application component template -->
 
 <svelte:head>
-    <title>{title} {$pageTitleStore.length > 0 ? '• ' + $pageTitleStore : ''}</title>
+    <title>{$pageTitleStore.length > 0 ? $pageTitleStore + ' • ' : ''} {title}</title>
 </svelte:head>
 
 <div class="page grid-lg">

@@ -16,8 +16,8 @@ parameters:
     # Background tasks
     # Interval to execute price retrieving logic, in seconds (default: 36000.0; 10 hours)
     app.routine.price.retrieving_interval: 36000.0
-    # Interval to update HTTP handler with new V/B ratio data, in seconds (default: 14400.0; 4 hours)
-    app.routine.ratio.feed_interval: 14400.0
+    # Interval to update HTTP handler with new V/B ratio data, in seconds (default: 28800.0; 8 hours)
+    app.routine.ratio.feed_interval: 28800.0
 
     app.console.name: 'Sterlett'
     app.console.version: '0.x'

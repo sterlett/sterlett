@@ -1,0 +1,4 @@
+
+services:
+    app.hardware.vbratio.saver:
+        class: Sterlett\Hardware\VBRatio\Saver

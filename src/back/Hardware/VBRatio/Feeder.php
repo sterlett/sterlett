@@ -20,8 +20,6 @@ use RuntimeException;
 use Sterlett\Bridge\Symfony\Component\EventDispatcher\DeferredEventDispatcher;
 use Sterlett\Event\Listener\CpuMarkAcceptanceListener;
 use Sterlett\Event\VBRatiosEmittedEvent;
-use Sterlett\Hardware\Price\SimpleAverageCalculator;
-use Sterlett\Hardware\PriceInterface;
 use Sterlett\Hardware\VBRatioInterface;
 use Throwable;
 use Traversable;
@@ -43,13 +41,6 @@ class Feeder
     private ProviderInterface $ratioProvider;
 
     /**
-     * Encapsulates logic for average amount calculation
-     *
-     * @var SimpleAverageCalculator
-     */
-    private SimpleAverageCalculator $priceCalculator;
-
-    /**
      * Provides hooks on domain-specific lifecycles by dispatching events
      *
      * @var DeferredEventDispatcher
@@ -60,16 +51,11 @@ class Feeder
      * Feeder constructor.
      *
      * @param ProviderInterface       $ratioProvider   Provides V/B ratio lists
-     * @param SimpleAverageCalculator $priceCalculator Encapsulates logic for average amount calculation
      * @param DeferredEventDispatcher $eventDispatcher Provides hooks on domain-specific lifecycles
      */
-    public function __construct(
-        ProviderInterface $ratioProvider,
-        SimpleAverageCalculator $priceCalculator,
-        DeferredEventDispatcher $eventDispatcher
-    ) {
+    public function __construct(ProviderInterface $ratioProvider, DeferredEventDispatcher $eventDispatcher)
+    {
         $this->ratioProvider   = $ratioProvider;
-        $this->priceCalculator = $priceCalculator;
         $this->eventDispatcher = $eventDispatcher;
     }
 
@@ -106,88 +92,13 @@ class Feeder
      */
     private function transferRatios(iterable $ratios): PromiseInterface
     {
-        $ratioListPacked = [];
-
-        foreach ($ratios as $ratio) {
-            $ratioListPacked[] = $this->packRatio($ratio);
-        }
-
-        $ratioListEncoded = json_encode(['items' => $ratioListPacked]);
-
         $ratioListEmittedEvent = new VBRatiosEmittedEvent();
-        $ratioListEmittedEvent->setRatioData($ratioListEncoded);
+        $ratioListEmittedEvent->setRatios($ratios);
 
         $this->eventDispatcher->dispatch($ratioListEmittedEvent, VBRatiosEmittedEvent::NAME);
 
         $eventPropagationPromise = $ratioListEmittedEvent->getPromise();
 
         return $eventPropagationPromise;
-    }
-
-    /**
-     * Transforms a single V/B ratio record to the API response format
-     *
-     * @param VBRatioInterface $ratio A V/B ratio record
-     *
-     * @return array
-     */
-    private function packRatio(VBRatioInterface $ratio): array
-    {
-        $sourceBenchmark   = $ratio->getSourceBenchmark();
-        $hardwareName      = $sourceBenchmark->getHardwareName();
-        $benchmarkValueInt = (int) $sourceBenchmark->getValue();
-
-        $sourcePrices = $ratio->getSourcePrices();
-        // reading a price sample to extract metadata for the whole set.
-        $priceSample = $this->extractPriceSample($sourcePrices);
-
-        $imageUri = $priceSample->getHardwareImage();
-
-        $priceAverage  = (int) $this->priceCalculator->calculateAverage($sourcePrices, 0);
-        $priceCurrency = $priceSample->getCurrency();
-
-        $ratioValue = $ratio->getValue();
-
-        $ratioPacked = [
-            'name'       => $hardwareName,
-            'image'      => $imageUri,
-            'prices'     => [
-                [
-                    'type'      => 'average',
-                    'value'     => $priceAverage,
-                    'currency'  => $priceCurrency,
-                    'precision' => 0,
-                ],
-            ],
-            'vb_ratio'   => $ratioValue,
-            'benchmarks' => [
-                [
-                    'name'  => 'PassMark',
-                    'value' => $benchmarkValueInt,
-                ],
-            ],
-        ];
-
-        return $ratioPacked;
-    }
-
-    /**
-     * Resolves and returns a "sample" price from the given set (will be used for metadata extraction)
-     *
-     * @param PriceInterface[] $prices An array of prices for the hardware item
-     *
-     * @return PriceInterface
-     */
-    private function extractPriceSample(array $prices): PriceInterface
-    {
-        $sampleKey = array_key_first($prices);
-
-        if (null === $sampleKey) {
-            throw new RuntimeException('Unable to extract a price sample: no price records (feeder).');
-        }
-
-        $priceSample = $prices[$sampleKey];
-
-        return $priceSample;
     }
 }

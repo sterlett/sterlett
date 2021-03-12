@@ -37,38 +37,38 @@ class VBRatiosEmittedEvent extends Event implements DeferredEventInterface
     /**
      * V/B ratio data for the async handlers
      *
-     * @var string
+     * @var iterable
      */
-    private string $ratioData;
+    private iterable $ratios;
 
     /**
      * VBRatiosEmittedEvent constructor.
      */
     public function __construct()
     {
-        $this->ratioData = '';
+        $this->ratios    = [];
         $this->_deferred = new Deferred();
     }
 
     /**
      * Sets V/B ratio data
      *
-     * @param string $ratioData V/B ratio data for the async handlers
+     * @param iterable $ratios V/B ratio data for the async handlers
      *
      * @return void
      */
-    public function setRatioData(string $ratioData): void
+    public function setRatios(iterable $ratios): void
     {
-        $this->ratioData = $ratioData;
+        $this->ratios = $ratios;
     }
 
     /**
      * Returns a V/B ratio dataset, attached to the event
      *
-     * @return string
+     * @return iterable
      */
-    public function getRatioData(): string
+    public function getRatios(): iterable
     {
-        return $this->ratioData;
+        return $this->ratios;
     }
 }
