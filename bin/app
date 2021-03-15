@@ -85,6 +85,7 @@ $containerConfigurator->setDefinitionFilePaths(
         __DIR__ . '/../config/services/hardware/vbratio_feeder.yml',
         __DIR__ . '/../config/services/hardware/vbratio_packer.yml',
         __DIR__ . '/../config/services/hardware/vbratio_saver.yml',
+        __DIR__ . '/../config/services/hardware/deal_observer.yml',
     ]
 );
 $containerConfigurator->setDefinitionDefaultsFilePath(__DIR__ . '/../config/services.yml');

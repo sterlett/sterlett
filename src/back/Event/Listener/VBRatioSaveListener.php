@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace Sterlett\Event\Listener;
 
-use Sterlett\Event\VBRatiosEmittedEvent;
+use Sterlett\Event\VBRatiosCalculatedEvent;
 use Sterlett\Hardware\VBRatio\Saver as VBRatioSaver;
 use Throwable;
 
@@ -44,11 +44,11 @@ class VBRatioSaveListener
     /**
      * Captures a V/B ratio list event and runs saving logic
      *
-     * @param VBRatiosEmittedEvent $event A V/B ratio emitted event
+     * @param VBRatiosCalculatedEvent $event A V/B ratio calculated event
      *
      * @return void
      */
-    public function onVBRatiosReceived(VBRatiosEmittedEvent $event): void
+    public function onVBRatiosCalculated(VBRatiosCalculatedEvent $event): void
     {
         $this->saveRatios($event);
     }
@@ -56,11 +56,11 @@ class VBRatioSaveListener
     /**
      * Saves calculated V/B ratios in the local storage
      *
-     * @param VBRatiosEmittedEvent $event A V/B ratio emitted event
+     * @param VBRatiosCalculatedEvent $event A V/B ratio calculated event
      *
      * @return void
      */
-    private function saveRatios(VBRatiosEmittedEvent $event): void
+    private function saveRatios(VBRatiosCalculatedEvent $event): void
     {
         $ratios = $event->getRatios();
 

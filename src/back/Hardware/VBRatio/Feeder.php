@@ -19,7 +19,7 @@ use React\Promise\PromiseInterface;
 use RuntimeException;
 use Sterlett\Bridge\Symfony\Component\EventDispatcher\DeferredEventDispatcher;
 use Sterlett\Event\Listener\CpuMarkAcceptanceListener;
-use Sterlett\Event\VBRatiosEmittedEvent;
+use Sterlett\Event\VBRatiosCalculatedEvent;
 use Sterlett\Hardware\VBRatioInterface;
 use Throwable;
 use Traversable;
@@ -95,12 +95,12 @@ class Feeder
         // downcasting to an array to ensure an each partial listener can rewind it.
         $ratiosRewindable = [...$ratios];
 
-        $ratioListEmittedEvent = new VBRatiosEmittedEvent();
-        $ratioListEmittedEvent->setRatios($ratiosRewindable);
+        $ratioListCalculatedEvent = new VBRatiosCalculatedEvent();
+        $ratioListCalculatedEvent->setRatios($ratiosRewindable);
 
-        $this->eventDispatcher->dispatch($ratioListEmittedEvent, VBRatiosEmittedEvent::NAME);
+        $this->eventDispatcher->dispatch($ratioListCalculatedEvent, VBRatiosCalculatedEvent::NAME);
 
-        $eventPropagationPromise = $ratioListEmittedEvent->getPromise();
+        $eventPropagationPromise = $ratioListCalculatedEvent->getPromise();
 
         return $eventPropagationPromise;
     }

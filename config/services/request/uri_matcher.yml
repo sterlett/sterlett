@@ -13,3 +13,4 @@ services:
         class: Sterlett\Request\Uri\Matcher\ArrayMatcher
         arguments:
             -   /cpu/list.json: 'app.request.handler.action.cpu_list_action'
+            -   /cpu/deals.json: 'app.request.handler.action.cpu_deals_action'

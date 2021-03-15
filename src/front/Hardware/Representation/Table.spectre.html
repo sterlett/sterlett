@@ -22,7 +22,7 @@
         <tr>
             <td>
                 <div class="columns flex-centered">
-                    {#if item?.image.length > 0}
+                    {#if item.image?.length > 0}
                     <div class="column col-auto">
                         <img src={item.image} alt={item.name} />
                     </div>
@@ -44,7 +44,7 @@
                 {/each}
             </td>
 
-            <td>
+            <td nowrap>
                 {item.prices.average}
             </td>
         </tr>

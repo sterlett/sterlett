@@ -1,0 +1,4 @@
+
+services:
+    app.hardware.deal.observer:
+        class: Sterlett\Hardware\Deal\Observer

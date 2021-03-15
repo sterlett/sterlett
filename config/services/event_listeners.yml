@@ -48,33 +48,43 @@ services:
 #                method: 'onCpuMarkReceived'
 
     # V/B ratios -> feed an HTTP handler -> save in the local storage -> extract & persist price-benchmark bindings
-    app.event.listener.cpu_mark_acceptance_listener:
+    app.event.listener.mark_acceptance_listener.cpu:
         class: Sterlett\Event\Listener\CpuMarkAcceptanceListener
         arguments:
             - '@app.request.handler.hardware_mark_handler'
             - '@app.hardware.vbratio.packer'
         tags:
             -   name: 'psr14.event_listener'
-                event: !php/const Sterlett\Event\VBRatiosEmittedEvent::NAME
-                method: 'onVBRatiosReceived'
+                event: !php/const Sterlett\Event\VBRatiosCalculatedEvent::NAME
+                method: 'onVBRatiosCalculated'
                 priority: 100
 
-    app.event.listener.ratio_save_listener:
+    app.event.listener.ratio_save_listener.cpu:
         class: Sterlett\Event\Listener\VBRatioSaveListener
         arguments:
             - '@app.hardware.vbratio.saver'
         tags:
             -   name: 'psr14.event_listener'
-                event: !php/const Sterlett\Event\VBRatiosEmittedEvent::NAME
-                method: 'onVBRatiosReceived'
+                event: !php/const Sterlett\Event\VBRatiosCalculatedEvent::NAME
+                method: 'onVBRatiosCalculated'
                 priority: 90
 
-    app.event.listener.ratio_bindings_update_listener:
+    app.event.listener.ratio_bindings_update_listener.cpu:
         class: Sterlett\Event\Listener\VBRatioBindingsUpdateListener
         arguments:
             - '@app.hardware.vbratio.bindings_updater'
         tags:
             -   name: 'psr14.event_listener'
-                event: !php/const Sterlett\Event\VBRatiosEmittedEvent::NAME
-                method: 'onVBRatiosReceived'
+                event: !php/const Sterlett\Event\VBRatiosCalculatedEvent::NAME
+                method: 'onVBRatiosCalculated'
                 priority: 80
+
+    # Deals -> feed an HTTP handler
+    app.event.listener.deals_acceptance_listener.cpu:
+        class: Sterlett\Event\Listener\CpuDealsAcceptanceListener
+        arguments:
+            - '@app.request.handler.hardware_mark_handler'
+        tags:
+            -   name: 'psr14.event_listener'
+                event: !php/const Sterlett\Event\DealsSuggestedEvent::NAME
+                method: 'onDealsSuggested'

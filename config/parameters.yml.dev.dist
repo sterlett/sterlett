@@ -20,6 +20,8 @@ parameters:
     app.routine.benchmark.retrieving_interval: 86400.0
     # Interval to update HTTP handler with new V/B ratio data, in seconds (default: 28800.0; 8 hours)
     app.routine.ratio.feed_interval: 28800.0
+    # Interval to suggest new deals, in seconds (default: 28800.0; 8 hours)
+    app.routine.deal.suggesting_interval: 28800.0
 
     app.console.name: 'Sterlett'
     app.console.version: '0.x'

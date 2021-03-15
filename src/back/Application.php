@@ -71,6 +71,9 @@ final class Application
         $ratioFeedRoutine = $this->container->get('app.routine.vbratio_feed');
         $ratioFeedRoutine->run();
 
+        $dealSuggestionRoutine = $this->container->get('app.routine.deal_suggestion');
+        $dealSuggestionRoutine->run();
+
         $loop->run();
     }
 

@@ -125,8 +125,8 @@ SQL;
     }
 
     /**
-     * Removes all active price-benchmark bindings from the local storage. Returns a promise that resolve to a boolean,
-     * representing an operation status
+     * Removes all active price-benchmark bindings from the local storage. Returns a promise that resolves to a boolean,
+     * representing the operation status
      *
      * @return PromiseInterface<bool>
      */
@@ -138,6 +138,6 @@ SQL;
 
         $queryResultPromise = $this->databaseConnection->query($statementDelete);
 
-        return $queryResultPromise->then(fn (QueryResult $queryResult) => $queryResult->affectedRows !== 0);
+        return $queryResultPromise->then(fn (QueryResult $queryResult) => $queryResult->affectedRows > 0);
     }
 }

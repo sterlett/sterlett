@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 namespace Sterlett\Event\Listener;
 
-use Sterlett\Event\VBRatiosEmittedEvent;
+use Sterlett\Event\VBRatiosCalculatedEvent;
 use Sterlett\Hardware\VBRatio\BindingsUpdater as VBRatioBindingsUpdater;
 use Throwable;
 
@@ -44,11 +44,11 @@ class VBRatioBindingsUpdateListener
     /**
      * Captures a V/B ratio list event and runs logic to save the price-benchmark bindings
      *
-     * @param VBRatiosEmittedEvent $event A V/B ratio emitted event
+     * @param VBRatiosCalculatedEvent $event A V/B ratio calculated event
      *
      * @return void
      */
-    public function onVBRatiosReceived(VBRatiosEmittedEvent $event): void
+    public function onVBRatiosCalculated(VBRatiosCalculatedEvent $event): void
     {
         $this->updateBindings($event);
     }
@@ -56,11 +56,11 @@ class VBRatioBindingsUpdateListener
     /**
      * Updates price-benchmark bindings in the local storage
      *
-     * @param VBRatiosEmittedEvent $event A V/B ratio emitted event
+     * @param VBRatiosCalculatedEvent $event A V/B ratio calculated event
      *
      * @return void
      */
-    private function updateBindings(VBRatiosEmittedEvent $event): void
+    private function updateBindings(VBRatiosCalculatedEvent $event): void
     {
         $ratios = $event->getRatios();
 

@@ -13,6 +13,10 @@ services:
         alias: 'app.routine.hardware.vbratio.feeding_routine'
         public: true
 
+    app.routine.deal_suggestion:
+        alias: 'app.routine.hardware.deal.suggesting_routine'
+        public: true
+
     app.routine.hardware.price.retrieving_routine:
         class: Sterlett\Routine\Hardware\Price\RetrievingRoutine
         arguments:
@@ -36,3 +40,11 @@ services:
             - '@app.event_loop'
             - '@app.hardware.vbratio.feeder'
             - '%app.routine.ratio.feed_interval%'
+
+    app.routine.hardware.deal.suggesting_routine:
+        class: Sterlett\Routine\Hardware\Deal\SuggestingRoutine
+        arguments:
+            - '@app.log.logger.stdout'
+            - '@app.event_loop'
+            - '@app.hardware.deal.observer'
+            - '%app.routine.deal.suggesting_interval%'

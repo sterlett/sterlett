@@ -36,7 +36,14 @@ class HardwareMarkHandler implements HandlerInterface
      *
      * @var string
      */
-    private const ACTION_CPU_LIST = 'app.request.handler.action.cpu_list_action';
+    public const ACTION_CPU_LIST = 'app.request.handler.action.cpu_list_action';
+
+    /**
+     * Action name to render a dataset for the best deals in the CPU category
+     *
+     * @var string
+     */
+    public const ACTION_CPU_DEALS = 'app.request.handler.action.cpu_deals_action';
 
     /**
      * Logs handler events
@@ -60,18 +67,30 @@ class HardwareMarkHandler implements HandlerInterface
     private string $cpuData;
 
     /**
+     * Deals data for the CPU category
+     *
+     * @var string
+     */
+    private string $cpuDealsData;
+
+    /**
      * HardwareMarkHandler constructor.
      *
-     * @param LoggerInterface  $logger     Logs handler events
-     * @param MatcherInterface $uriMatcher Finds context to decide which action should be used to generate a response
-     *                                     for the given request
-     * @param string           $cpuData    Represents a list with hardware statistics from the CPU category
+     * @param LoggerInterface  $logger       Logs handler events
+     * @param MatcherInterface $uriMatcher   Finds context to decide which action should be used to generate a response
+     * @param string           $cpuData      Represents a list with hardware statistics from the CPU category
+     * @param string           $cpuDealsData Deals data for the CPU category
      */
-    public function __construct(LoggerInterface $logger, MatcherInterface $uriMatcher, string $cpuData = '')
-    {
-        $this->logger     = $logger;
-        $this->uriMatcher = $uriMatcher;
-        $this->cpuData    = $cpuData;
+    public function __construct(
+        LoggerInterface $logger,
+        MatcherInterface $uriMatcher,
+        string $cpuData = '',
+        string $cpuDealsData = ''
+    ) {
+        $this->logger       = $logger;
+        $this->uriMatcher   = $uriMatcher;
+        $this->cpuData      = $cpuData;
+        $this->cpuDealsData = $cpuDealsData;
     }
 
     /**
@@ -83,14 +102,20 @@ class HardwareMarkHandler implements HandlerInterface
 
         $actionName = $this->resolveActionName($request);
 
+        // list
         if (self::ACTION_CPU_LIST === $actionName) {
             // todo: handle chunked data (in "pending" status, if buffer is used)
             //$response = $this->getCpuListNotReadyResponse();
 
-            $response = $this->getCpuListResponse();
-        } else {
-            $response = $this->getNotFoundResponse();
+            return $this->getCpuListResponse();
         }
+
+        // deals
+        if (self::ACTION_CPU_DEALS === $actionName) {
+            return $this->getCpuDealsResponse();
+        }
+
+        $response = $this->getNotFoundResponse();
 
         return $response;
     }
@@ -108,13 +133,33 @@ class HardwareMarkHandler implements HandlerInterface
     }
 
     /**
-     * Resets handler's state
+     * Adds data, representing a set of deals for the CPU category, to the handler's cache
+     *
+     * @param string $cpuDealsData CPU deals data
      *
      * @return void
      */
-    public function resetState(): void
+    public function addCpuDealsData(string $cpuDealsData): void
     {
-        $this->cpuData = '';
+        $this->cpuDealsData .= $cpuDealsData;
+    }
+
+    /**
+     * Resets handler's state for the specified action
+     *
+     * @param string $actionName Action name
+     *
+     * @return void
+     */
+    public function resetState(string $actionName): void
+    {
+        if (self::ACTION_CPU_LIST === $actionName) {
+            $this->cpuData = '';
+
+            return;
+        }
+
+        $this->cpuDealsData = '';
     }
 
     /**
@@ -147,14 +192,34 @@ class HardwareMarkHandler implements HandlerInterface
      */
     private function getCpuListResponse(): Response
     {
-        $responseBody = $this->cpuData;
+        return $this->getDataResponse($this->cpuData);
+    }
 
+    /**
+     * Returns a response with data for the best deals in the CPU category
+     *
+     * @return Response
+     */
+    private function getCpuDealsResponse(): Response
+    {
+        return $this->getDataResponse($this->cpuDealsData);
+    }
+
+    /**
+     * Returns a response with the data payload
+     *
+     * @param string $payload Data for the response
+     *
+     * @return Response
+     */
+    private function getDataResponse(string $payload): Response
+    {
         $response = new Response(
             200,
             [
                 'Content-Type' => 'application/json; charset=utf-8',
             ],
-            $responseBody
+            $payload
         );
 
         return $response;
