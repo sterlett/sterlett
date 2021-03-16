@@ -71,6 +71,26 @@ parameters:
     # High End CPUs: 6200+
     passmark.cpu.min_value: 6200
 
+    # Defines a set of PassMark value ranges to make hardware categories, from the lowest to the highest:
+    # F, E, D, C, B, A, A+
+    app.deal.rankings:
+        -   from: 0
+            to: 10000
+        -   from: 10000
+            to: 15000
+        -   from: 15000
+            to: 20000
+        -   from: 20000
+            to: 25000
+        -   from: 25000
+            to: 30000
+        -   from: 30000
+            to: 40000
+        -   from: 40000
+            to: 999999
+    # Max. number of price records for a single rank
+    app.deal.per_rank: 10
+
     # Prices (RU)
     hardprice.authentication.base_uri: 'https://hardprice.ru'
     hardprice.cpu.download_uri: 'https://hardprice.ru/media/data/c/cpu.json'

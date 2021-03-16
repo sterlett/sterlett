@@ -37,7 +37,6 @@ class HardwareMarkHandler implements HandlerInterface
      * @var string
      */
     public const ACTION_CPU_LIST = 'app.request.handler.action.cpu_list_action';
-
     /**
      * Action name to render a dataset for the best deals in the CPU category
      *
@@ -84,8 +83,8 @@ class HardwareMarkHandler implements HandlerInterface
     public function __construct(
         LoggerInterface $logger,
         MatcherInterface $uriMatcher,
-        string $cpuData = '',
-        string $cpuDealsData = ''
+        string $cpuData = '{"items":[]}',
+        string $cpuDealsData = '{}'
     ) {
         $this->logger       = $logger;
         $this->uriMatcher   = $uriMatcher;

@@ -78,6 +78,7 @@ $containerConfigurator->setDefinitionFilePaths(
         __DIR__ . '/../config/services/hardware/price_providers.yml',
         __DIR__ . '/../config/services/hardware/price_retriever.yml',
         __DIR__ . '/../config/services/hardware/price_calculators.yml',
+        // hardware - ratio
         __DIR__ . '/../config/services/hardware/vbratio_repository.yml',
         __DIR__ . '/../config/services/hardware/vbratio_source_binder.yml',
         __DIR__ . '/../config/services/hardware/vbratio_calculator.yml',
@@ -85,6 +86,8 @@ $containerConfigurator->setDefinitionFilePaths(
         __DIR__ . '/../config/services/hardware/vbratio_feeder.yml',
         __DIR__ . '/../config/services/hardware/vbratio_packer.yml',
         __DIR__ . '/../config/services/hardware/vbratio_saver.yml',
+        // hardware - deals
+        __DIR__ . '/../config/services/hardware/deal_analyser.yml',
         __DIR__ . '/../config/services/hardware/deal_observer.yml',
     ]
 );

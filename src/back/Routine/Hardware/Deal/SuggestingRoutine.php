@@ -23,7 +23,7 @@ use Sterlett\RoutineInterface;
 use Throwable;
 
 /**
- * Runs a background task, which runs deal suggestion logic (based on the Price/Performance analysis)
+ * Runs a background task, which suggests best deals for available hardware (based on the Price/Performance analysis)
  */
 class SuggestingRoutine implements RoutineInterface
 {
