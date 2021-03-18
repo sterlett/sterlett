@@ -25,3 +25,5 @@
 </script>
 
 <template src="./Rank.spectre.html"></template>
+
+<style src="./Rank.spectre.scss"></style>

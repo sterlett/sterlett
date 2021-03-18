@@ -6,7 +6,7 @@ import Cpu from '@Hardware/Cpu';
  *
  * @const {String}
  */
-const fetchUri = '/api/cpu/list.json';
+const fetchUri = '/api/cpu/ratio.json';
 
 /**
  * Resolves into a response object

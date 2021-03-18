@@ -112,11 +112,15 @@ export default {
                     if (warning.code === 'css-unused-selector') {
                         // table component have some styles (e.g. for active rows), which are not explicitly used
                         // and we are free to suppress here
-                        if (warning.filename.includes('src/front/Hardware/Representation/Table.svelte')) {
+                        if (warning.filename.includes('src/front/Hardware/Representation/Table')) {
+                            return;
+                        }
+
+                        if (warning.filename.includes('src/front/Page/Cpu/Deal/ListPage')) {
                             return;
                         }
                     }
-
+                    
                     handler(warning);
                 },
             },
