@@ -1,18 +1,21 @@
 
-{#await cpuListLoadPromise}
-<div class="loading loading-lg"></div>
-{:then}
-<Table
-    header={tableHeader}
-    items={cpus}
-    emptyMessage={tableEmptyMessage}
-    isStriped={tableIsStriped}
-    sortDefaultHeaderIndex={tableSortDefaultHeaderIndex}
-    sortDefaultModifier={tableSortDefaultModifier}
-    sortFunctionFactory={tableSortFunctionFactory}
-/>
-{:catch}
-<div>
-    {$format('Unable to fetch CPUs list.')}
+<div {...$$restProps}>
+    {#await cpuListLoadPromise}
+    <div class="loading loading-lg"></div>
+    {:then}
+    <Table
+        header={tableHeader}
+        items={cpus}
+        emptyMessage={tableEmptyMessage}
+        isStriped={tableIsStriped}
+        sortEnable={tableSortEnable}
+        sortDefaultHeaderIndex={tableSortDefaultHeaderIndex}
+        sortDefaultModifier={tableSortDefaultModifier}
+        sortFunctionFactory={tableSortFunctionFactory}
+    />
+    {:catch}
+    <div>
+        {$format('Unable to fetch CPU list.')}
+    </div>
+    {/await}
 </div>
-{/await}

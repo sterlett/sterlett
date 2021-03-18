@@ -9,7 +9,7 @@
 
     export let location;
 
-    const title = $format('CPUs');
+    const title = $format('CPU ratio');
 
     const pageTitleStore = getContext(APPLICATION_PAGE_TITLE);
     pageTitleStore.set(title);

@@ -176,8 +176,8 @@ This one is currently at the development stage :honeybee:.
 :honey_pot: Benchmarks retrieving \
 :honey_pot: Data persistence \
 :honey_pot: Console API: CPU list \
-:black_square_button: Console API: Day/Week deals \
-:honey_pot: Microservice: CPU list browsing
+:honey_pot: Microservice: CPU list browsing \
+:honey_pot: Microservice: CPU deals
 
 ## See also
 

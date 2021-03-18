@@ -4,6 +4,7 @@
 
 <script type="text/javascript" context="module">
     import CpuListPage from '@Page/Cpu/ListPage';
+    import CpuDealListPage from '@Page/Cpu/Deal/ListPage';
     import ApiHttpPage from '@Page/Api/HttpPage';
     import ApiConsolePage from '@Page/Api/ConsolePage';
     import AboutPage from '@Page/AboutPage';
@@ -12,6 +13,7 @@
     // export const variable from the module context doesn't mark it as a component state property
     export const pages = {
         CpuListPage,
+        CpuDealListPage,
         ApiHttpPage,
         ApiConsolePage,
         AboutPage,

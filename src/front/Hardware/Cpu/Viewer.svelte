@@ -15,6 +15,7 @@
     const tableEmptyMessage = $format('No CPUs.');
     const tableIsStriped = true;
 
+    const tableSortEnable = true;
     const tableSortDefaultHeaderIndex = 1;
     const tableSortDefaultModifier = -1;
 

@@ -1,6 +1,7 @@
 {
-    "HARDWARE": "ЖЕЛЕЗО",
-    "CPUs": "Процессоры",
+    "CPUs": "ПРОЦЕССОРЫ",
+    "Ratio": "Рейтинг",
+    "Deals": "Предложения",
     "HTTP API": "HTTP API",
     "Console API": "Консоль",
     "About": "О проекте",

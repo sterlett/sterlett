@@ -10,15 +10,28 @@
     export let emptyMessage = 'No items.';
     export let isStriped = false;
 
-    // formatters.
-    export let ratioFormatter = function (ratioValue) {
-        return `<kbd>${ratioValue}</kbd>`;
+    // formatter: item name.
+    export let nameFormatter = function (item) {
+        return item.name;
     };
 
-    export let benchmarkValueFormatter = function (benchmarkValue) {
-        return numberFormatter.format(benchmarkValue);
+    // formatter: v/b ratio.
+    export let ratioFormatter = function (item) {
+        return `<kbd>${item.vbRatio}</kbd>`;
     };
 
+    // formatter: benchmark value.
+    export let benchmarkValueFormatter = function (benchmark) {
+        return numberFormatter.format(benchmark.value);
+    };
+
+    // formatter: price tag.
+    export let priceFormatter = function (item) {
+        return item.prices.average;
+    };
+
+    // enable/disable table sorting.
+    export let sortEnable = false;
     // default cellIndex for the sort function.
     export let sortDefaultHeaderIndex = 0;
     // default modifier for the sort function (asc/desc).
@@ -38,10 +51,10 @@
         };
     };
 
+    const numberFormatter = new Intl.NumberFormat();
+
     let sortState = {headerIndex: sortDefaultHeaderIndex, sortModifier: sortDefaultModifier};
     let sortFunction;
-
-    const numberFormatter = new Intl.NumberFormat();
 
     const onHeaderSort = function () {
         sortFunction = sortFunctionFactory(sortState.headerIndex, sortState.sortModifier);
@@ -50,6 +63,10 @@
     };
 
     const onHeaderClick = function (event) {
+        if (!sortEnable) {
+            return;
+        }
+
         const sortHeaderIndexNew = event.target.cellIndex;
 
         if (sortHeaderIndexNew === sortState.headerIndex) {
@@ -64,7 +81,9 @@
 
     onMount(
         function () {
-            onHeaderSort();
+            if (sortEnable) {
+                onHeaderSort();
+            }
         },
     );
 </script>

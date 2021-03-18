@@ -16,6 +16,7 @@
         "@rollup/plugin-commonjs": "^17.1.0",
         "@rollup/plugin-json": "^4.1.0",
         "@rollup/plugin-node-resolve": "^11.2.0",
+        "avatar-initials": "^5.0.0",
         "dinero.js": "^1.8.1",
         "node-sass": "^5.0.0",
         "postcss": "^8.2.7",

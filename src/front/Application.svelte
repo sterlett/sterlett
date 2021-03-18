@@ -19,14 +19,20 @@
 
     const menuItems = [
         {
-            title: $format('HARDWARE'),
+            title: $format('CPUs'),
             component: MenuDivider,
         },
         {
-            title: $format('CPUs'),
+            title: $format('Ratio'),
             url: '/',
             path: '/',
             component: pages.CpuListPage,
+        },
+        {
+            title: $format('Deals'),
+            url: '/cpu/deals',
+            path: '/cpu/deals',
+            component: pages.CpuDealListPage,
         },
         {
             component: MenuDivider,

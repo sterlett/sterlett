@@ -1,6 +1,7 @@
 {
-    "HARDWARE": "HARDWARE",
     "CPUs": "CPUs",
+    "Ratio": "Ratio",
+    "Deals": "Deals",
     "HTTP API": "HTTP API",
     "Console API": "Console API",
     "About": "About",

@@ -1,0 +1,15 @@
+
+@import 'spectre.css/src/utilities/text';
+
+.deal {
+    @extend .text-center;
+
+    &:not(:first-child) {
+        margin-top: $unit-1 * 5;
+    }
+
+    :global(&__viewer) {
+        margin-top: $unit-1 * 2;
+        min-height: $unit-1 * 120;
+    }
+}

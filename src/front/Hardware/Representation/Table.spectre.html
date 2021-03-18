@@ -5,10 +5,14 @@
     <thead in:fly={{ y: -50, easing: expoOut }}>
         <tr>
             {#each header as headerName, headerIndex}
-            <th on:click={onHeaderClick} class="c-hand" class:active={headerIndex === sortState.headerIndex} nowrap>
+            <th
+                class:c-hand={sortEnable}
+                class:active={sortEnable && headerIndex === sortState.headerIndex}
+                on:click={onHeaderClick}
+                nowrap>
                 {headerName}
 
-                {#if headerIndex === sortState.headerIndex}
+                {#if sortEnable && headerIndex === sortState.headerIndex}
                     {-1 === sortState.sortModifier ? '▾' : '▴'}
                 {/if}
             </th>
@@ -29,23 +33,23 @@
                     {/if}
 
                     <div class="column">
-                        {item.name}
+                        {@html nameFormatter(item)}
                     </div>
                 </div>
             </td>
 
             <td>
-                {@html ratioFormatter(item.vbRatio)}
+                {@html ratioFormatter(item)}
             </td>
 
             <td>
                 {#each item.benchmarks as benchmark}
-                    {@html benchmarkValueFormatter(benchmark.value)}
+                    {@html benchmarkValueFormatter(benchmark)}
                 {/each}
             </td>
 
             <td nowrap>
-                {item.prices.average}
+                {@html priceFormatter(item)}
             </td>
         </tr>
         {/each}

@@ -89,7 +89,7 @@ parameters:
         -   from: 40000
             to: 999999
     # Max. number of price records for a single rank
-    app.deal.per_rank: 10
+    app.deal.per_rank: 5
 
     # Prices (RU)
     hardprice.authentication.base_uri: 'https://hardprice.ru'
