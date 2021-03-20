@@ -91,7 +91,7 @@ parameters:
     # Max. number of price records for a single rank
     app.deal.per_rank: 5
 
-    # Prices (RU)
+    # Prices (RU/CIS)
     hardprice.authentication.base_uri: 'https://hardprice.ru'
     hardprice.cpu.download_uri: 'https://hardprice.ru/media/data/c/cpu.json'
     hardprice.price_list_uri: 'https://hardprice.ru/api/product_prices'
@@ -149,3 +149,10 @@ parameters:
         63: 'rozetka_ua'
         64: 'wite'
         68: 'xcomshop'
+    # we need only regional prices with rubles from the HardPrice provider, no personal, just requirements
+    hardprice.store.blacklist.rubles_only:
+        - 'rozetka_ua'
+        - 'moyo_ua'
+        - 'ktc_ua'
+        - 'f_ua'
+        - 'mta_ua'

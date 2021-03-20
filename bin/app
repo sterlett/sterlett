@@ -75,9 +75,10 @@ $containerConfigurator->setDefinitionFilePaths(
         __DIR__ . '/../config/services/hardware/benchmark_collectors.yml',
         __DIR__ . '/../config/services/hardware/benchmark_providers.yml',
         __DIR__ . '/../config/services/hardware/price_repository.yml',
-        __DIR__ . '/../config/services/hardware/price_providers.yml',
         __DIR__ . '/../config/services/hardware/price_retriever.yml',
+        __DIR__ . '/../config/services/hardware/price_collectors.yml',
         __DIR__ . '/../config/services/hardware/price_calculators.yml',
+        __DIR__ . '/../config/services/hardware/price_providers.yml',
         // hardware - ratio
         __DIR__ . '/../config/services/hardware/vbratio_repository.yml',
         __DIR__ . '/../config/services/hardware/vbratio_source_binder.yml',

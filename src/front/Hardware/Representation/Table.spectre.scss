@@ -1,6 +1,8 @@
 
 @import 'spectre.css/src/tables';
 
+$table-image-wh: $unit-1 * 6 * 2 !default;
+
 .table {
     th {
         border-bottom-width: $border-width;
@@ -11,7 +13,8 @@
     }
 
     img {
-        max-height: $unit-1 * 6 * 2;
+        max-width: $table-image-wh;
+        max-height: $table-image-wh;
     }
 }
 

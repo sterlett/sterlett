@@ -21,6 +21,7 @@ use Sterlett\Browser\Context as BrowserContext;
 use Sterlett\Dto\Hardware\Item;
 use Sterlett\Dto\Hardware\Price;
 use Sterlett\HardPrice\Price\Parser as PriceParser;
+use Sterlett\Hardware\Price\CollectorInterface;
 use Throwable;
 use Traversable;
 
@@ -37,13 +38,22 @@ class PriceReader
     private PriceParser $priceParser;
 
     /**
+     * Picks price records from the given collection using a filtering condition
+     *
+     * @var CollectorInterface
+     */
+    private CollectorInterface $priceCollector;
+
+    /**
      * PriceReader constructor.
      *
-     * @param PriceParser $priceParser Transforms price data from the raw format to the list of DTOs
+     * @param PriceParser        $priceParser    Transforms price data from the raw format to the list of DTOs
+     * @param CollectorInterface $priceCollector Picks price records from the collection using a filtering condition
      */
-    public function __construct(PriceParser $priceParser)
+    public function __construct(PriceParser $priceParser, CollectorInterface $priceCollector)
     {
-        $this->priceParser = $priceParser;
+        $this->priceParser    = $priceParser;
+        $this->priceCollector = $priceCollector;
     }
 
     /**
@@ -108,7 +118,9 @@ class PriceReader
 
         $itemPrices = $this->priceParser->parse($rawData);
 
-        foreach ($itemPrices as $itemPrice) {
+        $priceListFiltered = $this->priceCollector->collect($itemPrices);
+
+        foreach ($priceListFiltered as $itemPrice) {
             $itemPrice->setHardwareName($itemName);
             $itemPrice->setHardwareImage($itemImageUri);
 
