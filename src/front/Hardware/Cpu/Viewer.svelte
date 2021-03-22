@@ -6,14 +6,14 @@
     import Table from '@Hardware/Representation/Table';
 
     const tableHeader = [
-        $format('Name'),
-        $format('V/B ratio'),
-        $format('Benchmarks'),
-        $format('Price'),
+        {name: $format('Name')},
+        {name: $format('V/B ratio')},
+        {name: $format('Benchmarks'), tooltip: 'multiple core'},
+        {name: $format('Price')},
     ];
 
     const tableEmptyMessage = $format('No CPUs.');
-    const tableIsStriped = true;
+    const tableIsStriped = false;
 
     const tableSortEnable = true;
     const tableSortDefaultHeaderIndex = 1;

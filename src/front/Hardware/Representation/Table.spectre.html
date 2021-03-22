@@ -1,16 +1,20 @@
 
-{#if items?.length}
+{#if items.length > 0}
 <table class="table" class:table-striped={isStriped} {...$$restProps}>
-    {#if header?.length}
+    {#if headerItems.length > 0}
     <thead in:fly={{ y: -50, easing: expoOut }}>
         <tr>
-            {#each header as headerName, headerIndex}
+            {#each headerItems as headerItem, headerIndex}
             <th
                 class:c-hand={sortEnable}
                 class:active={sortEnable && headerIndex === sortState.headerIndex}
                 on:click={onHeaderClick}
                 nowrap>
-                {headerName}
+                {headerItem.name}
+
+                {#if headerItem.tooltip?.length > 0}
+                <span class="tooltip tooltip-icon" data-tooltip={headerItem.tooltip}></span>
+                {/if}
 
                 {#if sortEnable && headerIndex === sortState.headerIndex}
                     {-1 === sortState.sortModifier ? '▾' : '▴'}

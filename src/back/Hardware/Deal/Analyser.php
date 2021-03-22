@@ -80,11 +80,11 @@ class Analyser
         $statementSelect = <<<SQL
             SELECT DISTINCT
                 b.`hardware_name`,
-                p.`hardware_image_uri`,
+                FIRST_VALUE(p.`hardware_image_uri`) over `sw_seller_latest_prices` AS 'hardware_image_uri',
                 p.`seller_name`,
                 FIRST_VALUE(p.`price_amount`) OVER `sw_seller_latest_prices` AS 'price_amount',
-                p.`currency_label`,
-                FIRST_VALUE(b.`value`) OVER `sw_benchmark_latest_values` as 'benchmark_value',
+                FIRST_VALUE(p.`currency_label`) OVER `sw_seller_latest_prices` AS 'currency_label',
+                FIRST_VALUE(b.`value`) OVER `sw_benchmark_latest_values` AS 'benchmark_value',
                 FIRST_VALUE(ROUND(b.`value` / p.`price_amount` * 100, 2)) OVER `sw_seller_latest_prices` AS 'vb_ratio',
                 FIRST_VALUE(p.`created_at`) OVER `sw_seller_latest_prices` AS 'created_at'
             FROM

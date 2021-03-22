@@ -4,7 +4,9 @@
     import { expoOut } from 'svelte/easing';
     import { onMount } from 'svelte';
 
-    export let header = [];
+    // [{name: '', tooltip: ''}, ...]
+    export let headerItems = [];
+
     export let items = [];
 
     export let emptyMessage = 'No items.';
@@ -67,12 +69,12 @@
             return;
         }
 
-        const sortHeaderIndexNew = event.target.cellIndex;
+        const sortHeaderIndexNew = event.target.closest('th').cellIndex;
 
         if (sortHeaderIndexNew === sortState.headerIndex) {
             sortState.sortModifier = -1 * sortState.sortModifier;
         } else {
-            sortState.headerIndex = event.target.cellIndex;
+            sortState.headerIndex = sortHeaderIndexNew;
             sortState.sortModifier = 1;
         }
 

@@ -37,14 +37,14 @@
     }
 
     const tableHeader = [
-        $format('Name'),
-        $format('V/B ratio'),
-        $format('Benchmarks'),
-        $format('Price'),
+        {name: $format('Name')},
+        {name: $format('V/B ratio')},
+        {name: $format('Benchmarks'), tooltip: 'multiple core'},
+        {name: $format('Price')},
     ];
 
     const tableEmptyMessage = $format('No CPU deals.');
-    const tableIsStriped = true;
+    const tableIsStriped = false;
 
     const tableNameFormatter = function (item) {
         return `${item.name} <br /> <span class="label label-secondary">${item.prices[0].type}</span>`;
