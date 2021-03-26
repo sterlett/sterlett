@@ -30,6 +30,7 @@ tf;             .;1tfLLLLfft11it;;fLLLfLi
     - [Downloading a benchmark list](#downloading-a-benchmark-list)
     - [Retrieving hardware prices](#retrieving-hardware-prices)
 - [Honeycomb](#honeycomb)
+    - [1.0 milestone](#10-milestone)
 - [See also](#see-also)
 - [Changelog](#changelog)
 
@@ -37,7 +38,7 @@ tf;             .;1tfLLLLfft11it;;fLLLfLi
 
 **Sterlett** is a microservice and console API for retrieving and processing public information
 about computer hardware prices. It may help to buy the most efficient microchips in your region
-by the lowest price, using several benchmark providers and taking into account local currency spikes
+by the lowest available price, using several benchmark providers and taking into account local currency spikes
 and pricing fraud.
 
 ## Architecture
@@ -176,8 +177,14 @@ This one is currently at the development stage :honeybee:.
 :honey_pot: Benchmarks retrieving \
 :honey_pot: Data persistence \
 :honey_pot: Console API: CPU list \
-:honey_pot: Microservice: CPU list browsing \
+:honey_pot: Microservice: CPU list \
 :honey_pot: Microservice: CPU deals
+
+### 1.0 milestone
+
+:black_square_button: Microservice: GPU list \
+:black_square_button: Microservice: GPU deals \
+:black_square_button: 1 year of stable work in production
 
 ## See also
 

@@ -8,7 +8,7 @@
     const tableHeader = [
         {name: $format('Name')},
         {name: $format('V/B ratio')},
-        {name: $format('Benchmarks'), tooltip: 'multiple core'},
+        {name: $format('Benchmarks'), tooltip: 'multiple cores'},
         {name: $format('Price')},
     ];
 

@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - No description yet.
 
+## [0.5.0] - 2021-03-26
+
+TBD
+
 ## [0.4.0] - 2021-03-05
 
 This release makes it possible to use a browsing provider (based on the
@@ -90,7 +94,8 @@ schema provider for diffing without ORM layer (using [doctrine/migrations](https
 - A set of components, responsible for the V/B rating calculation:
     - `ProviderInterface` and its `ConfigurableProvider` implementation, mixins for both blocking (Console API) and
     async (Microservice) scopes.
-    - `SourceBinder` service, which connects benchmarks with related price lists from the third-party web resources.
+    - [SourceBinder](src/back/Hardware/VBRatio/SourceBinder.php) service, which connects benchmarks with related price
+    lists from the third-party web resources.
 	- V/B ratio calculator.
 - `VBRatio\CalculateCommand` implementation for the command-line interface.
 
@@ -174,8 +179,9 @@ frontend files.
 
 \* — [igorw/evenement](https://github.com/igorw/evenement), the way how ReactPHP components communicate with each other.
 
-[Unreleased]: https://github.com/sterlett/sterlett/compare/0.4.0...0.x
-[0.4.0]: https://github.com/sterlett/sterlett/compare/0.3.0..0.4.0
-[0.3.0]: https://github.com/sterlett/sterlett/compare/0.2.0..0.3.0
-[0.2.0]: https://github.com/sterlett/sterlett/compare/0.1.0..0.2.0
+[Unreleased]: https://github.com/sterlett/sterlett/compare/0.5.0...0.x
+[0.5.0]: https://github.com/sterlett/sterlett/compare/0.4.0...0.5.0
+[0.4.0]: https://github.com/sterlett/sterlett/compare/0.3.0...0.4.0
+[0.3.0]: https://github.com/sterlett/sterlett/compare/0.2.0...0.3.0
+[0.2.0]: https://github.com/sterlett/sterlett/compare/0.1.0...0.2.0
 [0.1.0]: https://github.com/sterlett/sterlett/releases/tag/0.1.0

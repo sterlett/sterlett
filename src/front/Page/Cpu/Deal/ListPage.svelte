@@ -18,7 +18,7 @@
     const pageTitleStore = getContext(APPLICATION_PAGE_TITLE);
     pageTitleStore.set(title);
 
-    // managing a deal viewer session (all viewer instances will use the same session, i.e. singleton behaviour)
+    // managing a deal viewer session (all viewer instances will use the same session, i.e. singleton behavior)
     const viewerSessionStore = writable({deals: undefined});
     setContext(DEAL_VIEWER_SESSION, viewerSessionStore);
 </script>

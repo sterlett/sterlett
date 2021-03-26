@@ -149,7 +149,7 @@ parameters:
         63: 'rozetka_ua'
         64: 'wite'
         68: 'xcomshop'
-    # we need only regional prices with rubles from the HardPrice provider, no personal, just requirements
+    # We need only regional prices with rubles from the HardPrice provider, no personal, just requirements
     hardprice.store.blacklist.rubles_only:
         - 'rozetka_ua'
         - 'moyo_ua'
