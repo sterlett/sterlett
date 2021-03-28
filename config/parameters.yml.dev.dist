@@ -24,7 +24,7 @@ parameters:
     app.routine.deal.suggesting_interval: 28800.0
 
     app.console.name: 'Sterlett'
-    app.console.version: '0.4.0'
+    app.console.version: '0.5.0'
 
     app.database.migrations.driver_name: 'pdo_mysql'
     app.database.migrations.user_name: '%env(string:DATABASE_USER_NAME)%'
