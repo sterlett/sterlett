@@ -12,9 +12,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - No description yet.
 
-## [0.5.0] - 2021-03-26
+## [0.5.0] - 2021-03-28
 
-TBD
+This release introduces a deals API, which provides a list of hardware sell offers, sorted by the Price/Performance
+indicator (regional prices, see [Price\ProviderInterface](src/back/Hardware/Price/ProviderInterface.php)).
+
+### Added
+
+- Database migrations to preserve PassMark values in the local storage, as well as price-benchmark bindings and ratio
+datasets.
+- `VBRatio\Saver` service and a related event listener, to persist Price/Performance ratio calculations for further
+analysis.
+- `VBRatio\BindingsUpdater` to save price-benchmark relations (bindings).
+- A benchmark retrieving routine is registered (with an existing provider) to make a cache with hardware performance
+data.
+- A set of components, responsible for deal suggestion:
+    - [Deal analyser](src/back/Hardware/Deal/Analyser.php) service to find better prices for the available performance
+    offers (utilizing [MySQL 8 sliding windows](https://dev.mysql.com/doc/refman/8.0/en/window-functions.html)).
+    - Deal observer, to forward analyser data (sell offers) to the different application domains (incl. HTTP handlers)
+    using an event dispatcher.
+    - `DealsSuggestedEvent` to hold sell offers, `app.deal.rankings` and `app.deal.per_rank` parameters to configure
+    analyser outputs.
+- Extracting and rendering a preview image for hardware items (price retrieving routine).
+- Front: a `Divider` component to make menu categories (Svelte).
+- Front: fetching CPU deals from the API handler, `Deal\Viewer` and `Hardware\Rank` components to visualize sell offers
+and performance categories.
+- Front: `sortEnable` flag and a set of properties for column formatting (table component).
+- Front — pages: description for the hardware categories and minor FAQ adjustments (ru-RU locale).
+- Front — miscellaneous: a tooltip for PassMark column in the hardware representation table to describe benchmark
+conditions (multi-core / single thread / etc.).
+
+### Changed
+
+- SPA frontend is now updates page metadata using the Context API and a Store contract instead of Component/DOM events
+(client-side routing w/ Svelte).
+
+### Fixed
+
+- Ignoring some price records from the stores without a convenient currency for the RU/CIS region, to maintain more
+reliable (regional) Price/Performance rating.
+- Front: correct float parsing for the price column in the hardware representation table (Svelte).
+- Front: normalizing a table component for the small viewpoints (sm/600px breakpoint).
+- Front: setting up node resolve plugin properly, to remove `.js` and `.svelte` extensions from the ES6 import
+directives.
+- Front: preventing page "jumps" while switching between pages with different content sizes - normalizing an `overflow`
+property (always showing a scrollbar).
+
+### Security
+
+- Upgrading Svelte environment from `3.24` to `3.35` +fixes for BC breaks: in the event system
+([get_current_component](https://github.com/sveltejs/svelte/blob/v3.35.0/src/runtime/internal/lifecycle.ts#L9) is
+starting to raise errors outside the component system context, as intended, — but previously it was possible to bypass
+those checks accidentally, under some circumstances) and
+[bundler configuration](https://github.com/sveltejs/rollup-plugin-svelte/blob/master/CHANGELOG.md#700).
 
 ## [0.4.0] - 2021-03-05
 
