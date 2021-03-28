@@ -70,16 +70,26 @@ $containerConfigurator->setDefinitionFilePaths(
         __DIR__ . '/../config/services/hardprice/browser/price_reader.yml',
         __DIR__ . '/../config/services/hardprice/browser/price_accumulator.yml',
         // hardware
+        __DIR__ . '/../config/services/hardware/benchmark_repository.yml',
+        __DIR__ . '/../config/services/hardware/benchmark_retriever.yml',
         __DIR__ . '/../config/services/hardware/benchmark_collectors.yml',
-        __DIR__ . '/../config/services/hardware/price_repository.yml',
-        __DIR__ . '/../config/services/hardware/price_providers.yml',
-        __DIR__ . '/../config/services/hardware/price_retriever.yml',
-        __DIR__ . '/../config/services/hardware/price_calculators.yml',
         __DIR__ . '/../config/services/hardware/benchmark_providers.yml',
+        __DIR__ . '/../config/services/hardware/price_repository.yml',
+        __DIR__ . '/../config/services/hardware/price_retriever.yml',
+        __DIR__ . '/../config/services/hardware/price_collectors.yml',
+        __DIR__ . '/../config/services/hardware/price_calculators.yml',
+        __DIR__ . '/../config/services/hardware/price_providers.yml',
+        // hardware - ratio
+        __DIR__ . '/../config/services/hardware/vbratio_repository.yml',
         __DIR__ . '/../config/services/hardware/vbratio_source_binder.yml',
         __DIR__ . '/../config/services/hardware/vbratio_calculator.yml',
         __DIR__ . '/../config/services/hardware/vbratio_providers.yml',
         __DIR__ . '/../config/services/hardware/vbratio_feeder.yml',
+        __DIR__ . '/../config/services/hardware/vbratio_packer.yml',
+        __DIR__ . '/../config/services/hardware/vbratio_saver.yml',
+        // hardware - deals
+        __DIR__ . '/../config/services/hardware/deal_analyser.yml',
+        __DIR__ . '/../config/services/hardware/deal_observer.yml',
     ]
 );
 $containerConfigurator->setDefinitionDefaultsFilePath(__DIR__ . '/../config/services.yml');

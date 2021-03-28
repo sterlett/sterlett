@@ -2,32 +2,40 @@
 <script type="text/javascript">
     import { onMount } from 'svelte';
     import { format } from 'svelte-i18n';
-    import { fetchCpuList } from './Fetcher.js';
-    import Table from '@Hardware/Representation/Table.svelte';
+    import { fetchCpuList } from './Fetcher';
+    import Table from '@Hardware/Representation/Table';
 
     const tableHeader = [
-        $format('Image'),
-        $format('Name'),
-        $format('V/B ratio'),
-        $format('Benchmarks'),
-        $format('Price'),
+        {name: $format('Name')},
+        {name: $format('V/B ratio')},
+        {name: $format('Benchmarks'), tooltip: 'multiple cores'},
+        {name: $format('Price')},
     ];
 
     const tableEmptyMessage = $format('No CPUs.');
-    const tableIsStriped = true;
+    const tableIsStriped = false;
 
-    const tableSortDefaultHeaderIndex = 2;
+    const tableSortEnable = true;
+    const tableSortDefaultHeaderIndex = 1;
     const tableSortDefaultModifier = -1;
 
     const resolveComparisonValue = function (item, headerIndex) {
-        if (1 === headerIndex) {
+        if (0 === headerIndex) {
             return item?.name;
-        } else if (2 === headerIndex) {
+        } else if (1 === headerIndex) {
             return parseFloat(item?.vbRatio);
-        } else if (3 === headerIndex) {
+        } else if (2 === headerIndex) {
             return parseFloat(item?.['benchmarks']?.[0]?.['value']);
         } else {
-            return parseFloat(item?.prices?.average);
+            const priceAverage = item.prices?.average?.toString();
+
+            if ("string" !== typeof priceAverage) {
+                return 0;
+            }
+
+            const priceAverageForComp = priceAverage.replace(/[^\d\.]/g, "");
+
+            return parseFloat(priceAverageForComp);
         }
     };
 

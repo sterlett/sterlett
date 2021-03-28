@@ -2,22 +2,40 @@
 <!-- defines a common skeleton for the site pages and core client-side logic -->
 
 <script type="text/javascript">
-    import '@Translation/i18nLoader.js';
+    import '@Translation/i18nLoader';
     import { format } from 'svelte-i18n';
 
     import { fly } from 'svelte/transition';
     import { expoOut } from 'svelte/easing';
 
-    import { pages } from './Navigation/RouteBook.svelte';
-    import Menu from './Navigation/Menu.svelte';
+    import { APPLICATION_PAGE_TITLE } from '@./Context';
+    import { setContext } from 'svelte';
+    import { writable } from 'svelte/store';
+
+    import { pages } from './Navigation/RouteBook';
+    import Menu from './Navigation/Menu';
+    import MenuDivider from './Navigation/Menu/Divider';
     import { Router, Route } from 'svelte-routing';
 
-    const routes = [
+    const menuItems = [
         {
             title: $format('CPUs'),
+            component: MenuDivider,
+        },
+        {
+            title: $format('Ratio'),
             url: '/',
             path: '/',
             component: pages.CpuListPage,
+        },
+        {
+            title: $format('Deals'),
+            url: '/cpu/deals',
+            path: '/cpu/deals',
+            component: pages.CpuDealListPage,
+        },
+        {
+            component: MenuDivider,
         },
         {
             title: $format('HTTP API'),
@@ -32,27 +50,23 @@
             component: pages.ApiConsolePage,
         },
         {
+            component: MenuDivider,
+        },
+        {
             title: $format('About'),
             url: '/about',
             path: 'about',
             component: pages.AboutPage,
         },
         {
-            title: '',
-            url: '',
-            path: '',
             component: pages.NotFoundPage,
         },
     ];
 
     const title = $format('sterlett/sterlett');
-    let pageTitle;
 
-    function onPageShown (event) {
-        const pageElement = event.detail.pageElement;
-
-        pageTitle = pageElement.dataset.title;
-    }
+    let pageTitleStore = writable('');
+    setContext(APPLICATION_PAGE_TITLE, pageTitleStore);
 </script>
 
 <template src="./Application.spectre.html"></template>

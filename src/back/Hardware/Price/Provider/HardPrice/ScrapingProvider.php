@@ -184,6 +184,7 @@ class ScrapingProvider implements ProviderInterface
         $reducePromise->then(
             function (iterable $responseListById) use ($requestingDeferred) {
                 try {
+                    // todo: must apply seller blacklist filtering if used, the same as the other providers have
                     $hardwarePrices = $this->priceCollector->makeIterator($responseListById);
 
                     $requestingDeferred->resolve($hardwarePrices);

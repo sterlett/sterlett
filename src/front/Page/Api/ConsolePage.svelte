@@ -5,19 +5,15 @@
     import { fly } from 'svelte/transition';
     import { expoOut } from 'svelte/easing';
 
-    import { onMount } from 'svelte';
-    import { dispatchPageShownEvent } from '@Page/ShowTrigger.js';
+    import { APPLICATION_PAGE_TITLE } from '@./Context';
+    import { getContext } from 'svelte';
 
     export let location;
 
-    let selfElement;
     const title = $format('Console API');
 
-    onMount(
-        function () {
-            dispatchPageShownEvent(selfElement);
-        },
-    );
+    const pageTitleStore = getContext(APPLICATION_PAGE_TITLE);
+    pageTitleStore.set(title);
 </script>
 
 <template src="./ConsolePage.spectre.html"></template>

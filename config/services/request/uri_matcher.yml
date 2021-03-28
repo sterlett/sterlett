@@ -12,4 +12,5 @@ services:
     app.request.uri.matcher.array_matcher.hardware_mark:
         class: Sterlett\Request\Uri\Matcher\ArrayMatcher
         arguments:
-            -   /cpu/list.json: 'app.request.handler.action.cpu_list_action'
+            -   /cpu/ratio.json: 'app.request.handler.action.cpu_list_action'
+                /cpu/deals.json: 'app.request.handler.action.cpu_deals_action'

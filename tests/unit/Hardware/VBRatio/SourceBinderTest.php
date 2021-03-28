@@ -68,6 +68,7 @@ class SourceBinderTest extends TestCase
     {
         $price1 = new Price();
         $price1->setHardwareName('Процессор AMD RYZEN 9 3900 BOX');
+        $price1->setHardwareImage('http://lorempixel.com/800/600/cats/');
         $price1->setSellerIdentifier('testSeller1');
         $price1->setAmount(36110);
         $price1->setPrecision(0);
@@ -75,6 +76,7 @@ class SourceBinderTest extends TestCase
 
         $price2 = new Price();
         $price2->setHardwareName('9 RyZeN процессор model 3900 (OEM-version, AM4 Matisse) amd');
+        $price2->setHardwareImage('http://lorempixel.com/800/600/cats/');
         $price2->setSellerIdentifier('testSeller2');
         $price2->setAmount(35110);
         $price2->setPrecision(0);
@@ -82,6 +84,7 @@ class SourceBinderTest extends TestCase
 
         $price3 = new Price();
         $price3->setHardwareName('Processor by AMD RYZEN 9 PRO1 SUPER2 MEGA3 3900 OEM AM4 Matisse');
+        $price3->setHardwareImage('http://lorempixel.com/800/600/cats/');
         $price3->setSellerIdentifier('testSeller3');
         $price3->setAmount(36110);
         $price3->setPrecision(0);

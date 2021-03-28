@@ -23,7 +23,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * Describes an event, when the V/B ratio feeder emits a fresh ratio dataset for the async handlers
  */
-class VBRatiosEmittedEvent extends Event implements DeferredEventInterface
+class VBRatiosCalculatedEvent extends Event implements DeferredEventInterface
 {
     use DeferredEventTrait;
 
@@ -32,43 +32,43 @@ class VBRatiosEmittedEvent extends Event implements DeferredEventInterface
      *
      * @var string
      */
-    public const NAME = 'app.event.ratios_emitted';
+    public const NAME = 'app.event.ratios_calculated';
 
     /**
      * V/B ratio data for the async handlers
      *
-     * @var string
+     * @var iterable
      */
-    private string $ratioData;
+    private iterable $ratios;
 
     /**
-     * VBRatiosEmittedEvent constructor.
+     * VBRatiosCalculatedEvent constructor.
      */
     public function __construct()
     {
-        $this->ratioData = '';
+        $this->ratios    = [];
         $this->_deferred = new Deferred();
     }
 
     /**
      * Sets V/B ratio data
      *
-     * @param string $ratioData V/B ratio data for the async handlers
+     * @param iterable $ratios V/B ratio data for the async handlers
      *
      * @return void
      */
-    public function setRatioData(string $ratioData): void
+    public function setRatios(iterable $ratios): void
     {
-        $this->ratioData = $ratioData;
+        $this->ratios = $ratios;
     }
 
     /**
      * Returns a V/B ratio dataset, attached to the event
      *
-     * @return string
+     * @return iterable
      */
-    public function getRatioData(): string
+    public function getRatios(): iterable
     {
-        return $this->ratioData;
+        return $this->ratios;
     }
 }

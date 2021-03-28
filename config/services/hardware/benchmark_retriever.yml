@@ -1,0 +1,7 @@
+
+services:
+    app.hardware.benchmark.retriever.cpu:
+        class: Sterlett\Hardware\Benchmark\Retriever
+        arguments:
+            - '@app.hardware.benchmark.provider.passmark_provider.cpu'
+            - '@app.hardware.benchmark.repository.passmark'

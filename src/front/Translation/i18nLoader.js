@@ -17,6 +17,20 @@ import NavigationMenuRuRu from '@_translations/ru-RU/Navigation/Menu.json';
 translationAdd('en-US', NavigationMenuEnUs);
 translationAdd('ru-RU', NavigationMenuRuRu);
 
+// Page/Cpu/ListPage
+import PageCpuListPageEnUs from '@_translations/en-US/Page/Cpu/ListPage.json';
+import PageCpuListPageRuRu from '@_translations/ru-RU/Page/Cpu/ListPage.json';
+
+translationAdd('en-US', PageCpuListPageEnUs);
+translationAdd('ru-RU', PageCpuListPageRuRu);
+
+// Page/Cpu/Deal/ListPage
+import PageCpuDealListPageEnUs from '@_translations/en-US/Page/Cpu/Deal/ListPage.json';
+import PageCpuDealListPageRuRu from '@_translations/ru-RU/Page/Cpu/Deal/ListPage.json';
+
+translationAdd('en-US', PageCpuDealListPageEnUs);
+translationAdd('ru-RU', PageCpuDealListPageRuRu);
+
 // Page/NotFoundPage
 import PageNotFoundPageEnUs from '@_translations/en-US/Page/NotFoundPage.json';
 import PageNotFoundPageRuRu from '@_translations/ru-RU/Page/NotFoundPage.json';
@@ -30,6 +44,13 @@ import HardwareCpuViewerRuRu from '@_translations/ru-RU/Hardware/Cpu/Viewer.json
 
 translationAdd('en-US', HardwareCpuViewerEnUs);
 translationAdd('ru-RU', HardwareCpuViewerRuRu);
+
+// Hardware/Cpu/Deal/Viewer
+import HardwareCpuDealViewerEnUs from '@_translations/en-US/Hardware/Cpu/Deal/Viewer.json';
+import HardwareCpuDealViewerRuRu from '@_translations/ru-RU/Hardware/Cpu/Deal/Viewer.json';
+
+translationAdd('en-US', HardwareCpuDealViewerEnUs);
+translationAdd('ru-RU', HardwareCpuDealViewerRuRu);
 
 translationInit(
     {

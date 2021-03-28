@@ -1,5 +1,5 @@
 
-<div bind:this={selfElement} data-title={title} in:fly={{ y: -50, easing: expoOut }}>
+<div in:fly={{ y: -50, easing: expoOut }}>
     <p class="h4">{title}</p>
 
     <p>
@@ -11,7 +11,7 @@
         Расчёт рейтинга комплектующих
     </div>
 
-    Выводит таблицу с соотношением цена/производительность для доступных комплектующих:
+    Выводит таблицу с соотношением цена/производительность для доступных комплектующих в российском сегменте рынка:
 
     <pre class="kbd-multiline">
 $ docker-compose run --rm --no-deps app bin/console ratio:calculate

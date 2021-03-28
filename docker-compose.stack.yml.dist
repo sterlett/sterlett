@@ -64,6 +64,7 @@ services:
             MYSQL_DATABASE: ${DATABASE_NAME}
             MYSQL_USER: ${DATABASE_USER_NAME}
             MYSQL_PASSWORD: ${DATABASE_USER_PASSWORD}
+            TZ: ${TIMEZONE}
         volumes:
             - database_data:${DATABASE_DATA_DIR}
             - ./docker/dev/database/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro

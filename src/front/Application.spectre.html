@@ -2,21 +2,21 @@
 <!-- application component template -->
 
 <svelte:head>
-    <title>{title} {'string' === typeof pageTitle ? '• ' + pageTitle : ''}</title>
+    <title>{$pageTitleStore.length > 0 ? $pageTitleStore + ' • ' : ''} {title}</title>
 </svelte:head>
 
 <div class="page grid-lg">
     <div class="columns text-center">
         <div class="column col-2 col-mx-auto">
             <pre>
-                sterlett @0.4.0
+                sterlett @0.5.0
             </pre>
         </div>
     </div>
 
     <div class="page__space columns">
         <div class="column col-3 col-md-12">
-            <Menu {routes} />
+            <Menu items={menuItems} />
         </div>
 
         <div class="column-break show-md" />
@@ -24,8 +24,19 @@
         <div class="column col-9 col-md-12">
             <div class="page__content">
                 <Router>
-                    {#each routes as route}
-                    <Route path={route.path} component={route.component} on:app.event.page.shown={onPageShown} />
+                    {#each menuItems as menuItem}
+                        {#if menuItem.component !== MenuDivider}
+                            <Route
+                                path={menuItem.path}
+                                component={menuItem.component}
+                            />
+                            <!--
+                                it is not possible to forward an event through the third-party Svelte component (3.25.0), see:
+                                https://stackoverflow.com/questions/66550828/how-to-forward-an-event-through-the-third-party-svelte-component
+
+                                "on:app.event.page.shown" is not working by this point (stores are used instead)
+                            -->
+                        {/if}
                     {/each}
                 </Router>
             </div>

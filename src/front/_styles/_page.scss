@@ -10,8 +10,8 @@
         bottom: $unit-1 * 25;
     }
 
-    line-height: 1.5em;
-    font-size: 1.05em;
+    line-height: $unit-1 * 6;
+    font-size: $unit-1 * 4;
 
     .page__space {
         margin: {

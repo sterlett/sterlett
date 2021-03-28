@@ -1,0 +1,9 @@
+
+services:
+    app.hardware.deal.observer:
+        class: Sterlett\Hardware\Deal\Observer
+        arguments:
+            - '@app.hardware.deal.analyser'
+            - '@app.event.dispatcher'
+            - '%app.deal.rankings%'
+            - '%app.deal.per_rank%'

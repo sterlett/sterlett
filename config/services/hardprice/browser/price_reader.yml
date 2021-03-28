@@ -4,3 +4,4 @@ services:
         class: Sterlett\HardPrice\Browser\PriceReader
         arguments:
             - '@app.hardprice.price.parser'
+            - '@app.hardware.price.collector'

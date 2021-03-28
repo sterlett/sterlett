@@ -3,7 +3,7 @@
 /*
  * This file is part of the Sterlett project <https://github.com/sterlett/sterlett>.
  *
- * (c) 2020 Pavel Petrov <itnelo@gmail.com>.
+ * (c) 2020-2021 Pavel Petrov <itnelo@gmail.com>.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -21,6 +21,7 @@ use Sterlett\Browser\Context as BrowserContext;
 use Sterlett\Dto\Hardware\Item;
 use Sterlett\Dto\Hardware\Price;
 use Sterlett\HardPrice\Price\Parser as PriceParser;
+use Sterlett\Hardware\Price\CollectorInterface;
 use Throwable;
 use Traversable;
 
@@ -37,13 +38,22 @@ class PriceReader
     private PriceParser $priceParser;
 
     /**
+     * Picks price records from the given collection using a filtering condition
+     *
+     * @var CollectorInterface
+     */
+    private CollectorInterface $priceCollector;
+
+    /**
      * PriceReader constructor.
      *
-     * @param PriceParser $priceParser Transforms price data from the raw format to the list of DTOs
+     * @param PriceParser        $priceParser    Transforms price data from the raw format to the list of DTOs
+     * @param CollectorInterface $priceCollector Picks price records from the collection using a filtering condition
      */
-    public function __construct(PriceParser $priceParser)
+    public function __construct(PriceParser $priceParser, CollectorInterface $priceCollector)
     {
-        $this->priceParser = $priceParser;
+        $this->priceParser    = $priceParser;
+        $this->priceCollector = $priceCollector;
     }
 
     /**
@@ -103,11 +113,16 @@ class PriceReader
      */
     private function parsePrices(Item $item, string $rawData): iterable
     {
-        $itemName   = $item->getName();
+        $itemName     = $item->getName();
+        $itemImageUri = $item->getImageUri();
+
         $itemPrices = $this->priceParser->parse($rawData);
 
-        foreach ($itemPrices as $itemPrice) {
+        $priceListFiltered = $this->priceCollector->collect($itemPrices);
+
+        foreach ($priceListFiltered as $itemPrice) {
             $itemPrice->setHardwareName($itemName);
+            $itemPrice->setHardwareImage($itemImageUri);
 
             yield $itemPrice;
         }

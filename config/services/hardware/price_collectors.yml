@@ -1,0 +1,10 @@
+
+services:
+    app.hardware.price.collector:
+        alias: 'app.hardware.price.collector.blacklist_seller.rubles_only'
+
+    # blacklist by seller
+    app.hardware.price.collector.blacklist_seller.rubles_only:
+        class: Sterlett\Hardware\Price\Collector\BlacklistSellerCollector
+        arguments:
+            - '%hardprice.store.blacklist.rubles_only%'

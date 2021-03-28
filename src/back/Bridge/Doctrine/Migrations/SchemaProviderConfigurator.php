@@ -29,16 +29,34 @@ class SchemaProviderConfigurator
      *
      * @var string
      */
-    private string $priceTableName;
+    private string $tablePriceCpuName;
 
     /**
-     * SchemaProviderConfigurator constructor.
+     * Name for the table with PassMark rating values
      *
-     * @param string $priceTableName Name for the table with hardware price records
+     * @var string
      */
-    public function __construct(string $priceTableName)
+    private string $tableBenchmarkPassMarkName;
+
+    /**
+     * Name for the table with V/B ratio values
+     *
+     * @var string
+     */
+    private string $tableRatioName;
+
+    /**
+     * ActualSchemaProvider constructor.
+     *
+     * @param string $tablePriceCpuName          Name for the table with hardware price records (CPU category)
+     * @param string $tableBenchmarkPassMarkName Name for the table with PassMark rating values
+     * @param string $tableRatioName             Name for the table with V/B ratio values
+     */
+    public function __construct(string $tablePriceCpuName, string $tableBenchmarkPassMarkName, string $tableRatioName)
     {
-        $this->priceTableName = $priceTableName;
+        $this->tablePriceCpuName          = $tablePriceCpuName;
+        $this->tableBenchmarkPassMarkName = $tableBenchmarkPassMarkName;
+        $this->tableRatioName             = $tableRatioName;
     }
 
     /**
@@ -51,6 +69,10 @@ class SchemaProviderConfigurator
      */
     public function __invoke(DependencyFactory $dependencyFactory): SchemaProviderInterface
     {
-        return new ActualSchemaProvider($this->priceTableName);
+        return new ActualSchemaProvider(
+            $this->tablePriceCpuName,
+            $this->tableBenchmarkPassMarkName,
+            $this->tableRatioName
+        );
     }
 }

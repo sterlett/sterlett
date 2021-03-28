@@ -1,14 +1,22 @@
 
-{#if items?.length}
+{#if items.length > 0}
 <table class="table" class:table-striped={isStriped} {...$$restProps}>
-    {#if header?.length}
+    {#if headerItems.length > 0}
     <thead in:fly={{ y: -50, easing: expoOut }}>
         <tr>
-            {#each header as headerName, headerIndex}
-            <th on:click={onHeaderClick} class="c-hand" nowrap>
-                {headerName}
+            {#each headerItems as headerItem, headerIndex}
+            <th
+                class:c-hand={sortEnable}
+                class:active={sortEnable && headerIndex === sortState.headerIndex}
+                on:click={onHeaderClick}
+                nowrap>
+                {headerItem.name}
 
-                {#if headerIndex === sortState.headerIndex}
+                {#if headerItem.tooltip?.length > 0}
+                <span class="tooltip tooltip-icon" data-tooltip={headerItem.tooltip}></span>
+                {/if}
+
+                {#if sortEnable && headerIndex === sortState.headerIndex}
                     {-1 === sortState.sortModifier ? '▾' : '▴'}
                 {/if}
             </th>
@@ -21,27 +29,31 @@
         {#each items as item}
         <tr>
             <td>
-                {#if item?.image.length}
-                <img src={item.image} alt={item.name} />
-                {/if}
+                <div class="columns flex-centered">
+                    {#if item.image?.length > 0}
+                    <div class="column col-auto">
+                        <img src={item.image} alt={item.name} />
+                    </div>
+                    {/if}
+
+                    <div class="column">
+                        {@html nameFormatter(item)}
+                    </div>
+                </div>
             </td>
 
             <td>
-                {item.name}
-            </td>
-
-            <td>
-                {@html ratioFormatter(item.vbRatio)}
+                {@html ratioFormatter(item)}
             </td>
 
             <td>
                 {#each item.benchmarks as benchmark}
-                    {@html benchmarkValueFormatter(benchmark.value)}
+                    {@html benchmarkValueFormatter(benchmark)}
                 {/each}
             </td>
 
-            <td>
-                {item.prices.average}
+            <td nowrap>
+                {@html priceFormatter(item)}
             </td>
         </tr>
         {/each}

@@ -1,12 +1,18 @@
 
-<div bind:this={selfElement} data-title={title} in:fly={{ y: -50, easing: expoOut }}>
+<div in:fly={{ y: -50, easing: expoOut }}>
     <p class="h4">{title}</p>
 
     <div class="content__title">
         Адреса ресурсов
     </div>
 
-    Процессоры: <kbd class="ml-2 p-2">https://cpu-junkie.ru/api/cpu/list.json</kbd> <br /> <br />
+    Процессоры:
+
+    <div class="kbd-multiline mt-2">https://cpu-junkie.ru/api/cpu/ratio.json</div> <br />
+
+    Лучшие предложения по процессорам:
+
+    <div class="kbd-multiline mt-2">https://cpu-junkie.ru/api/cpu/deals.json</div> <br /> <br />
 
     <div class="content__title">
         Формат ответа
@@ -18,7 +24,7 @@
         <code>
 {`{
     "name": "AMD Ryzen Threadripper 3970X",
-    "image": "",
+    "image": "https://hardprice.ru/images/p/1/1ft1bet.jpg",
     "prices": [
         {
             "type": "average",
@@ -41,7 +47,7 @@
     <code>prices[0].type</code> — строка, название агрегирующей функции или код магазина, пример: <code>regard</code>,
     <code>citilink</code>, <code>oldi</code>. <br />
     <code>prices[0].value</code> — целое число, нормализованное значение стоимости (до применения точности). <br />
-    <code>prices[0].currency</code> — строка, код валюты. <br />
+    <code>prices[0].currency</code> — строка, код валюты по ISO 4217. <br />
     <code>prices[0].precision</code> — целое число, определяет положение запятой в значении цены, устанавливая точность
     денежной суммы. Например, данную запись:
 
@@ -56,5 +62,8 @@
         </code>
     </pre>
 
-    следует читать как "75800,21 RUB".
+    следует читать как "75800,21 RUB". <br /> <br />
+
+    Ответ на некоторые запросы может содержать дополнительное поле с датой, информирующей, на какой момент времени
+    актуальны предложенные цены и бенчмарки.
 </div>

@@ -126,6 +126,8 @@ class FallbackProvider implements ProviderInterface
 
         $priceIterator = $this->priceParser->parse($bodyAsString);
 
+        // price collecting logic is not applied due to an explicit filtering logic in the fallback parser
+
         return $priceIterator;
     }
 }

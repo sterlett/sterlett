@@ -15,12 +15,9 @@ declare(strict_types=1);
 
 namespace Sterlett\Event\Listener;
 
-use React\Promise\Deferred;
-use RuntimeException;
-use Sterlett\Bridge\Symfony\Component\EventDispatcher\DeferredEventInterface;
-use Sterlett\Event\VBRatiosEmittedEvent;
+use Sterlett\Event\VBRatiosCalculatedEvent;
+use Sterlett\Hardware\VBRatio\Packer as VBRatioPacker;
 use Sterlett\Request\Handler\HardwareMarkHandler;
-use Throwable;
 
 /**
  * Listens events from CPU stats providers and transfers data to the handler for distribution
@@ -35,13 +32,22 @@ class CpuMarkAcceptanceListener
     private HardwareMarkHandler $hardwareMarkHandler;
 
     /**
+     * Converts a V/B ratio data from the object collection format to a raw string for HTTP handlers
+     *
+     * @var VBRatioPacker
+     */
+    private VBRatioPacker $ratioPacker;
+
+    /**
      * CpuMarkAcceptanceListener constructor.
      *
      * @param HardwareMarkHandler $hardwareMarkHandler Handles requests for information about "price/benchmark" ratio
+     * @param VBRatioPacker       $ratioPacker         Converts a V/B ratios from the collection format to a raw string
      */
-    public function __construct(HardwareMarkHandler $hardwareMarkHandler)
+    public function __construct(HardwareMarkHandler $hardwareMarkHandler, VBRatioPacker $ratioPacker)
     {
         $this->hardwareMarkHandler = $hardwareMarkHandler;
+        $this->ratioPacker         = $ratioPacker;
     }
 
     /**
@@ -51,32 +57,9 @@ class CpuMarkAcceptanceListener
      *
      * @return void
      */
-    public function onCpuMarkReceived($data): void
+    public function onVBRatiosCalculated($data): void
     {
-        // for Evenement events and raw data streaming.
-        if (!$data instanceof DeferredEventInterface) {
-            $this->feedHandler($data);
-
-            return;
-        }
-
-        // for deferred psr-14 events.
-        $dispatchingDeferred = $data->takeDeferred();
-
-        // propagation status check.
-        if (!$dispatchingDeferred instanceof Deferred) {
-            return;
-        }
-
-        try {
-            $this->feedHandler($data);
-
-            $dispatchingDeferred->resolve($data);
-        } catch (Throwable $exception) {
-            $reason = new RuntimeException('Unable to feed a handler with V/B ratio data', 0, $exception);
-
-            $dispatchingDeferred->reject($reason);
-        }
+        $this->feedHandler($data);
     }
 
     /**
@@ -88,10 +71,15 @@ class CpuMarkAcceptanceListener
      */
     private function feedHandler($data): void
     {
-        if ($data instanceof VBRatiosEmittedEvent) {
-            $dataString = $data->getRatioData();
+        if ($data instanceof VBRatiosCalculatedEvent) {
+            $ratios = $data->getRatios();
 
-            $this->hardwareMarkHandler->resetState();
+            // converting data to the appropriate format to "feed" a handler.
+            // todo: extract all additional logic to the separate service
+            // todo: try-catch and log possible errors (omitted)
+            $dataString = $this->ratioPacker->packRatios($ratios);
+
+            $this->hardwareMarkHandler->resetState(HardwareMarkHandler::ACTION_CPU_LIST);
         } else {
             $dataString = (string) $data;
 

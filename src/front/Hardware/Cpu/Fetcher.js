@@ -1,12 +1,12 @@
 
-import Cpu from '@Hardware/Cpu.js';
+import Cpu from '@Hardware/Cpu';
 
 /**
  * URI of the list with CPU entities
  *
  * @const {String}
  */
-const fetchUri = '/api/cpu/list.json';
+const fetchUri = '/api/cpu/ratio.json';
 
 /**
  * Resolves into a response object

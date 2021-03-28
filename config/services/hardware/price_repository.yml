@@ -4,4 +4,14 @@ services:
         class: Sterlett\Hardware\Price\Repository
         arguments:
             - '@app.database.connection.prices'
-            - '%app.database.table_name.price%'
+            - '@app.hardware.price.repository.cpu.created_at_query'
+            - '%app.database.table_name.price.cpu%'
+
+    app.hardware.price.repository.cpu.created_at_query:
+        class: Sterlett\Repository\Query\FindBy\CreatedAtQuery
+        arguments:
+            - '@app.database.connection.prices'
+            - '@app.hardware.price.repository.hydrator'
+
+    app.hardware.price.repository.hydrator:
+        class: Sterlett\Hardware\Price\Repository\Hydrator

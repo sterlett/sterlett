@@ -1,0 +1,6 @@
+
+services:
+    app.hardware.deal.analyser:
+        class: Sterlett\Hardware\Deal\Analyser
+        arguments:
+            - '@app.database.connection.prices'

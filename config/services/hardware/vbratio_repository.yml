@@ -1,0 +1,7 @@
+
+services:
+    app.hardware.vbratio.repository:
+        class: Sterlett\Hardware\VBRatio\Repository
+        arguments:
+            - '@app.database.connection.prices'
+            - '%app.database.table_name.ratio%'

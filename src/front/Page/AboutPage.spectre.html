@@ -1,5 +1,5 @@
 
-<div bind:this={selfElement} data-title={title} in:fly={{ y: -50, easing: expoOut }}>
+<div in:fly={{ y: -50, easing: expoOut }}>
     <p class="h4">{title}</p>
 
     <p>
@@ -43,6 +43,39 @@
         <label class="accordion-header p-0 c-hand" for="faq-question-accordion-2">
             <i class="icon icon-arrow-right mr-1"></i>
 
+            <b>В</b>: Что означают буквы A, B, C, D, E, F?
+        </label>
+
+        <div class="accordion-body">
+            <div class="text-secondary p-2">
+                Это категории производительности комплектующих по CPU Junkie, основанные на PassMark диапазонах.
+                <br /> <br />
+
+                Процессоры: <br />
+                A+: <strong>40000+</strong> <br />
+                A: <strong>30000</strong> — <strong>40000</strong> <br />
+                B: <strong>25000</strong> — <strong>30000</strong> <br />
+                C: <strong>20000</strong> — <strong>25000</strong> <br />
+                D: <strong>15000</strong> — <strong>20000</strong> <br />
+                E: <strong>10000</strong> — <strong>15000</strong> <br />
+                F: <strong>0</strong> — <strong>10000</strong> <br />
+                <br />
+
+                Чем выше категория, тем дороже стоит единица вычислительной мощности. Для более
+                продвинутых камней покупательский Price/Performance ratio может оказаться значительно ниже.
+                <br /> <br />
+
+                F, E и D — повседневные задачи, C и выше - профессиональное использование.
+            </div>
+        </div>
+    </div>
+
+    <div class="accordion" in:fly={{ x: 50, delay: 500, easing: expoOut }}>
+        <input type="checkbox" id="faq-question-accordion-3" name="faq-question-accordion" hidden>
+
+        <label class="accordion-header p-0 c-hand" for="faq-question-accordion-3">
+            <i class="icon icon-arrow-right mr-1"></i>
+
             <b>В</b>: Процессора, который меня интересует, нет в списке!
         </label>
 
@@ -58,10 +91,10 @@
         </div>
     </div>
 
-    <div class="accordion" in:fly={{ x: 50, delay: 500, easing: expoOut }}>
-        <input type="checkbox" id="faq-question-accordion-3" name="faq-question-accordion" hidden>
+    <div class="accordion" in:fly={{ x: 50, delay: 600, easing: expoOut }}>
+        <input type="checkbox" id="faq-question-accordion-4" name="faq-question-accordion" hidden>
 
-        <label class="accordion-header p-0 c-hand" for="faq-question-accordion-3">
+        <label class="accordion-header p-0 c-hand" for="faq-question-accordion-4">
             <i class="icon icon-arrow-right mr-1"></i>
 
             <b>В</b>: Откуда берётся информация по комплектующим?
@@ -74,8 +107,18 @@
                 дополнительные источники, включая кастомизированные парсеры под конкретные сайты магазинов.
                 <br /> <br />
 
+                Для расчётов используется стоимость
+                <u><a href="https://en.wikipedia.org/wiki/Original_equipment_manufacturer">OEM</a></u> версии,
+                если её нет в продаже — ритейлерская (BOX).<br /> <br />
+
                 Провайдером бенчмарков выступает австралийская компания PassMark Software
                 (<u><a href="https://passmark.com">www.passmark.com</a></u>). <br /> <br />
+
+                В таблицах (там, где применимо) представлен наиболее общий показатель <code>multiple cores</code>,
+                сравнивающий железо в рамках профессиональных задач (3D-моделирование, рендеринг, стриминг).
+                Существует также <code>single thread</code> дивизион, где Intel чипы начинают отыгрывать свои прайс
+                теги в глазах геймеров, но на данный момент он не учитывается.
+                <br /> <br />
 
                 Все интеграции являются неофициальными, сайт не аффилирован с какой-либо компанией, предоставляющей
                 данные для аналитики в открытом доступе.
@@ -83,10 +126,10 @@
         </div>
     </div>
 
-    <div class="accordion" in:fly={{ x: 50, delay: 600, easing: expoOut }}>
-        <input type="checkbox" id="faq-question-accordion-4" name="faq-question-accordion" hidden>
+    <div class="accordion" in:fly={{ x: 50, delay: 700, easing: expoOut }}>
+        <input type="checkbox" id="faq-question-accordion-5" name="faq-question-accordion" hidden>
 
-        <label class="accordion-header p-0 c-hand" for="faq-question-accordion-4">
+        <label class="accordion-header p-0 c-hand" for="faq-question-accordion-5">
             <i class="icon icon-arrow-right mr-1"></i>
 
             <b>В</b>: Есть ли публичный API с ценами на железо и бенчмарками?
@@ -97,7 +140,7 @@
                 См. <em>API</em> секцию. На текущий момент можно получить список средних цен на процессоры (с
                 посчитанным рейтингом) через эндпоинт: <br /> <br />
 
-                <kbd class="p-2">https://cpu-junkie.ru/api/cpu/list.json</kbd> <br /> <br />
+                <div class="kbd-multiline">https://cpu-junkie.ru/api/cpu/ratio.json</div> <br />
 
                 Или поднять <u><a href="https://github.com/sterlett/sterlett#installation">свой инстанс</a></u>. Данные
                 актуализируются каждые 12 часов. Есть консольный интерфейс.

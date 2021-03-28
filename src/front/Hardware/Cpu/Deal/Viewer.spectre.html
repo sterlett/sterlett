@@ -1,0 +1,20 @@
+
+<div {...$$restProps}>
+    {#await dealListLoadPromise}
+    <div class="loading loading-lg"></div>
+    {:then}
+    <Table
+        headerItems={tableHeader}
+        items={cpuDeals}
+        emptyMessage={tableEmptyMessage}
+        isStriped={tableIsStriped}
+        nameFormatter={tableNameFormatter}
+        ratioFormatter={tableRatioFormatter}
+        priceFormatter={tablePriceFormatter}
+    />
+    {:catch}
+    <div>
+        {$format('Unable to fetch CPU deals.')}
+    </div>
+    {/await}
+</div>

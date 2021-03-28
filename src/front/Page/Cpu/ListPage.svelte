@@ -2,21 +2,17 @@
 <script type="text/javascript">
     import { format } from 'svelte-i18n';
 
-    import { onMount } from 'svelte';
-    import { dispatchPageShownEvent } from '@Page/ShowTrigger.js';
+    import { APPLICATION_PAGE_TITLE } from '@./Context';
+    import { getContext } from 'svelte';
 
-    import CpuViewer from '@Hardware/Cpu/Viewer.svelte';
+    import CpuViewer from '@Hardware/Cpu/Viewer';
 
     export let location;
 
-    let selfElement;
-    const title = $format('CPUs');
+    const title = $format('CPU ratio');
 
-    onMount(
-        function () {
-            dispatchPageShownEvent(selfElement);
-        },
-    );
+    const pageTitleStore = getContext(APPLICATION_PAGE_TITLE);
+    pageTitleStore.set(title);
 </script>
 
 <template src="./ListPage.spectre.html"></template>

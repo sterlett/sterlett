@@ -3,7 +3,7 @@
 /*
  * This file is part of the Sterlett project <https://github.com/sterlett/sterlett>.
  *
- * (c) 2020 Pavel Petrov <itnelo@gmail.com>.
+ * (c) 2020-2021 Pavel Petrov <itnelo@gmail.com>.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -24,6 +24,23 @@ use Traversable;
  */
 class Parser
 {
+    /**
+     * Base URI to make an absolute link from the relative path
+     *
+     * @var string
+     */
+    private string $imageBaseUri;
+
+    /**
+     * Parser constructor.
+     *
+     * @param string $imageBaseUri Base URI to make an absolute link from the relative path
+     */
+    public function __construct(string $imageBaseUri)
+    {
+        $this->imageBaseUri = $imageBaseUri;
+    }
+
     /**
      * Returns an iterable collection of hardware item DTOs
      *
@@ -89,6 +106,15 @@ class Parser
             }
 
             $hardwareItem->setPageUri($pageUriNormalized);
+
+            $imageUriNormalized = isset($dataRecord['image']) ? (string) $dataRecord['image'] : null;
+
+            if (null === $imageUriNormalized) {
+                throw new RuntimeException('Unable to parse hardware image URI. Unexpected data format.');
+            }
+
+            $imageUriAbsolute = $this->imageBaseUri . $imageUriNormalized;
+            $hardwareItem->setImageUri($imageUriAbsolute);
 
             yield $hardwareItem;
         }

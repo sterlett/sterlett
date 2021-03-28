@@ -3,7 +3,7 @@
 /*
  * This file is part of the Sterlett project <https://github.com/sterlett/sterlett>.
  *
- * (c) 2020 Pavel Petrov <itnelo@gmail.com>.
+ * (c) 2020-2021 Pavel Petrov <itnelo@gmail.com>.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -32,6 +32,13 @@ final class Price implements PriceInterface
      * @var string|null
      */
     private ?string $hardwareName;
+
+    /**
+     * Hardware image
+     *
+     * @var string|null
+     */
+    private ?string $hardwareImage;
 
     /**
      * Seller (store) identifier, to which price record belongs to
@@ -66,11 +73,15 @@ final class Price implements PriceInterface
      */
     public function __construct()
     {
+        // an external data payload.
         $this->hardwareName     = null;
+        $this->hardwareImage    = null;
         $this->sellerIdentifier = null;
-        $this->amount           = null;
-        $this->precision        = null;
-        $this->currency         = null;
+
+        // real price fields.
+        $this->amount    = null;
+        $this->precision = null;
+        $this->currency  = null;
     }
 
     /**
@@ -95,6 +106,30 @@ final class Price implements PriceInterface
     public function setHardwareName(string $hardwareName): void
     {
         $this->hardwareName = $hardwareName;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getHardwareImage(): string
+    {
+        if (!is_string($this->hardwareImage)) {
+            throw new LogicException('Hardware image for the price DTO must be set explicitly.');
+        }
+
+        return $this->hardwareImage;
+    }
+
+    /**
+     * Sets hardware image
+     *
+     * @param string $hardwareImage Hardware image
+     *
+     * @return void
+     */
+    public function setHardwareImage(string $hardwareImage): void
+    {
+        $this->hardwareImage = $hardwareImage;
     }
 
     /**

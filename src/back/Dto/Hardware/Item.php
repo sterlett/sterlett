@@ -3,7 +3,7 @@
 /*
  * This file is part of the Sterlett project <https://github.com/sterlett/sterlett>.
  *
- * (c) 2020 Pavel Petrov <itnelo@gmail.com>.
+ * (c) 2020-2021 Pavel Petrov <itnelo@gmail.com>.
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -42,6 +42,13 @@ final class Item
      * @var string|null
      */
     private ?string $pageUri;
+
+    /**
+     * URI for the item preview image
+     *
+     * @var string|null
+     */
+    private ?string $imageUri;
 
     /**
      * Item constructor.
@@ -127,5 +134,31 @@ final class Item
     public function setPageUri(string $pageUri): void
     {
         $this->pageUri = $pageUri;
+    }
+
+    /**
+     * Returns URI for the item preview image
+     *
+     * @return string
+     */
+    public function getImageUri(): string
+    {
+        if (!is_string($this->imageUri)) {
+            throw new LogicException('Image URI for the hardware item DTO must be set explicitly.');
+        }
+
+        return $this->imageUri;
+    }
+
+    /**
+     * Sets URI for the item preview image
+     *
+     * @param string $imageUri Image URI
+     *
+     * @return void
+     */
+    public function setImageUri(string $imageUri): void
+    {
+        $this->imageUri = $imageUri;
     }
 }
