@@ -1,18 +1,41 @@
 
 services:
     app.hardprice.browser.navigator:
-        alias: 'app.hardprice.browser.navigator.vk'
+        alias: 'app.hardprice.browser.navigator.strategy'
 
-    app.hardprice.browser.navigator.vk:
+    app.hardprice.browser.navigator.strategy:
+        class: Sterlett\HardPrice\Browser\Navigator\StrategyNavigator
+        arguments:
+            - !tagged_locator
+                tag: 'hardprice.navigation_strategy'
+                index_by: 'strategyName'
+            - '%hardprice.referrer%'
+
+    app.hardprice.browser.navigator.strategy.vk:
         class: Sterlett\HardPrice\Browser\Navigator\ReferrerNavigator
         arguments:
             - '@app.browser.tab.actualizer'
             - 'https://vk.com/hardprice'
             - '//div[contains(@class, "page_info_wrap")]//a[contains(@href, "hardprice.ru")]'
+        tags:
+            -   name: 'hardprice.navigation_strategy'
+                strategyName: 'vk'
 
-    app.hardprice.browser.navigator.google:
+    app.hardprice.browser.navigator.strategy.google:
         class: Sterlett\HardPrice\Browser\Navigator\ReferrerNavigator
         arguments:
             - '@app.browser.tab.actualizer'
             - 'https://google.ru/search?q=hardprice+процессоры'
             - '//span[contains(., "category › cpu")]'
+        tags:
+            -   name: 'hardprice.navigation_strategy'
+                strategyName: 'google'
+
+    app.hardprice.browser.navigator.strategy.direct:
+        class: Sterlett\HardPrice\Browser\Navigator\DirectNavigator
+        arguments:
+            - '@app.browser.tab.actualizer'
+            - '%hardprice.authentication.base_uri%'
+        tags:
+            -   name: 'hardprice.navigation_strategy'
+                strategyName: 'direct'

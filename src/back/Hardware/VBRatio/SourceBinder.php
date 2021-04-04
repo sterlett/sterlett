@@ -278,7 +278,7 @@ class SourceBinder
         // first position, where will be at least 1 non-stop word will be considered as an actual match.
         // transcription: a stop word (e.g. "i7", "ryzen") cost 1024 points, a unique one (e.g. "3700XT") - 1049600.
         // to ensure that the relation between benchmark result and price record is correct, the item name from the
-        // price record MUST score at least 1025 points (it would mean they have a unique model number in common).
+        // price record MUST score at least 1049600 points (it would mean they have a unique model number in common).
         // Example:
         //          Intel    Core    i9    10850K    BOX    Comet    Lake
         //          ^        ^       ^     ^         ^      ^        ^
@@ -405,7 +405,7 @@ class SourceBinder
     /**
      * Returns item name that has been extracted from the collection of hardware prices
      *
-     * @param PriceInterface[] $prices A ready-only array of hardware prices (downcasted from iterable)
+     * @param PriceInterface[] $prices A read-only array of hardware prices (downcasted from iterable)
      *
      * @return string
      */

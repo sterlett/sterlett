@@ -109,6 +109,11 @@ parameters:
     # Adds M..N additional time between requests for scraping actions (in seconds; chosen randomly on each iteration)
     hardprice.requests_delay_min: 30.0
     hardprice.requests_delay_max: 60.0
+    # Referrer to access a website (available options: 'vk', 'google', 'direct')
+    # 'vk' - accessing a website using a link in the VKontakte social media
+    # 'google' - accessing a website using a link in the search engine results
+    # 'direct' - accessing a website directly, by the browser's address bar
+    hardprice.referrer: 'vk'
     # Store mappings
     # https://hardprice.ru/api/stores
     hardprice.stores:

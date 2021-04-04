@@ -301,9 +301,9 @@ class BrowsingProvider implements ProviderInterface
      *
      * @param BrowserContext $browserContext Holds browser state and a driver reference to perform actions
      *
-     * @return PromiseInterface<null>|null
+     * @return PromiseInterface<null>
      */
-    private function releaseDriver(BrowserContext $browserContext): ?PromiseInterface
+    private function releaseDriver(BrowserContext $browserContext): PromiseInterface
     {
         $browserOptions   = $browserContext->getOptions();
         $isCleanerEnabled = $browserOptions['cleaner']['is_enabled'];
