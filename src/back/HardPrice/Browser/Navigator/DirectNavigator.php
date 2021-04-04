@@ -27,6 +27,7 @@ use Throwable;
  * Accessing a website with prices directly, without any referrers
  *
  * todo: extract duplicate logic to a separate code unit (see ReferrerNavigator)
+ * todo: make sure to open it in the second tab (see PriceAccumulator::openBrowserTab)
  */
 class DirectNavigator implements NavigatorInterface
 {
