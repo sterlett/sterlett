@@ -41,8 +41,8 @@ services:
         lazy: true
         arguments:
             - '@app.browser.tab.actualizer'
-            - 'https://www.cy-pr.com/a/hardprice.ru'
-            - '//a[contains(@href, "//hardprice.ru")]'
+            - 'https://cy-pr.com/a/hardprice.ru'
+            - '//a[contains(@id, "maind")]'
         tags:
             -   name: 'hardprice.navigation_strategy'
                 strategyName: 'cy-pr'
