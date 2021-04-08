@@ -11,8 +11,10 @@ services:
                 index_by: 'strategyName'
             - '%hardprice.referrer%'
 
+    # mixin: vk
     app.hardprice.browser.navigator.strategy.vk:
         class: Sterlett\HardPrice\Browser\Navigator\ReferrerNavigator
+        lazy: true
         arguments:
             - '@app.browser.tab.actualizer'
             - 'https://vk.com/hardprice'
@@ -21,8 +23,10 @@ services:
             -   name: 'hardprice.navigation_strategy'
                 strategyName: 'vk'
 
+    # mixin: google
     app.hardprice.browser.navigator.strategy.google:
         class: Sterlett\HardPrice\Browser\Navigator\ReferrerNavigator
+        lazy: true
         arguments:
             - '@app.browser.tab.actualizer'
             - 'https://google.ru/search?q=hardprice+процессоры'
@@ -31,18 +35,21 @@ services:
             -   name: 'hardprice.navigation_strategy'
                 strategyName: 'google'
 
-    app.hardprice.browser.navigator.strategy.yareviews:
+    # mixin: cy-pr
+    app.hardprice.browser.navigator.strategy.cy_pr:
         class: Sterlett\HardPrice\Browser\Navigator\ReferrerNavigator
+        lazy: true
         arguments:
             - '@app.browser.tab.actualizer'
-            - 'https://yareviews.ru/s/hardprice.ru'
-            - '//a[contains(@href, "hardprice.ru")]'
+            - 'https://www.cy-pr.com/a/hardprice.ru'
+            - '//a[contains(@href, "//hardprice.ru")]'
         tags:
             -   name: 'hardprice.navigation_strategy'
-                strategyName: 'yareviews'
+                strategyName: 'cy-pr'
 
     app.hardprice.browser.navigator.strategy.direct:
         class: Sterlett\HardPrice\Browser\Navigator\DirectNavigator
+        lazy: true
         arguments:
             - '@app.browser.tab.actualizer'
             - '%hardprice.authentication.base_uri%'
