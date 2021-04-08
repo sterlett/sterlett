@@ -80,7 +80,7 @@ class Analyser
         $statementSelect = <<<SQL
             SELECT DISTINCT
                 b.`hardware_name`,
-                FIRST_VALUE(p.`hardware_image_uri`) over `sw_seller_latest_prices` AS 'hardware_image_uri',
+                FIRST_VALUE(p.`hardware_image_uri`) OVER `sw_seller_latest_prices` AS 'hardware_image_uri',
                 p.`seller_name`,
                 FIRST_VALUE(p.`price_amount`) OVER `sw_seller_latest_prices` AS 'price_amount',
                 FIRST_VALUE(p.`currency_label`) OVER `sw_seller_latest_prices` AS 'currency_label',
@@ -91,10 +91,11 @@ class Analyser
                 `hardware_price_cpu` p
             INNER JOIN `hardware_benchmark_hardware_price` b2p ON p.`hardware_name` = b2p.`price_hardware_name`
             INNER JOIN `hardware_benchmark_passmark` b ON b.`hardware_name` = b2p.`benchmark_hardware_name`
-            INNER JOIN `hardware_ratio` r ON r.`hardware_name` = b2p.`benchmark_hardware_name`
             WHERE
                 -- the most recent price records
                 p.`created_at` > (SELECT DATE(MAX(created_at)) FROM `hardware_price_cpu`)
+                -- the most recent benchmarks
+                AND b.`created_at` > (SELECT DATE(MAX(created_at)) FROM `hardware_benchmark_passmark`)
                 -- PassMark range of interest
                 AND b.`value` > ?
                 AND b.`value` < ?

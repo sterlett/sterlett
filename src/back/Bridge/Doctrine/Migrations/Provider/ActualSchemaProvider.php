@@ -191,6 +191,10 @@ class ActualSchemaProvider implements SchemaProviderInterface
         );
 
         $benchmarkPassMarkTable->setPrimaryKey(['id']);
+
+        $indexCreatedAtName = $this->tableBenchmarkPassMarkName . '_created_at_ix';
+        $benchmarkPassMarkTable->addIndex(['created_at'], $indexCreatedAtName);
+
         $benchmarkPassMarkTable->setComment('Hardware benchmark record (PassMark)');
 
         // hardware V/B (Price/Performance) ratio.
