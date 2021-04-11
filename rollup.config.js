@@ -44,6 +44,10 @@ export default {
                         replacement: '@./Deserialization',
                     },
                     {
+                        find: '@Notification',
+                        replacement: '@./Notification',
+                    },
+                    {
                         find: '@Hardware',
                         replacement: '@./Hardware',
                     },

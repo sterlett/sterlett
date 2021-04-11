@@ -47,6 +47,17 @@ services:
             -   name: 'hardprice.navigation_strategy'
                 strategyName: 'cy-pr'
 
+    # mixin: yareviews
+    app.hardprice.browser.navigator.strategy.yareviews:
+        class: Sterlett\HardPrice\Browser\Navigator\ReferrerNavigator
+        arguments:
+            - '@app.browser.tab.actualizer'
+            - 'https://yareviews.ru/s/hardprice.ru'
+            - '//a[contains(@href, "hardprice.ru")]'
+        tags:
+            -   name: 'hardprice.navigation_strategy'
+                strategyName: 'yareviews'
+
     app.hardprice.browser.navigator.strategy.direct:
         class: Sterlett\HardPrice\Browser\Navigator\DirectNavigator
         lazy: true

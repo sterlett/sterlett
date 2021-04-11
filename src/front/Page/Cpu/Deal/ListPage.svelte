@@ -7,6 +7,7 @@
     import { writable } from 'svelte/store';
     import { getContext, setContext } from 'svelte';
 
+    import Toast from '@Notification/Toast';
     import DealRank from '@Hardware/Rank';
     import DealViewer from '@Hardware/Cpu/Deal/Viewer';
 

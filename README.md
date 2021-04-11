@@ -184,6 +184,7 @@ This one is currently at the development stage :honeybee:.
 
 :black_square_button: Microservice: GPU list \
 :black_square_button: Microservice: GPU deals \
+:black_square_button: Price retrieving algorithm stability \
 :black_square_button: 1 year of stable work in production
 
 ## See also
